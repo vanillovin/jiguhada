@@ -5,7 +5,51 @@
   text-align: center;
 }
 
-.logo {
+body {
+  font-family: 'Pretendard', sans-serif;
+  margin: 0;
+  display: flex;
+  place-items: center;
+  /* min-width: 320px;
+  min-height: 100vh; */
+  @apply mt-20;
+}
+
+.hr-lines-con {
+  position: relative;
+  padding: 10px 0px;
+  overflow: hidden;
+  text-align: center;
+}
+.hr-lines-con > .hr-lines {
+  display: inline;
+  color: rgb(158, 158, 158);
+  font-size: 12px;
+}
+.hr-lines-con > .hr-lines::before {
+  display: block;
+  content: '';
+  position: absolute;
+  border-bottom: 1px solid rgb(240, 240, 240);
+  top: 50%;
+  left: 0;
+  width: 140px;
+}
+.hr-lines-con > .hr-lines::after {
+  content: '';
+  position: absolute;
+  border-bottom: 1px solid rgb(240, 240, 240);
+  top: 50%;
+  right: 0;
+  width: 140px;
+}
+
+button:hover {
+  opacity: 0.7;
+  transition: all 0.1s linear;
+}
+
+/* .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
@@ -38,4 +82,4 @@
 
 .read-the-docs {
   color: #888;
-}
+} */
