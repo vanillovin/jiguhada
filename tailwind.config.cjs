@@ -13,6 +13,7 @@ module.exports = {
         'gray-2': '#f2f2f2',
         'gray-3': '#adadad',
         'gray-4': '#686868',
+        'gray-5': '#3d3d3d',
       },
       screens: {
         mobile: '375px',
@@ -20,5 +21,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
 };
