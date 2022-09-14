@@ -4,14 +4,29 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Noto Sans KR', sans-serif;
+  /* display: flex;
+  place-items: center;
+  width: 100vw;
+  min-width: 320px;
+  min-height: 100vh; */
   margin: 0;
   display: flex;
   place-items: center;
-  /* min-width: 320px;
-  min-height: 100vh; */
-  @apply mt-20;
+}
+
+#root {
+  width: 100vw;
+  padding: 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  @apply mt-28;
 }
 
 .hr-lines-con {
