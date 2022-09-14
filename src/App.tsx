@@ -1,19 +1,23 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import './App.css';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
-import Nav from './components/Nav';
+import NavigationBar from './components/NavigationBar';
 import UserInfo from './pages/UserInfo';
+import Board from './pages/Board';
+import Settings from './components/userinfo/Settings';
 
 function App() {
   return (
     <BrowserRouter>
-      <Nav />
+      <NavigationBar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/user/info/:id" element={<UserInfo />} />
+        <Route path="/board" element={<Board />} />
+        <Route path="/user/:id" element={<UserInfo />}>
+          <Route path="settings" element={<Settings />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
