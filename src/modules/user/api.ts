@@ -27,7 +27,7 @@ export const checkDuplicateIdRequest = async (id: string): Promise<any> => {
   }
 };
 
-export const checkDuplicateNicknameIdRequest = async (
+export const checkDuplicateNicknameRequest = async (
   nickname: string
 ): Promise<any> => {
   try {
@@ -77,5 +77,63 @@ export const signupRequest = async (data: SignupData) => {
     ).json();
   } catch (e) {
     throw new Error(`회원가입에 실패했습니다. ${e}`);
+  }
+};
+
+export const updateNicknameRequest = async (
+  token: string,
+  nickname: string
+) => {
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${API_END_POINT}/updateNickname`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ nickname }),
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`닉네임 수정을 실패했습니다. ${e}`);
+  }
+};
+
+export const updateImgRequest = async (token: string, formData: FormData) => {
+  const headers: HeadersInit = new Headers();
+  headers.set(
+    'Access-Control-Allow-Origin',
+    `${import.meta.env.VITE_APP_LOCAL}`
+  );
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  headers.set('Access-Control-Allow-Credentials', 'true');
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${API_END_POINT}/updateImg`, {
+        method: 'POST',
+        body: formData,
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`이미지 파일 수정을 실패했습니다. ${e}`);
+  }
+};
+
+export const updatePasswordRequest = async (
+  token: string,
+  data: { nowpassword: string; newpassword: string }
+) => {
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${API_END_POINT}/updatePassword`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`비밀번호 변경을 실패했습니다. ${e}`);
   }
 };

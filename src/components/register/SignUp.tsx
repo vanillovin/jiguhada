@@ -3,7 +3,7 @@ import { useRecoilState } from 'recoil';
 import useInput from '../../hooks/useInput';
 import {
   checkDuplicateIdRequest,
-  checkDuplicateNicknameIdRequest,
+  checkDuplicateNicknameRequest,
   imageUploadRequest,
   signupRequest,
 } from '../../modules/user/api';
@@ -75,7 +75,7 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
         alert(!data ? '사용 가능한 아이디입니다' : '중복된 아이디입니다');
       });
     } else if (type === 'nickname') {
-      checkDuplicateNicknameIdRequest(nickname.value).then((data) => {
+      checkDuplicateNicknameRequest(nickname.value).then((data) => {
         setDuplicateCheckedNickname(!data);
         setSignupInputsValueOrError('error', 'id', '');
         alert(!data ? '사용 가능한 닉네임입니다' : '중복된 닉네임입니다');
@@ -203,10 +203,9 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
                 placeholder={placeholder}
                 disabled={id === 'profileImage'}
                 className={`w-full border-b mb-1 outline-none px-1 py-2 placeholder-gray-300 placeholder:text-sm bg-transparent
-                        ${signupInputs[id].error && 'border-b-red-400'} ${
-                  id === 'profileImage' && 'text-gray-4'
-                }
-                      `}
+                  ${signupInputs[id].error && 'border-b-red-400'} 
+                  ${id === 'profileImage' && 'text-gray-4'}
+                `}
               />
               <p className="text-sm text-red-400 mt-1">
                 {id === 'pwCheck' &&
