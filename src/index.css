@@ -26,7 +26,7 @@ body {
   text-align: center;
   display: flex;
   justify-content: center;
-  @apply mt-28;
+  @apply mt-28 mb-8;
 }
 
 .hr-lines-con {

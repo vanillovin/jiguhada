@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import useInput from '../../hooks/useInput';
 import {
@@ -9,11 +9,6 @@ import {
 } from '../../modules/user/api';
 import { currentUserState } from '../../modules/user/atom';
 import { defaultProfileImage } from '../../pages/Register';
-
-interface SignUpProps {
-  goToHome(): void;
-  setIsRegistered(val: boolean): void;
-}
 
 interface SignupInputs {
   [key: string]: { value: string; error: string };
@@ -27,7 +22,13 @@ const signupInputsData = [
   ['profileImage', 'text', '프로필 사진', '선택된 파일 없음'],
 ];
 
-function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
+function SignUp({
+  goToHome,
+  setIsRegistered,
+}: {
+  goToHome(): void;
+  setIsRegistered(val: boolean): void;
+}) {
   const [_, setCurrentUser] = useRecoilState(currentUserState);
   const [signupInputs, setSignupInputs] = useState<SignupInputs>({
     id: { value: '', error: '' },
@@ -37,12 +38,12 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
     profileImage: { value: '', error: '' },
   });
   const { id, nickname, pw, pwCheck, profileImage } = signupInputs;
-  const { value: duplicateChecked, setValue: setDuplicateChecked } =
-    useInput(false);
+  const { value: duplicateCheckedId, setValue: setDuplicateCheckedId } =
+    useInput('');
   const {
     value: duplicateCheckedNickname,
     setValue: setDuplicateCheckedNickname,
-  } = useInput(false);
+  } = useInput('');
   const { value: fileDataUrl, setValue: setFileDataUrl } = useInput('');
 
   const setSignupInputsValueOrError = (
@@ -59,25 +60,33 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
     }));
   };
 
-  const handleCheckDuplicateId = (type: string) => {
+  const handleCheckDuplicateIdOrNickname = (type: 'id' | 'nickname') => {
     if (type === 'id') {
-      if (id.value.trim().length < 4) {
+      if (!/^[a-z]+[a-z0-9]{3,16}$/g.test(id.value)) {
         setSignupInputsValueOrError(
           'error',
           'id',
-          '아이디는 3자 이상 입력해주세요'
+          '영문자로 시작하는 영문자 또는 숫자 4~15자'
         );
         return;
       }
       checkDuplicateIdRequest(id.value).then((data) => {
-        setDuplicateChecked(!data);
+        setDuplicateCheckedId(!data ? id.value : '');
         setSignupInputsValueOrError('error', 'id', '');
         alert(!data ? '사용 가능한 아이디입니다' : '중복된 아이디입니다');
       });
-    } else if (type === 'nickname') {
+    } else {
+      if (nickname.value.length < 2) {
+        setSignupInputsValueOrError(
+          'error',
+          'nickname',
+          '닉네임은 2자 이상 입력해 주세요'
+        );
+        return;
+      }
       checkDuplicateNicknameRequest(nickname.value).then((data) => {
-        setDuplicateCheckedNickname(!data);
-        setSignupInputsValueOrError('error', 'id', '');
+        setDuplicateCheckedNickname(!data ? nickname.value : '');
+        setSignupInputsValueOrError('error', 'nickname', '');
         alert(!data ? '사용 가능한 닉네임입니다' : '중복된 닉네임입니다');
       });
     }
@@ -94,21 +103,29 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
     }));
   };
 
-  const handleSignUp = async () => {
-    // if (duplicateChecked) return;
-
-    // if (
-    //   !id.value.length ||
-    //   !nickname.value.length ||
-    //   !pw.value.length ||
-    //   !pwCheck.value.length
-    // ) {
-    //   return;
-    // }
-
-    // validation - 아이디, 닉네임, 비밀번호, 프로필 사진 첨부
-    // 비밀번호 =  비밀번호 확인
-
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!duplicateCheckedId || duplicateCheckedId !== id.value) {
+      alert('아이디 중복 확인을 해주세요');
+      return;
+    }
+    if (
+      !duplicateCheckedNickname ||
+      duplicateCheckedNickname !== nickname.value
+    ) {
+      alert('닉네임 중복 확인을 해주세요');
+      return;
+    }
+    if (!/^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z]{5,16}$/.test(pw.value)) {
+      setSignupInputsValueOrError('error', 'pw', '6~16자 영문, 숫자 조합');
+      return;
+    } else {
+      setSignupInputsValueOrError('error', 'pw', '');
+    }
+    if (pw.value !== pwCheck.value) {
+      alert('비밀번호가 일치하지 않습니다');
+      return;
+    }
     signupRequest({
       username: id.value,
       nickname: nickname.value,
@@ -152,7 +169,7 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
   };
 
   return (
-    <>
+    <form onSubmit={handleSignUp}>
       {signupInputsData.map(([id, type, title, placeholder]) => (
         <div key={id} className="flex flex-col items-start">
           {id !== 'pwCheck' && (
@@ -183,9 +200,8 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
               )}
             </div>
           )}
-
           <div className="w-full flex items-center">
-            <div className="flex flex-col items-start w-full">
+            <div className="flex items-center w-full">
               <input
                 id={id}
                 type={type}
@@ -199,6 +215,7 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
                       }`
                     : signupInputs[id].value
                 }
+                required
                 onChange={onChangeSignupInputs}
                 placeholder={placeholder}
                 disabled={id === 'profileImage'}
@@ -207,49 +224,50 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
                   ${id === 'profileImage' && 'text-gray-4'}
                 `}
               />
-              <p className="text-sm text-red-400 mt-1">
-                {id === 'pwCheck' &&
-                signupInputs['pw'].value !== signupInputs['pwCheck'].value
-                  ? '비밀번호가 일치하지 않습니다.'
-                  : signupInputs[id].error}
-              </p>
-            </div>
 
-            {(id === 'id' || id === 'nickname') && (
-              <button
-                className="ml-2 bg-gray-400 w-24 text-sm rounded-lg py-1 text-white"
-                onClick={() => handleCheckDuplicateId(id)}
-              >
-                중복확인
-              </button>
-            )}
-            {id === 'profileImage' && (
-              // <form encType="multipart/form-data">
-              <>
-                <label
-                  htmlFor="attach-file"
-                  className={`cursor-pointer ml-2 bg-gray-400 w-24 text-sm rounded-lg py-1 text-white`}
+              {(id === 'id' || id === 'nickname') && (
+                <button
+                  type="button"
+                  className="ml-2 bg-gray-400 w-24 text-sm rounded-lg py-1 text-white"
+                  onClick={() => handleCheckDuplicateIdOrNickname(id)}
                 >
-                  사진선택
-                </label>
-                <input
-                  id="attach-file"
-                  name="imgFile"
-                  type="file"
-                  accept="image*"
-                  // 선택을 허가하는 파일의 종류를 MIME Type으로 지정한다. 여러 개의 MT을 지정하는 경우엔 콤마 구분자로 지정함
-                  onChange={onFileChange}
-                  className="hidden"
-                  // multiple 복수의 파일 선택 가능
-                />
-              </>
-            )}
+                  중복확인
+                </button>
+              )}
+              {id === 'profileImage' && (
+                // <form encType="multipart/form-data">
+                <>
+                  <label
+                    htmlFor="attach-file"
+                    className={`cursor-pointer ml-2 bg-gray-400 w-24 text-sm rounded-lg py-1 text-white`}
+                  >
+                    사진선택
+                  </label>
+                  <input
+                    id="attach-file"
+                    name="imgFile"
+                    type="file"
+                    accept="image*"
+                    // 선택을 허가하는 파일의 종류를 MIME Type으로 지정한다. 여러 개의 MT을 지정하는 경우엔 콤마 구분자로 지정함
+                    onChange={onFileChange}
+                    className="hidden"
+                    // multiple 복수의 파일 선택 가능
+                  />
+                </>
+              )}
+            </div>
           </div>
+          <p className="text-sm tracking-tighter text-red-400">
+            {id === 'pwCheck' &&
+            pwCheck.value &&
+            signupInputs['pw'].value !== signupInputs['pwCheck'].value
+              ? '비밀번호가 일치하지 않습니다.'
+              : signupInputs[id].error}
+          </p>
         </div>
       ))}
       <button
         type="submit"
-        onClick={handleSignUp}
         className="w-full bg-jghd-blue text-white py-2 mt-4"
       >
         가입하기
@@ -267,13 +285,14 @@ function SignUp({ goToHome, setIsRegistered }: SignUpProps) {
       <div className="mt-6">
         계정이 이미 있으신가요?{' '}
         <button
+          type="submit"
           className="text-jghd-green font-bold"
           onClick={() => setIsRegistered(true)}
         >
           로그인
         </button>
       </div>
-    </>
+    </form>
   );
 }
 
