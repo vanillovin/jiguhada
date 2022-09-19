@@ -35,8 +35,11 @@ function Board() {
             <button className="bg-gray-2 w-24">검색</button>
           </form>
 
-          <ul className="ml-1 mb-4 flex items-center">
-            <li>최신순</li>|<li>인기순</li>|<li>조회순</li>
+          <ul className="mb-4 flex items-center">
+            <li className="cursor-pointer p-1 mx-1 font-semibold">최신순</li>|
+            <li className="cursor-pointer p-1 mx-1">인기순</li>|
+            <li className="cursor-pointer p-1 mx-1">댓글순</li>|
+            <li className="cursor-pointer p-1 mx-1">조회순</li>
           </ul>
 
           <ul className="w-full">
@@ -51,7 +54,7 @@ function Board() {
             {/* {boardList.map()} */}
             <li className="w-full flex items-center py-3 border-b text-sm md:text-base">
               <p className="w-1/12 text-center font-medium">{'10001'}</p>
-              <p className="w-5/12 leading-5">
+              <p className="w-5/12">
                 [{'category'}]
                 {'가나다라마바사아자차카타파하가나다라마바사아자차카타파하'}
               </p>

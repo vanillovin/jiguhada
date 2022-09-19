@@ -39,8 +39,8 @@ function NavigationBar() {
             </li>
           </>
         ) : (
-          <li className="px-3 md:px-4 ml-3 bg-black text-white rounded-full hover:opacity-80 transition-all">
-            <Link to={`/register`}>로그인</Link>
+          <li className="p-1 ml-3 tracking-tight">
+            <Link to={`/register`}>로그인·회원가입</Link>
           </li>
         )}
       </ul>

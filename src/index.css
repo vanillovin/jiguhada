@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -23,7 +22,6 @@ body {
 #root {
   width: 100vw;
   padding: 0;
-  text-align: center;
   display: flex;
   justify-content: center;
   @apply mt-28 mb-8;
