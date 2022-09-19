@@ -1,8 +1,14 @@
 import React from 'react';
-import { AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
+import { useQuery } from 'react-query';
+import { AiOutlineComment, AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
+import { getBoardList } from '../modules/board/api';
+import { getBoardCatText, getDateText } from '../utils';
 
 function Board() {
-  return (
+  const { isLoading, data: boardList } = useQuery('boardList', getBoardList);
+  console.log(boardList);
+
+  return !isLoading ? (
     <section className="w-full max-w-6xl px-10">
       <div className="bg-gray-2 text-start p-6">
         <h1 className="font-bold text-2xl">이야기를 나눠요</h1>
@@ -12,10 +18,10 @@ function Board() {
       <div className="flex flex-col md:flex-row mt-5">
         <ul className="flex flex-row md:flex-col border items-start md:p-5 md:h-44 md:mr-5">
           <li>전체</li>
-          <li>자유</li>
           <li>비건</li>
           <li>환경</li>
           <li>Q{'&'}A</li>
+          <li>자유게시판</li>
         </ul>
 
         <div className="flex flex-col flex-1 items-start">
@@ -45,36 +51,48 @@ function Board() {
           <ul className="w-full">
             <li className="w-full flex items-center py-2 border-b text-sm md:text-base font-semibold">
               <p className="w-1/12 text-center">글번호</p>
-              <p className="w-5/12 text-center">제목</p>
+              <p className="w-4/12 text-center">제목</p>
               <p className="w-2/12 text-center">글쓴이</p>
               <p className="w-2/12 text-center">작성일</p>
+              <p className="w-1/12 text-center">댓글수</p>
               <p className="w-1/12 text-center">조회수</p>
               <p className="w-1/12 text-center">좋아요수</p>
             </li>
-            {/* {boardList.map()} */}
-            <li className="w-full flex items-center py-3 border-b text-sm md:text-base">
-              <p className="w-1/12 text-center font-medium">{'10001'}</p>
-              <p className="w-5/12">
-                [{'category'}]
-                {'가나다라마바사아자차카타파하가나다라마바사아자차카타파하'}
-              </p>
-              <p className="w-2/12 text-center">{'그을쓰으니이이잉'}</p>
-              <p className="w-2/12 text-center tracking-tighter text-gray-4">
-                {'2022-09-19 10:26'}
-              </p>
-              <p className="w-1/12 flex items-center justify-center">
-                <AiOutlineLike size={15} />{' '}
-                <span className="ml-1 text-gray-4">{'1000'}</span>
-              </p>
-              <p className="w-1/12 flex items-center justify-center">
-                <AiOutlineEye size={15} />{' '}
-                <span className="ml-1 text-gray-4">{'104'}</span>
-              </p>
-            </li>
+            {boardList?.boardItemList.map((board: any) => (
+              <li
+                key={board.boardId}
+                className="w-full flex items-center py-3 border-b text-sm md:text-base"
+              >
+                <p className="w-1/12 text-center text-gray-4">
+                  {board.boardId}
+                </p>
+                <p className="w-4/12 font-medium">
+                  [{getBoardCatText(board.category)}] {board.boardTitle}
+                </p>
+                <p className="w-2/12 text-center">{board.writer}</p>
+                <p className="w-2/12 text-center tracking-tighter text-gray-4">
+                  {getDateText(board.createDate)}
+                </p>
+                <p className="w-1/12 flex items-center justify-center">
+                  <AiOutlineComment size={15} />{' '}
+                  <span className="ml-1 text-gray-4">{board.commentCount}</span>
+                </p>
+                <p className="w-1/12 flex items-center justify-center">
+                  <AiOutlineLike size={15} />{' '}
+                  <span className="ml-1 text-gray-4">{board.likeCount}</span>
+                </p>
+                <p className="w-1/12 flex items-center justify-center">
+                  <AiOutlineEye size={15} />{' '}
+                  <span className="ml-1 text-gray-4">{board.viewCount}</span>
+                </p>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
     </section>
+  ) : (
+    <div>Loading...</div>
   );
 }
 
