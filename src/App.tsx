@@ -7,6 +7,8 @@ import UserInfo from './pages/UserInfo';
 import Board from './pages/Board';
 import Settings from './components/userinfo/Settings';
 
+import Editor from './components/Editor';
+
 function App() {
   return (
     <BrowserRouter>
@@ -15,6 +17,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/board" element={<Board />} />
+        <Route path="/board/new" element={<Editor />} />
         <Route path="/user/:id" element={<UserInfo />}>
           <Route path="settings" element={<Settings />} />
         </Route>
