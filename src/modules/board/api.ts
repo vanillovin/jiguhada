@@ -12,12 +12,11 @@ headers.set('Access-Control-Allow-Credentials', 'true');
 export const getBoardList = async (
   params: BoardListParams
 ): Promise<BoardList> => {
-  const { query, page, order, category } = params;
-
+  const { query, page, order, category, searchType } = params;
   try {
     return await (
       await fetch(
-        `${API_END_POINT}/list?query=${query}&page=${page}&order=${order}&category=${category}`,
+        `${API_END_POINT}/list?query=${query}&page=${page}&order=${order}&category=${category}&searchType=${searchType}`,
         { headers }
       )
     ).json();

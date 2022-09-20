@@ -1,9 +1,8 @@
 import { useQuery } from 'react-query';
-import { AiOutlineComment, AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
 import { getBoardList } from '../modules/board/api';
-import { getBoardCatText, getDateText } from '../utils';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { category, order } from '../modules/board/type';
+import { Category, Order, Search } from '../modules/board/type';
+import BoardItem from '../components/board/BoardItem';
 
 function Board() {
   const params = useParams();
@@ -11,25 +10,39 @@ function Board() {
   const navigate = useNavigate();
   const urlSearchParams = new URLSearchParams(location.search);
   const categoryParam = urlSearchParams.get('cat') || '';
-  const queryParam = urlSearchParams.get('q') || '';
+  const queryParam = urlSearchParams.get('query') || '';
   const orderParam = urlSearchParams.get('order') || 'RECENT';
   const pageParam = urlSearchParams.get('page') || 1;
+  const searchTypeParam = urlSearchParams.get('type') || 'TITLE';
 
-  const { isLoading, data: boardList } = useQuery(
-    ['boardList', categoryParam, queryParam, orderParam, pageParam],
+  const { data: boardList } = useQuery(
+    [
+      'boardList',
+      categoryParam,
+      queryParam,
+      orderParam,
+      pageParam,
+      searchTypeParam,
+    ],
     () =>
       getBoardList({
         query: queryParam,
         page: Number(pageParam),
-        order: orderParam as order,
-        category: categoryParam as category,
-        // query: '',
-        // page: 1,
-        // order: 'RECENT',
-        // category: 'VEGAN',
+        order: orderParam as Order,
+        category: categoryParam as Category,
+        searchType: searchTypeParam as Search,
       })
   );
   // console.log('Board boardList', boardList?.boardItemList);
+
+  const clearSearchParams = (name: string | string[]) => () => {
+    if (Array.isArray(name)) {
+      name.forEach((n) => urlSearchParams.delete(n));
+    } else {
+      urlSearchParams.delete(name);
+    }
+    navigate(`${location.pathname}?${urlSearchParams.toString()}`);
+  };
 
   const changeSearchParams =
     (obj: { name: string; value: string } | [string, string][]) => () => {
@@ -43,7 +56,7 @@ function Board() {
       navigate(`${location.pathname}?${urlSearchParams.toString()}`);
     };
 
-  return !isLoading ? (
+  return (
     <section className="w-full max-w-6xl px-10">
       <div className="bg-gray-2 text-start p-6">
         <h1 className="font-bold text-2xl">이야기를 나눠요</h1>
@@ -78,31 +91,59 @@ function Board() {
         <div className="flex flex-col flex-1 items-start">
           <form
             className="flex w-full mb-4"
-            onSubmit={() => console.log('onSubmit!')}
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const keyword = formData.get('keyword') as string;
+              const type = formData.get('type') as string;
+              if (!keyword) {
+                alert('검색어를 입력해 주세요');
+                return;
+              }
+              changeSearchParams([
+                ['query', keyword],
+                ['type', type],
+              ])();
+            }}
           >
-            <select defaultValue="title?" className="border border-r-0 pl-2">
-              <option value="title">제목</option>
-              <option value="content">내용</option>
-              <option value="author">작성자</option>
+            <select
+              name="type"
+              defaultValue="title?"
+              className="border border-r-0 px-2 outline-none"
+            >
+              <option value="TITLE">제목</option>
+              <option value="CONTENT">내용</option>
+              <option value="WRITER">작성자</option>
             </select>
             <input
+              name="keyword"
               className="w-full p-2 outline-none border border-l-0 mr-2"
               placeholder="검색어를 입력해 주세요!"
             />
-            <button className="bg-gray-2 w-24">검색</button>
+            {queryParam && (
+              <button
+                onClick={clearSearchParams(['query', 'type'])}
+                className="bg-red-200 w-24 mr-2"
+              >
+                취소
+              </button>
+            )}
+            <button type="submit" className="bg-gray-2 w-24">
+              검색
+            </button>
           </form>
 
           <ul className="mb-4 flex items-center">
             {[
               ['RECENT', '최신순'],
-              ['VEGAN', '인기순'],
+              ['POPULAR', '인기순'],
               ['COMMENT_COUNT', '댓글순'],
               ['VIEW', '조회순'],
             ].map(([value, name], i) => (
-              <div className="flex items-center p-1 mr-2 text-sm">
+              <div key={value} className="flex items-center p-1 mr-2 text-sm">
                 <span
-                  className={`font-extrabold text-gray-4 mr-1 ${
-                    orderParam === value ? 'text-jghd-green' : ''
+                  className={`font-extrabold mr-1 ${
+                    orderParam === value ? 'text-jghd-green' : 'text-gray-4'
                   }`}
                 >
                   ·
@@ -121,7 +162,7 @@ function Board() {
           </ul>
 
           <ul className="w-full">
-            <li className="w-full flex items-center py-2 border-b text-sm md:text-base font-semibold">
+            <li className="w-full flex items-center py-2 border-b border-black text-sm md:text-base font-semibold">
               <p className="w-1/12 text-center">번호</p>
               <p className="w-4/12 text-center">제목</p>
               <p className="w-2/12 text-center">글쓴이</p>
@@ -130,42 +171,13 @@ function Board() {
               <p className="w-1/12 text-center">조회수</p>
               <p className="w-1/12 text-center">좋아요</p>
             </li>
-            {boardList?.boardItemList &&
-            boardList?.boardItemList?.length > 0 ? (
+            {boardList?.boardItemList && boardList.boardItemList.length > 0 ? (
               boardList?.boardItemList?.map((board, i) => (
-                <li
+                <BoardItem
                   key={board.boardId}
-                  className={`${'border-b'}
-                w-full flex items-center py-3 text-sm md:text-base font-light`}
-                >
-                  <p className="w-1/12 text-center text-gray-4">
-                    {board.boardId}
-                  </p>
-                  <p className="w-4/12 font-normal">
-                    {!categoryParam
-                      ? `[${getBoardCatText(board.category)}]`
-                      : ''}{' '}
-                    {board.boardTitle}
-                  </p>
-                  <p className="w-2/12 text-center">{board.writer}</p>
-                  <p className="w-2/12 text-center tracking-tighter text-gray-4">
-                    {getDateText(board.createDate)}
-                  </p>
-                  <p className="w-1/12 flex items-center justify-center">
-                    <AiOutlineComment color="#6BCB77" size={15} />{' '}
-                    <span className="ml-1 text-gray-4">
-                      {board.commentCount}
-                    </span>
-                  </p>
-                  <p className="w-1/12 flex items-center justify-center">
-                    <AiOutlineEye color="#ff8787" size={15} />{' '}
-                    <span className="ml-1 text-gray-4">{board.likeCount}</span>
-                  </p>
-                  <p className="w-1/12 flex items-center justify-center">
-                    <AiOutlineLike color="#4D96FF" size={15} />{' '}
-                    <span className="ml-1 text-gray-4">{board.viewCount}</span>
-                  </p>
-                </li>
+                  board={board}
+                  categoryParam={categoryParam}
+                />
               ))
             ) : (
               <div className="mt-10 text-center">아직 게시물이 없습니다</div>
@@ -174,8 +186,6 @@ function Board() {
         </div>
       </div>
     </section>
-  ) : (
-    <div>Loading...</div>
   );
 }
 

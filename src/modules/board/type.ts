@@ -1,9 +1,11 @@
-export type category = '' | 'ENVIRONMENT' | 'FREE' | 'VEGAN' | 'QUESTION';
+export type Category = '' | 'ENVIRONMENT' | 'FREE' | 'VEGAN' | 'QUESTION';
 
-export type order = 'RECENT' | 'POPULAR' | 'VIEW' | 'COMMENT_COUNT';
+export type Order = 'RECENT' | 'POPULAR' | 'VIEW' | 'COMMENT_COUNT';
 
-interface BoardItem {
-  category: category;
+export type Search = 'WRITER' | 'CONTENT' | 'TITLE';
+
+export interface BoardItem {
+  category: Category;
   boardId: number;
   boardTitle: string;
   writer: string;
@@ -23,8 +25,9 @@ export interface BoardList {
 export interface BoardListParams {
   query?: string;
   page?: number;
-  order?: order;
-  category?: category;
+  order?: Order;
+  category?: Category;
+  searchType?: Search;
 }
 
 export interface Img {
