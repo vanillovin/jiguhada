@@ -1,12 +1,47 @@
-import React from 'react';
 import { useQuery } from 'react-query';
 import { AiOutlineComment, AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
 import { getBoardList } from '../modules/board/api';
 import { getBoardCatText, getDateText } from '../utils';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { category, order } from '../modules/board/type';
 
 function Board() {
-  const { isLoading, data: boardList } = useQuery('boardList', getBoardList);
-  console.log(boardList);
+  const params = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const urlSearchParams = new URLSearchParams(location.search);
+  const categoryParam = urlSearchParams.get('cat') || '';
+  const queryParam = urlSearchParams.get('q') || '';
+  const orderParam = urlSearchParams.get('order') || 'RECENT';
+  const pageParam = urlSearchParams.get('page') || 1;
+
+  const { isLoading, data: boardList } = useQuery(
+    ['boardList', categoryParam, queryParam, orderParam, pageParam],
+    () =>
+      getBoardList({
+        query: queryParam,
+        page: Number(pageParam),
+        order: orderParam as order,
+        category: categoryParam as category,
+        // query: '',
+        // page: 1,
+        // order: 'RECENT',
+        // category: 'VEGAN',
+      })
+  );
+  // console.log('Board boardList', boardList?.boardItemList);
+
+  const changeSearchParams =
+    (obj: { name: string; value: string } | [string, string][]) => () => {
+      if (Array.isArray(obj)) {
+        obj.forEach(([name, value]) => {
+          urlSearchParams.set(name, value);
+        });
+      } else {
+        urlSearchParams.set(obj.name, obj.value);
+      }
+      navigate(`${location.pathname}?${urlSearchParams.toString()}`);
+    };
 
   return !isLoading ? (
     <section className="w-full max-w-6xl px-10">
@@ -16,12 +51,28 @@ function Board() {
       </div>
 
       <div className="flex flex-col md:flex-row mt-5">
-        <ul className="flex flex-row md:flex-col border items-start md:p-5 md:h-44 md:mr-5">
-          <li>전체</li>
-          <li>비건</li>
-          <li>환경</li>
-          <li>Q{'&'}A</li>
-          <li>자유게시판</li>
+        <ul className="flex flex-row md:flex-col items-start md:pt-2 md:px-3 md:mr-5">
+          {[
+            ['', '전체'],
+            ['VEGAN', '비건'],
+            ['ENVIRONMENT', '환경'],
+            ['QUESTION', 'Q&A'],
+            ['FREE', '자유게시판'],
+          ].map(([value, name]) => (
+            <li
+              key={value}
+              onClick={
+                value === ''
+                  ? () => navigate('/board')
+                  : changeSearchParams({ name: 'cat', value })
+              }
+              className={`mb-3 cursor-pointer mr-3 md:mr-0 ${
+                categoryParam === value ? 'font-bold text-jghd-green' : ''
+              }`}
+            >
+              {name}
+            </li>
+          ))}
         </ul>
 
         <div className="flex flex-col flex-1 items-start">
@@ -42,51 +93,83 @@ function Board() {
           </form>
 
           <ul className="mb-4 flex items-center">
-            <li className="cursor-pointer p-1 mx-1 font-semibold">최신순</li>|
-            <li className="cursor-pointer p-1 mx-1">인기순</li>|
-            <li className="cursor-pointer p-1 mx-1">댓글순</li>|
-            <li className="cursor-pointer p-1 mx-1">조회순</li>
+            {[
+              ['RECENT', '최신순'],
+              ['VEGAN', '인기순'],
+              ['COMMENT_COUNT', '댓글순'],
+              ['VIEW', '조회순'],
+            ].map(([value, name], i) => (
+              <div className="flex items-center p-1 mr-2 text-sm">
+                <span
+                  className={`font-extrabold text-gray-4 mr-1 ${
+                    orderParam === value ? 'text-jghd-green' : ''
+                  }`}
+                >
+                  ·
+                </span>
+                <li
+                  key={value}
+                  onClick={changeSearchParams({ name: 'order', value })}
+                  className={`cursor-pointer text-gray-4 ${
+                    orderParam === value ? 'font-medium text-black' : ''
+                  }`}
+                >
+                  {name}
+                </li>
+              </div>
+            ))}
           </ul>
 
           <ul className="w-full">
             <li className="w-full flex items-center py-2 border-b text-sm md:text-base font-semibold">
-              <p className="w-1/12 text-center">글번호</p>
+              <p className="w-1/12 text-center">번호</p>
               <p className="w-4/12 text-center">제목</p>
               <p className="w-2/12 text-center">글쓴이</p>
               <p className="w-2/12 text-center">작성일</p>
               <p className="w-1/12 text-center">댓글수</p>
               <p className="w-1/12 text-center">조회수</p>
-              <p className="w-1/12 text-center">좋아요수</p>
+              <p className="w-1/12 text-center">좋아요</p>
             </li>
-            {boardList?.boardItemList.map((board: any) => (
-              <li
-                key={board.boardId}
-                className="w-full flex items-center py-3 border-b text-sm md:text-base"
-              >
-                <p className="w-1/12 text-center text-gray-4">
-                  {board.boardId}
-                </p>
-                <p className="w-4/12 font-medium">
-                  [{getBoardCatText(board.category)}] {board.boardTitle}
-                </p>
-                <p className="w-2/12 text-center">{board.writer}</p>
-                <p className="w-2/12 text-center tracking-tighter text-gray-4">
-                  {getDateText(board.createDate)}
-                </p>
-                <p className="w-1/12 flex items-center justify-center">
-                  <AiOutlineComment size={15} />{' '}
-                  <span className="ml-1 text-gray-4">{board.commentCount}</span>
-                </p>
-                <p className="w-1/12 flex items-center justify-center">
-                  <AiOutlineLike size={15} />{' '}
-                  <span className="ml-1 text-gray-4">{board.likeCount}</span>
-                </p>
-                <p className="w-1/12 flex items-center justify-center">
-                  <AiOutlineEye size={15} />{' '}
-                  <span className="ml-1 text-gray-4">{board.viewCount}</span>
-                </p>
-              </li>
-            ))}
+            {boardList?.boardItemList &&
+            boardList?.boardItemList?.length > 0 ? (
+              boardList?.boardItemList?.map((board, i) => (
+                <li
+                  key={board.boardId}
+                  className={`${'border-b'}
+                w-full flex items-center py-3 text-sm md:text-base font-light`}
+                >
+                  <p className="w-1/12 text-center text-gray-4">
+                    {board.boardId}
+                  </p>
+                  <p className="w-4/12 font-normal">
+                    {!categoryParam
+                      ? `[${getBoardCatText(board.category)}]`
+                      : ''}{' '}
+                    {board.boardTitle}
+                  </p>
+                  <p className="w-2/12 text-center">{board.writer}</p>
+                  <p className="w-2/12 text-center tracking-tighter text-gray-4">
+                    {getDateText(board.createDate)}
+                  </p>
+                  <p className="w-1/12 flex items-center justify-center">
+                    <AiOutlineComment color="#6BCB77" size={15} />{' '}
+                    <span className="ml-1 text-gray-4">
+                      {board.commentCount}
+                    </span>
+                  </p>
+                  <p className="w-1/12 flex items-center justify-center">
+                    <AiOutlineEye color="#ff8787" size={15} />{' '}
+                    <span className="ml-1 text-gray-4">{board.likeCount}</span>
+                  </p>
+                  <p className="w-1/12 flex items-center justify-center">
+                    <AiOutlineLike color="#4D96FF" size={15} />{' '}
+                    <span className="ml-1 text-gray-4">{board.viewCount}</span>
+                  </p>
+                </li>
+              ))
+            ) : (
+              <div className="mt-10 text-center">아직 게시물이 없습니다</div>
+            )}
           </ul>
         </div>
       </div>
