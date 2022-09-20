@@ -61,6 +61,46 @@ button:hover {
   transition: all 0.1s linear;
 }
 
+/* http://rwdb.kr/css_text/ */
+.loading {
+  user-select: none;
+}
+.loading span {
+  display: inline-block;
+  animation: loading 0.7s infinite alternate;
+  @apply text-3xl font-bold;
+}
+.loading span:nth-child(1) {
+  @apply text-jghd-blue;
+}
+.loading span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.loading span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.loading span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.loading span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+.loading span:nth-child(6) {
+  animation-delay: 0.5s;
+}
+.loading span:nth-child(7) {
+  animation-delay: 0.6s;
+  @apply text-jghd-green;
+}
+@keyframes loading {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.8);
+  }
+}
+
 /* :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
