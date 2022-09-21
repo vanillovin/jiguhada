@@ -64,6 +64,8 @@ button:hover {
 /* http://rwdb.kr/css_text/ */
 .loading {
   user-select: none;
+  text-align: center;
+  margin-top: 2rem;
 }
 .loading span {
   display: inline-block;
