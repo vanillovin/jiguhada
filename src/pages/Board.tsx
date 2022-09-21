@@ -1,10 +1,13 @@
 import { useQuery } from 'react-query';
 import { getBoardList } from '../modules/board/api';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Category, Order, Search } from '../modules/board/type';
 import BoardItem from '../components/board/BoardItem';
 import PageList from '../components/PageList';
 import React from 'react';
+import { useRecoilValue } from 'recoil';
+import { currentUserState } from '../modules/user/atom';
+import Loading from '../components/Loading';
 
 const categoryData = [
   ['', '전체'],
@@ -22,19 +25,20 @@ const orderData = [
 ];
 
 function Board() {
-  const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const urlSearchParams = new URLSearchParams(location.search);
   const categoryParam = urlSearchParams.get('cat') || '';
   const queryParam = urlSearchParams.get('query') || '';
   const orderParam = urlSearchParams.get('order') || 'RECENT';
-  const pageParam = urlSearchParams.get('page') || 1;
+  const pageParam = urlSearchParams.get('page') || '1';
   const searchTypeParam = urlSearchParams.get('type') || 'TITLE';
+  const currentUser = useRecoilValue(currentUserState);
+  // console.log('Board currentUser', currentUser);
 
-  const { data: boardList } = useQuery(
+  const { isLoading, data: boardList } = useQuery(
     [
-      'boardList',
+      `${categoryParam}Board/${orderParam}/${pageParam}/${queryParam}/${searchTypeParam}`,
       categoryParam,
       queryParam,
       orderParam,
@@ -116,12 +120,12 @@ function Board() {
       </div>
 
       <div className="flex flex-col md:flex-row mt-5">
-        <ul className="flex flex-row md:flex-col items-start md:pt-2 md:px-3 md:mr-5">
+        <ul className="flex flex-row md:flex-col items-start mb-5 md:mb-0 md:pt-2 md:px-3 md:mr-5">
           {categoryData.map(([value, name]) => (
             <li
               key={value}
               onClick={() => handleChangeCategory(value)}
-              className={`mb-3 cursor-pointer mr-3 md:mr-0 ${
+              className={`md:mb-3 cursor-pointer mx-2 md:mr-0 ${
                 categoryParam === value ? 'font-bold text-jghd-green' : ''
               }`}
             >
@@ -163,34 +167,44 @@ function Board() {
             </button>
           </form>
 
-          <ul className="mb-4 flex items-center">
-            {orderData.map(([value, name], i) => (
-              <div
-                key={value}
-                className="flex items-center p-1 mr-2 text-sm md:text-base"
-              >
-                <span
-                  className={`font-extrabold mr-1 ${
-                    orderParam === value ? 'text-jghd-blue' : 'text-gray-4'
-                  }`}
-                >
-                  ·
-                </span>
-                <li
+          <div className="w-full flex items-center justify-between mt-2 mb-6">
+            <ul className="flex items-center">
+              {orderData.map(([value, name], i) => (
+                <div
                   key={value}
-                  onClick={changeSearchParams([
-                    ['order', value],
-                    ['page', '1'],
-                  ])}
-                  className={`cursor-pointer text-gray-4 ${
-                    orderParam === value ? 'font-medium text-black' : ''
-                  }`}
+                  className="flex items-center p-1 mr-1 text-sm md:text-base"
                 >
-                  {name}
-                </li>
-              </div>
-            ))}
-          </ul>
+                  <span
+                    className={`font-extrabold mr-1 ${
+                      orderParam === value ? 'text-jghd-blue' : 'text-gray-4'
+                    }`}
+                  >
+                    ·
+                  </span>
+                  <li
+                    key={value}
+                    onClick={changeSearchParams([
+                      ['order', value],
+                      ['page', '1'],
+                    ])}
+                    className={`cursor-pointer text-gray-4 ${
+                      orderParam === value ? 'font-medium text-black' : ''
+                    }`}
+                  >
+                    {name}
+                  </li>
+                </div>
+              ))}
+            </ul>
+            {currentUser && (
+              <button
+                onClick={() => navigate('/board/new')}
+                className="bg-jghd-blue text-white px-4 py-2 rounded-md"
+              >
+                글쓰기
+              </button>
+            )}
+          </div>
 
           <ul className="w-full mb-4">
             <li className="w-full flex items-center py-2 border-b border-black text-sm md:text-base font-semibold">
@@ -202,20 +216,26 @@ function Board() {
               <p className="w-1/12 text-center">조회수</p>
               <p className="w-1/12 text-center">좋아요</p>
             </li>
-            {boardList && boardList.boardItemList.length > 0 ? (
-              boardList?.boardItemList?.map((board, i) => (
-                <BoardItem
-                  key={board.boardId}
-                  board={board}
-                  categoryParam={categoryParam}
-                  isLastBoard={
-                    board ===
-                    boardList.boardItemList[boardList.boardItemList.length - 1]
-                  }
-                />
-              ))
+            {!isLoading ? (
+              boardList.boardItemList.length > 0 ? (
+                boardList?.boardItemList?.map((board, i) => (
+                  <BoardItem
+                    key={board.boardId}
+                    board={board}
+                    categoryParam={categoryParam}
+                    isLastBoard={
+                      board ===
+                      boardList.boardItemList[
+                        boardList.boardItemList.length - 1
+                      ]
+                    }
+                  />
+                ))
+              ) : (
+                <div className="mt-10 text-center">아직 게시물이 없습니다</div>
+              )
             ) : (
-              <div className="mt-10 text-center">아직 게시물이 없습니다</div>
+              <Loading />
             )}
           </ul>
 
