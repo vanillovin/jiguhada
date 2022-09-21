@@ -30,14 +30,9 @@ export interface BoardListParams {
   searchType?: Search;
 }
 
-export interface Img {
-  image_id: number;
-  image_url: string;
-}
-
 export interface CreateBoard {
   title: string;
   content: string;
   category: string;
-  imgList: Img[];
+  imgList: string[];
 }
