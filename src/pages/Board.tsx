@@ -3,6 +3,23 @@ import { getBoardList } from '../modules/board/api';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Category, Order, Search } from '../modules/board/type';
 import BoardItem from '../components/board/BoardItem';
+import PageList from '../components/PageList';
+import React from 'react';
+
+const categoryData = [
+  ['', '전체'],
+  ['VEGAN', '비건'],
+  ['ENVIRONMENT', '환경'],
+  ['QUESTION', 'Q&A'],
+  ['FREE', '자유게시판'],
+];
+
+const orderData = [
+  ['RECENT', '최신순'],
+  ['POPULAR', '인기순'],
+  ['COMMENT_COUNT', '댓글순'],
+  ['VIEW', '조회순'],
+];
 
 function Board() {
   const params = useParams();
@@ -33,7 +50,7 @@ function Board() {
         searchType: searchTypeParam as Search,
       })
   );
-  // console.log('Board boardList', boardList?.boardItemList);
+  console.log('Board boardList', boardList);
 
   const clearSearchParams = (name: string | string[]) => () => {
     if (Array.isArray(name)) {
@@ -56,6 +73,41 @@ function Board() {
       navigate(`${location.pathname}?${urlSearchParams.toString()}`);
     };
 
+  const handleChangeCategory = (value: string) => {
+    value === ''
+      ? navigate('/board')
+      : changeSearchParams([
+          ['cat', value],
+          ['page', '1'],
+        ])();
+  };
+
+  const handleCancleSearch = () => {
+    changeSearchParams([
+      ['order', 'RECENT'],
+      ['page', '1'],
+    ])();
+    clearSearchParams(['query', 'type'])();
+    const keywordInput = document.getElementById('keyword') as HTMLInputElement;
+    keywordInput.value = '';
+  };
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const keyword = formData.get('keyword') as string;
+    const type = formData.get('type') as string;
+    if (!keyword) {
+      alert('검색어를 입력해 주세요');
+      return;
+    }
+    changeSearchParams([
+      ['query', keyword],
+      ['type', type],
+      ['page', '1'],
+    ])();
+  };
+
   return (
     <section className="w-full max-w-6xl px-10">
       <div className="bg-gray-2 text-start p-6">
@@ -65,20 +117,10 @@ function Board() {
 
       <div className="flex flex-col md:flex-row mt-5">
         <ul className="flex flex-row md:flex-col items-start md:pt-2 md:px-3 md:mr-5">
-          {[
-            ['', '전체'],
-            ['VEGAN', '비건'],
-            ['ENVIRONMENT', '환경'],
-            ['QUESTION', 'Q&A'],
-            ['FREE', '자유게시판'],
-          ].map(([value, name]) => (
+          {categoryData.map(([value, name]) => (
             <li
               key={value}
-              onClick={
-                value === ''
-                  ? () => navigate('/board')
-                  : changeSearchParams({ name: 'cat', value })
-              }
+              onClick={() => handleChangeCategory(value)}
               className={`mb-3 cursor-pointer mr-3 md:mr-0 ${
                 categoryParam === value ? 'font-bold text-jghd-green' : ''
               }`}
@@ -89,23 +131,7 @@ function Board() {
         </ul>
 
         <div className="flex flex-col flex-1 items-start">
-          <form
-            className="flex w-full mb-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const keyword = formData.get('keyword') as string;
-              const type = formData.get('type') as string;
-              if (!keyword) {
-                alert('검색어를 입력해 주세요');
-                return;
-              }
-              changeSearchParams([
-                ['query', keyword],
-                ['type', type],
-              ])();
-            }}
-          >
+          <form className="flex w-full mb-4" onSubmit={onSubmit}>
             <select
               name="type"
               defaultValue="title?"
@@ -116,13 +142,17 @@ function Board() {
               <option value="WRITER">작성자</option>
             </select>
             <input
+              id="keyword"
               name="keyword"
               className="w-full p-2 outline-none border border-l-0 mr-2"
               placeholder="검색어를 입력해 주세요!"
+              minLength={1}
+              maxLength={20}
             />
             {queryParam && (
               <button
-                onClick={clearSearchParams(['query', 'type'])}
+                type="button"
+                onClick={handleCancleSearch}
                 className="bg-red-200 w-24 mr-2"
               >
                 취소
@@ -134,23 +164,24 @@ function Board() {
           </form>
 
           <ul className="mb-4 flex items-center">
-            {[
-              ['RECENT', '최신순'],
-              ['POPULAR', '인기순'],
-              ['COMMENT_COUNT', '댓글순'],
-              ['VIEW', '조회순'],
-            ].map(([value, name], i) => (
-              <div key={value} className="flex items-center p-1 mr-2 text-sm">
+            {orderData.map(([value, name], i) => (
+              <div
+                key={value}
+                className="flex items-center p-1 mr-2 text-sm md:text-base"
+              >
                 <span
                   className={`font-extrabold mr-1 ${
-                    orderParam === value ? 'text-jghd-green' : 'text-gray-4'
+                    orderParam === value ? 'text-jghd-blue' : 'text-gray-4'
                   }`}
                 >
                   ·
                 </span>
                 <li
                   key={value}
-                  onClick={changeSearchParams({ name: 'order', value })}
+                  onClick={changeSearchParams([
+                    ['order', value],
+                    ['page', '1'],
+                  ])}
                   className={`cursor-pointer text-gray-4 ${
                     orderParam === value ? 'font-medium text-black' : ''
                   }`}
@@ -161,7 +192,7 @@ function Board() {
             ))}
           </ul>
 
-          <ul className="w-full">
+          <ul className="w-full mb-4">
             <li className="w-full flex items-center py-2 border-b border-black text-sm md:text-base font-semibold">
               <p className="w-1/12 text-center">번호</p>
               <p className="w-4/12 text-center">제목</p>
@@ -171,18 +202,29 @@ function Board() {
               <p className="w-1/12 text-center">조회수</p>
               <p className="w-1/12 text-center">좋아요</p>
             </li>
-            {boardList?.boardItemList && boardList.boardItemList.length > 0 ? (
+            {boardList && boardList.boardItemList.length > 0 ? (
               boardList?.boardItemList?.map((board, i) => (
                 <BoardItem
                   key={board.boardId}
                   board={board}
                   categoryParam={categoryParam}
+                  isLastBoard={
+                    board ===
+                    boardList.boardItemList[boardList.boardItemList.length - 1]
+                  }
                 />
               ))
             ) : (
               <div className="mt-10 text-center">아직 게시물이 없습니다</div>
             )}
           </ul>
+
+          {boardList && boardList.boardItemList.length > 0 && (
+            <PageList
+              currentPage={boardList?.currentPage}
+              endPage={boardList?.totalPage}
+            />
+          )}
         </div>
       </div>
     </section>

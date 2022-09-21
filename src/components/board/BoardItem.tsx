@@ -5,14 +5,18 @@ import { getBoardCatText, getDateText } from '../../utils';
 function BoardItem({
   board,
   categoryParam,
+  isLastBoard,
 }: {
   board: BItem;
   categoryParam: string;
+  isLastBoard: Boolean;
 }) {
   return (
     <li
       key={board.boardId}
-      className={`${'border-b'} w-full flex items-center py-3 text-sm md:text-base font-light`}
+      className={`${
+        isLastBoard ? '' : 'border-b'
+      } w-full flex items-center py-3 text-sm md:text-base font-light`}
     >
       <p className="w-1/12 text-center text-gray-4">{board.boardId}</p>
       <p className="w-4/12 font-normal">
