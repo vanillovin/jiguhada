@@ -121,7 +121,7 @@ function SignIn({ goToHome, setIsRegistered }: SignInProps) {
       >
         카카오로 로그인
       </button>
-      <div className="mt-6">
+      <div className="mt-6 text-center">
         아직 회원이 아니신가요?{' '}
         <button
           className="text-jghd-green font-bold"

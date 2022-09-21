@@ -134,8 +134,12 @@ function SignUp({
       socialType: 'GENERAL',
     })
       .then((data) => {
-        setCurrentUser(data);
-        goToHome();
+        if (!data.errorCode) {
+          setCurrentUser(data);
+          goToHome();
+        } else {
+          alert(data.message);
+        }
       })
       .catch((err) => {
         console.log('signup error', err);
@@ -239,7 +243,7 @@ function SignUp({
                 <>
                   <label
                     htmlFor="attach-file"
-                    className={`cursor-pointer ml-2 bg-gray-400 w-24 text-sm rounded-lg py-1 text-white`}
+                    className={`cursor-pointer ml-2 bg-gray-400 w-24 text-sm rounded-lg py-1 text-white text-center`}
                   >
                     사진선택
                   </label>
@@ -282,7 +286,7 @@ function SignUp({
       >
         카카오로 가입하기
       </button>
-      <div className="mt-6">
+      <div className="mt-6 text-center">
         계정이 이미 있으신가요?{' '}
         <button
           type="submit"
