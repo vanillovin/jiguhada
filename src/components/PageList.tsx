@@ -65,12 +65,16 @@ const PageList = ({
   return (
     <nav className="w-full flex items-center justify-center select-none">
       <ul className="flex items-center px-2 ">
-        <li onClick={onBackward} className="cursor-pointer px-2">
-          <AiOutlineBackward />
-        </li>
-        <li onClick={onPrevious} className="cursor-pointer px-2">
-          <AiOutlineCaretLeft />
-        </li>
+        {endPage > 1 && currentPage > 1 && (
+          <li onClick={onBackward} className="cursor-pointer px-2">
+            <AiOutlineBackward />
+          </li>
+        )}
+        {currentPage > 1 && (
+          <li onClick={onPrevious} className="cursor-pointer px-2">
+            <AiOutlineCaretLeft />
+          </li>
+        )}
         {pageListState.map((num, i) => (
           <li
             onClick={() => onPageChange(num)}
@@ -82,12 +86,16 @@ const PageList = ({
             {num}
           </li>
         ))}
-        <li onClick={onNext} className="cursor-pointer px-2">
-          <AiOutlineCaretRight />
-        </li>
-        <li onClick={onForward} className="cursor-pointer px-2">
-          <AiOutlineForward />
-        </li>
+        {currentPage < endPage && (
+          <li onClick={onNext} className="cursor-pointer px-2">
+            <AiOutlineCaretRight />
+          </li>
+        )}
+        {endPage > 1 && currentPage < endPage && (
+          <li onClick={onForward} className="cursor-pointer px-2">
+            <AiOutlineForward />
+          </li>
+        )}
       </ul>
     </nav>
   );
