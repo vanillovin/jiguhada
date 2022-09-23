@@ -1,4 +1,4 @@
-import { BoardList, BoardListParams, CreateBoard } from './type';
+import { BoardDetail, BoardList, BoardListParams, CreateBoard } from './type';
 
 const API_END_POINT = `${import.meta.env.VITE_APP_HOST}/board`;
 
@@ -13,14 +13,6 @@ export const getBoardList = async (
   params: BoardListParams
 ): Promise<BoardList> => {
   const { query, page, order, category, searchType } = params;
-  // 1. all
-  //    - params x (/board/list)
-  //    - order, page (/board/list?order=RECENT or &page=1)
-  //        === category 없을 때
-  // 2. cat - cat, order(recent), page(1)
-  // 3. search - query
-  //    cat - cat, query, searchType(title), page(1), order(recent)
-  //    all - query, searchType(title), page(1), order(recent)
   try {
     if (query) {
       if (category) {
@@ -90,5 +82,18 @@ export const uploadImgRequest = async (formData: FormData) => {
     ).json();
   } catch (e) {
     throw new Error(`이미지 파일 업로드를 실패했습니다. ${e}`);
+  }
+};
+
+export const getBoardDetail = async (id: number): Promise<BoardDetail> => {
+  try {
+    return await (
+      await fetch(`${API_END_POINT}/read/${id}`, {
+        method: 'GET',
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`게시글 조회를 실패했습니다. ${e}`);
   }
 };
