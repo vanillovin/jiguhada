@@ -34,5 +34,39 @@ export interface CreateBoard {
   title: string;
   content: string;
   category: string;
-  imgList: string[];
+  imgList: string[] | [];
+  deletedImgList: string[] | [];
+}
+
+interface Img {
+  imgId: number;
+  imgUrl: string;
+}
+
+interface Comment {
+  commentId: number;
+  username: string;
+  nickname: string;
+  content: string;
+  createdDate: string;
+}
+
+interface Like {
+  likeId: number;
+  username: string;
+  nickname: string;
+}
+
+export interface BoardDetail {
+  boardId: number;
+  title: string;
+  content: string;
+  createDate: string;
+  viewCount: number;
+  boardCategory: string;
+  username: string;
+  nickname: string;
+  commentList: Comment[];
+  likeList: Like[];
+  imgList: Img[];
 }

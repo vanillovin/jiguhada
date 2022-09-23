@@ -10,9 +10,9 @@ export function getBoardCatText(name: Category) {
 export function getDateText(date: string) {
   // 2022-09-19T10:26:22
   return `${date
-    .split('T')[0]
+    ?.split('T')[0]
     .replaceAll('-', '.')
     .substring(2, date.split('T')[0].length)} ${date
-    .split('T')[1]
+    ?.split('T')[1]
     .substring(0, 5)}`;
 }

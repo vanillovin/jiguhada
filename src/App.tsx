@@ -6,8 +6,8 @@ import NavigationBar from './components/NavigationBar';
 import UserInfo from './pages/UserInfo';
 import Board from './pages/Board';
 import Settings from './components/userinfo/Settings';
-
 import Editor from './components/Editor';
+import BoardDetail from './pages/BoardDetail';
 
 function App() {
   return (
@@ -17,6 +17,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/board" element={<Board />} />
+        <Route path="/board/:id" element={<BoardDetail />} />
         <Route path="/board/new" element={<Editor />} />
         <Route path="/user/:id" element={<UserInfo />}>
           <Route path="settings" element={<Settings />} />

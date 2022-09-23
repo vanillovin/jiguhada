@@ -61,6 +61,10 @@ button:hover {
   transition: all 0.1s linear;
 }
 
+.bd-container {
+  height: 650px;
+}
+
 /* http://rwdb.kr/css_text/ */
 .loading {
   user-select: none;
