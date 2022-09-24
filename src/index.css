@@ -27,6 +27,7 @@ body {
   @apply mt-28 mb-8;
 }
 
+/*  */
 .hr-lines-con {
   position: relative;
   padding: 10px 0px;
@@ -61,10 +62,45 @@ button:hover {
   transition: all 0.1s linear;
 }
 
+/* Board Detail */
 .bd-container {
   height: 650px;
 }
+.bd-content h1 {
+  @apply font-semibold text-3xl border-b pb-2 mb-2;
+}
+.bd-content h2 {
+  @apply font-semibold text-2xl mb-2;
+}
+.bd-content h3 {
+  @apply font-semibold text-xl mb-2;
+}
+.bd-content h4 {
+  @apply font-semibold text-lg mb-2;
+}
+.bd-content h5 {
+  @apply font-semibold mb-2;
+}
+.bd-content h6 {
+  @apply font-medium mb-2;
+}
+.bd-content ul {
+  @apply list-disc ml-5;
+}
+.bd-content ol {
+  @apply list-decimal ml-4;
+}
+.bd-content blockquote {
+  margin: 1rem 0 0.5rem 0;
+  color: gray;
+  border-left: 4px solid lightgray;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  background: #f8f9fa;
+  padding: 0.4rem 0.4rem 0.4rem 1rem;
+}
 
+/* Loading */
 /* http://rwdb.kr/css_text/ */
 .loading {
   user-select: none;

@@ -1,28 +1,42 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { currentUserState } from '../modules/user/atom';
 import { defaultProfileImage } from '../pages/Register';
 
 function NavigationBar() {
+  const location = useLocation();
   const currentUser = useRecoilValue(currentUserState);
+  const currentPath = location.pathname;
 
   return (
     <nav
-      className="fixed top-0 left-0 bg-white bg-opacity-95 border-b w-full h-20 
-      flex items-center justify-between px-10 md:px-32 z-50"
+      className="fixed top-0 left-0 bg-white bg-opacity-95 border-b w-full h-16
+      flex items-center justify-between px-10 md:px-32 z-50 select-none"
     >
-      <h1 className="text-xl md:text-2xl font-bold">
-        <Link to="/">지-구하다</Link>
+      <h1 className="text-xl md:text-2xl font-bold group">
+        <Link to="/">
+          <span className="group-hover:text-jghd-blue transition-all">지</span>
+          <span className="group-hover:text-amber-700 transition-all">-</span>
+          <span className="group-hover:text-jghd-green transition-all">구</span>
+          하다
+        </Link>
       </h1>
-      <ul className="flex items-center md:text-lg">
-        <li className="p-1 ml-3">
+      <ul className="flex h-full items-center font-medium">
+        <li
+          className={`flex items-center px-1 ml-3 h-full transition-all ${
+            currentPath.includes('board')
+              ? 'border-b-2 border-black -mb-1 transition-all'
+              : 'hover:text-gray-400'
+          }`}
+        >
           <Link to="/board" className="flex items-center">
             게시판
           </Link>
         </li>
+
         {currentUser ? (
           <>
-            <li className="p-1 ml-3">
+            <li className={`flex items-center px-1 ml-3`}>
               <Link
                 to={`/user/${currentUser?.userid}`}
                 className="flex items-center"
@@ -39,7 +53,13 @@ function NavigationBar() {
             </li>
           </>
         ) : (
-          <li className="p-1 ml-3 tracking-tight">
+          <li
+            className={`flex items-center px-1 ml-3 h-full transition-all ${
+              currentPath.includes('register')
+                ? 'border-b-2 border-black -mb-1'
+                : 'hover:text-gray-400 '
+            }`}
+          >
             <Link to={`/register`}>로그인·회원가입</Link>
           </li>
         )}
