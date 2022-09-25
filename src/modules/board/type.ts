@@ -58,6 +58,7 @@ interface Like {
 }
 
 export interface BoardDetail {
+  userId: number;
   boardId: number;
   title: string;
   content: string;

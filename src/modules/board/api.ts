@@ -1,4 +1,4 @@
-import { BoardDetail, BoardList, BoardListParams, CreateBoard } from './type';
+import { BoardList, BoardListParams, CreateBoard, BoardDetail } from './type';
 
 const API_END_POINT = `${import.meta.env.VITE_APP_HOST}/board`;
 
@@ -85,7 +85,9 @@ export const uploadImgRequest = async (formData: FormData) => {
   }
 };
 
-export const getBoardDetail = async (id: number): Promise<BoardDetail> => {
+export const getBoardDetailRequest = async (
+  id: number
+): Promise<BoardDetail> => {
   try {
     return await (
       await fetch(`${API_END_POINT}/read/${id}`, {
@@ -95,5 +97,19 @@ export const getBoardDetail = async (id: number): Promise<BoardDetail> => {
     ).json();
   } catch (e) {
     throw new Error(`게시글 조회를 실패했습니다. ${e}`);
+  }
+};
+
+export const deleteBoardRequest = async (token: string, id: number) => {
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${API_END_POINT}/delete/${id}`, {
+        method: 'DELETE',
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`게시글 삭제를 실패했습니다. ${e}`);
   }
 };

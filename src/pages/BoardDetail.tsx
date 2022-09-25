@@ -1,60 +1,123 @@
+import { useState, useRef } from 'react';
 import { AiFillHeart, AiOutlineComment, AiOutlineHeart } from 'react-icons/ai';
+import { BiDotsHorizontalRounded } from 'react-icons/bi';
 import { FiBookmark } from 'react-icons/fi';
 import { BsBookmarkFill } from 'react-icons/bs';
-import { useLocation, useParams } from 'react-router-dom';
+import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { defaultProfileImage } from './Register';
 import { useQuery } from 'react-query';
-import { getBoardDetail } from '../modules/board/api';
+import {
+  deleteBoardRequest,
+  getBoardDetailRequest,
+} from '../modules/board/api';
 import { getBoardCatText, getDateText } from '../utils';
 import { Category } from '../modules/board/type';
 import { marked } from 'marked';
+import { useRecoilValue } from 'recoil';
+import { currentUserState } from '../modules/user/atom';
+import Modal from '../components/Modal';
+import Message from '../components/Message';
 
 function BoardDetail() {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams<{ id: string }>();
-  const { data } = useQuery(`BoardDetail${id || state}`, () =>
-    getBoardDetail(Number(id) || Number(state))
+  const { isLoading, data } = useQuery(`BoardDetail${id || state}`, () =>
+    getBoardDetailRequest(Number(id) || Number(state))
   );
   console.log('BoardDetail data', data);
+  const [toggleOpen, setToggleOpen] = useState(false);
+  const currentUser = useRecoilValue(currentUserState);
+
+  const handleDeleteBoard = () => {
+    if (!confirm('게시글을 삭제하시겠습니까?')) return;
+    if (!currentUser?.accessToken) {
+      alert('토큰일 읽을 수 없습니다. 다시 로그인해 주세요.');
+      navigate('/register');
+      return;
+    }
+    deleteBoardRequest(currentUser?.accessToken, Number(id))
+      .then((res) => {
+        console.log('handleDeleteBoard res', res);
+        if (res.code === 200) {
+          navigate('/board');
+        } else {
+        }
+      })
+      .catch((err) => {
+        console.log('handleDeleteBoard err', err);
+      });
+  };
+
+  if (!data?.boardId) {
+    return (
+      <Message
+        message="게시글을 조회할 수 없습니다"
+        navigateInfo={{ name: '게시판', path: 'board' }}
+      />
+    );
+  }
 
   return (
     <section className="w-full max-h-screen max-w-6xl px-10">
       <div className="bd-container flex flex-col md:flex-row w-full border rounded-sm">
-        {/* left */}
         <div className="flex flex-col w-full md:w-3/5 h-full border-b md:border-r ">
-          {/* left top */}
-          <div className="w-full flex flex-col md:flex-row border-b p-3">
-            <div className="flex items-center mb-1 md:items-start md:flex-col mr-3 md:mb-0">
-              <h2 className="text-sm md:text-base font-medium">{id}</h2>
-              <h3 className="text-sm text-gray-4 mt-0 ml-1 md:mt-1 md:ml-0">
-                {/* {getBoardCatText(data?.boardCategory as Category)} */}
-                자유게시판
-              </h3>
+          <div className="w-full flex justify-between border-b p-3">
+            <div className="flex flex-col md:flex-row">
+              <div className="flex items-center mb-1 md:items-start md:flex-col mr-3 md:mb-0">
+                <h2 className="text-sm md:text-base font-medium">{id}</h2>
+                <h3 className="text-sm text-gray-4 mt-0 ml-1 md:mt-1 md:ml-0">
+                  {getBoardCatText(data?.boardCategory as Category)}
+                </h3>
+              </div>
+              <div className="flex flex-col justify-between">
+                <h1 className="font-semibold md:text-lg">{data?.title}</h1>
+                <h2 className="flex items-center text-sm md:text-base">
+                  {data?.nickname} ·{' '}
+                  <span className="ml-1 text-gray-3 text-xs">
+                    {getDateText(data?.createDate as string)}
+                  </span>
+                </h2>
+              </div>
             </div>
-            <div className="flex flex-col justify-between">
-              <h1 className="font-semibold md:text-lg">{data?.title}</h1>
-              <h2 className="flex items-center text-sm md:text-base">
-                {data?.nickname} ·{' '}
-                <span className="ml-1 text-gray-3 text-xs">
-                  {getDateText(data?.createDate as string)}
-                </span>
-              </h2>
-            </div>
+            {currentUser?.userid === data?.userId && (
+              <div className="relative">
+                <button onClick={() => setToggleOpen((prev) => !prev)}>
+                  <BiDotsHorizontalRounded size={28} />
+                </button>
+                <Modal
+                  isOpen={toggleOpen}
+                  isClickFilterBtn={() => setToggleOpen(false)}
+                  className="absolute w-32 top-8 right-0 border rounded-lg shadow-md bg-white"
+                >
+                  <button className="w-full flex items-center cursor-pointer py-1 px-3">
+                    <HiOutlinePencilAlt className="mr-2" />
+                    수정하기
+                  </button>
+                  <button
+                    onClick={handleDeleteBoard}
+                    className="w-full flex items-center cursor-pointer py-1 px-3"
+                  >
+                    <HiOutlineTrash className="mr-2" />
+                    삭제하기
+                  </button>
+                </Modal>
+              </div>
+            )}
           </div>
-          {/* left bot */}
           <div
             className="bd-content w-full h-full px-3 pt-4 pb-7 scroll-smooth overflow-auto bg-gray-1 text-sm md:text-base leading-6 md:leading-7"
             dangerouslySetInnerHTML={{
-              __html: marked(data ? data.content : ''),
+              __html: marked(!data.error ? data.content : ''),
             }}
           />
         </div>
 
-        {/* right */}
         <div className="w-full md:w-2/5 h-full flex flex-col justify-between">
           <div className="p-3">
             <p className="mb-2 text-sm md:text-base">
-              댓글수 {data?.commentList.length}개
+              댓글수 {data?.commentList?.length}개
             </p>
             <ul>
               <li className="flex items-center">
