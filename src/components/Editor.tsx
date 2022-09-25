@@ -1,53 +1,90 @@
-import { useRecoilState } from 'recoil';
-import React, { useRef, useState } from 'react';
-// https://github.com/nhn/tui.editor/tree/master/apps/react-editor
-// editor
+import { useNavigate } from 'react-router-dom';
+import { useRecoilValue, useResetRecoilState } from 'recoil';
+import React, { useRef } from 'react';
 import '@toast-ui/editor/dist/i18n/ko-kr';
 import { Editor as ToastEditor } from '@toast-ui/react-editor';
-// color-syntax
 import 'tui-color-picker/dist/tui-color-picker.css';
 import '@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-syntax.css';
 import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 
-import { Img } from '../modules/board/api';
 import { currentUserState } from '../modules/user/atom';
+import { createBoardRequest, uploadImgRequest } from '../modules/board/api';
 
 export default function Editor() {
-  const catRef = useRef() as React.RefObject<HTMLSelectElement>;
-  const titRef = useRef() as React.RefObject<HTMLInputElement>;
+  let imgList: string[] = []; // 에디터
+  let tempImgList: string[] = []; // 전부
   const editorRef = useRef<ToastEditor>(null);
-  const [imgList, setImgList] = useState<Img[]>([]);
-  const currentUser = useRecoilState(currentUserState);
+  const currentUser = useRecoilValue(currentUserState);
+  const resetUser = useResetRecoilState(currentUserState);
+  const navigate = useNavigate();
 
   const onChange = () => {
     const data = editorRef.current?.getInstance().getHTML();
+    imgList = tempImgList.filter((img) => data?.includes(img));
   };
 
   const onUploadImage = async (blob: Blob, callback: any) => {
-    // console.log('onUploadImage blob', typeof blob, blob);
-    // const formData = new FormData();
-    // formData.append('imgFile', blob);
-    // callback('url');
+    if (imgList.length >= 3) {
+      alert('이미지 파일은 3개까지 첨부할 수 있습니다');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('imgFile', blob);
+    uploadImgRequest(formData)
+      .then((data) => {
+        console.log('onUploadImage data', data);
+        imgList.push(data.imgUrl);
+        tempImgList.push(data.imgUrl);
+        callback(data.imgUrl);
+      })
+      .catch((err) => {
+        console.log('uploadImgRequest err', err);
+      });
   };
 
   const handleCreateBoard = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    console.log(formData.get('tit-input'));
     const data = Object.fromEntries(formData);
-    console.log('data', data);
     const instance = editorRef.current?.getInstance();
-    const content = instance?.getHTML();
+    const content = instance?.getHTML() as string;
+    if (!formData.get('category')) {
+      alert('카테고리를 선택해 주세요');
+      return;
+    }
+    if (!formData.get('title')) {
+      alert('제목을 입력해 주세요');
+      return;
+    }
+    if (
+      content === '<p><br></p>' ||
+      content.split('<p>')[1].trim().length < 8
+    ) {
+      alert('내용은 4자 이상 입력해 주세요');
+      return;
+    }
+    const imgList = tempImgList.filter((img) => content?.includes(img));
+    const deletedImgList = tempImgList.filter((img) => !imgList.includes(img));
     const newData = {
       ...data,
       imgList,
       content,
+      deletedImgList,
     };
-    console.log('newData:', newData);
-    // category: 'free';
-    // content: '<p>본문!</p>';
-    // imgList: [];
-    // title: '제목';
+    createBoardRequest(currentUser?.accessToken as string, newData)
+      .then((res) => {
+        console.log('createBoardRequest res', res);
+        if (!res.errorCode) {
+          navigate(`/board/${res.boardId}`);
+        } else {
+          alert(res.message);
+          resetUser();
+          navigate('/register');
+        }
+      })
+      .catch((err) => {
+        console.log('createBoardRequest err', err);
+      });
   };
 
   return (
@@ -55,9 +92,10 @@ export default function Editor() {
       <div className="flex w-full text-start border-b border-gray-300 mb-4">
         <select name="category" className="outline-none p-2">
           <option value="">카테고리 선택</option>
-          <option value="free">자유게시판</option>
-          <option value="share">정보공유</option>
-          <option value="activity">활동모집</option>
+          <option value="VEGAN">비건</option>
+          <option value="ENVIRONMENT">환경</option>
+          <option value="QUESTION">Q&A</option>
+          <option value="FREE">자유게시판</option>
         </select>
         <input
           name="title"
@@ -69,22 +107,20 @@ export default function Editor() {
         ref={editorRef}
         useCommandShortcut={true}
         placeholder="내용을 입력해 주세요!"
-        previewStyle="vertical" // 미리보기 스타일 지정
-        height="500px" // 에디터 창 높이
-        initialEditType="wysiwyg" // 초기 입력모드 설정(디폴트 markdown)
+        previewStyle="vertical"
+        height="500px"
+        initialEditType="wysiwyg"
         toolbarItems={[
-          // 툴바 옵션 설정
           ['heading', 'bold', 'italic', 'strike'],
           ['hr', 'quote'],
-          ['ul', 'ol', 'task', 'indent', 'outdent'],
+          ['ul', 'ol', 'indent', 'outdent'],
           ['table', 'image', 'link'],
-          // ['code', 'codeblock'],
         ]}
         onChange={onChange}
         plugins={[colorSyntax]}
         language="ko-KR"
         hooks={{ addImageBlobHook: onUploadImage }}
-        hideModeSwitch={true} // 하단의 타입 선택 탭 숨기기
+        hideModeSwitch={true}
       />
       <div className="text-end mt-4">
         <button className="rounded-md font-medium text-white py-1 px-4 tracking-wider bg-jghd-green ml-2">
