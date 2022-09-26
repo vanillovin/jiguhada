@@ -38,7 +38,7 @@ export interface CreateBoard {
   deletedImgList: string[] | [];
 }
 
-interface Img {
+export interface Img {
   imgId: number;
   imgUrl: string;
 }

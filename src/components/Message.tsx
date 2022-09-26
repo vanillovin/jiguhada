@@ -14,7 +14,7 @@ export default function Message({
       <p className="text-lg">{message}</p>
       <button
         onClick={() => navigate(`/${path}`)}
-        className="py-1 px-2 mt-2 bg-jghd-blue text-white rounded-sm"
+        className="py-1 px-2 mt-2 border rounded-full hover:bg-jghd-blue hover:text-white"
       >
         {name}으로 이동하기
       </button>

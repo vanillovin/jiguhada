@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { AiFillHeart, AiOutlineComment, AiOutlineHeart } from 'react-icons/ai';
 import { BiDotsHorizontalRounded } from 'react-icons/bi';
 import { FiBookmark } from 'react-icons/fi';
@@ -7,37 +7,46 @@ import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { defaultProfileImage } from './Register';
 import { useQuery } from 'react-query';
-import {
-  deleteBoardRequest,
-  getBoardDetailRequest,
-} from '../modules/board/api';
+import { deletePostRequest, getPostRequest } from '../modules/board/api';
 import { getBoardCatText, getDateText } from '../utils';
 import { Category } from '../modules/board/type';
 import { marked } from 'marked';
 import { useRecoilValue } from 'recoil';
 import { currentUserState } from '../modules/user/atom';
-import Modal from '../components/Modal';
 import Message from '../components/Message';
 
-function BoardDetail() {
+export default function Post() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams<{ id: string }>();
   const { isLoading, data } = useQuery(`BoardDetail${id || state}`, () =>
-    getBoardDetailRequest(Number(id) || Number(state))
+    getPostRequest(Number(id) || Number(state))
   );
-  console.log('BoardDetail data', data);
+  // console.log('BoardDetail data', data);
   const [toggleOpen, setToggleOpen] = useState(false);
   const currentUser = useRecoilValue(currentUserState);
+
+  const handleEditBoard = () => {
+    navigate(`/board/${data?.boardId}/edit`, {
+      state: {
+        prevBoardData: {
+          boardId: data?.boardId,
+          boardCategory: data?.boardCategory,
+          title: data?.title,
+          content: data?.content,
+        },
+      },
+    });
+  };
 
   const handleDeleteBoard = () => {
     if (!confirm('게시글을 삭제하시겠습니까?')) return;
     if (!currentUser?.accessToken) {
-      alert('토큰일 읽을 수 없습니다. 다시 로그인해 주세요.');
+      alert('토큰을 읽을 수 없습니다. 다시 로그인해 주세요!');
       navigate('/register');
       return;
     }
-    deleteBoardRequest(currentUser?.accessToken, Number(id))
+    deletePostRequest(currentUser?.accessToken, Number(id))
       .then((res) => {
         console.log('handleDeleteBoard res', res);
         if (res.code === 200) {
@@ -50,7 +59,7 @@ function BoardDetail() {
       });
   };
 
-  if (!data?.boardId) {
+  if (!data) {
     return (
       <Message
         message="게시글을 조회할 수 없습니다"
@@ -61,8 +70,8 @@ function BoardDetail() {
 
   return (
     <section className="w-full max-h-screen max-w-6xl px-10">
-      <div className="bd-container flex flex-col md:flex-row w-full border rounded-sm">
-        <div className="flex flex-col w-full md:w-3/5 h-full border-b md:border-r ">
+      <div className="h-[700px] md:h-[650px] flex flex-col md:flex-row w-full rounded-sm border">
+        <div className="flex flex-col w-full md:w-3/5 h-[400px] md:h-full md:border-r">
           <div className="w-full flex justify-between border-b p-3">
             <div className="flex flex-col md:flex-row">
               <div className="flex items-center mb-1 md:items-start md:flex-col mr-3 md:mb-0">
@@ -86,35 +95,37 @@ function BoardDetail() {
                 <button onClick={() => setToggleOpen((prev) => !prev)}>
                   <BiDotsHorizontalRounded size={28} />
                 </button>
-                <Modal
-                  isOpen={toggleOpen}
-                  isClickFilterBtn={() => setToggleOpen(false)}
-                  className="absolute w-32 top-8 right-0 border rounded-lg shadow-md bg-white"
-                >
-                  <button className="w-full flex items-center cursor-pointer py-1 px-3">
-                    <HiOutlinePencilAlt className="mr-2" />
-                    수정하기
-                  </button>
-                  <button
-                    onClick={handleDeleteBoard}
-                    className="w-full flex items-center cursor-pointer py-1 px-3"
-                  >
-                    <HiOutlineTrash className="mr-2" />
-                    삭제하기
-                  </button>
-                </Modal>
+                {toggleOpen && (
+                  <div className="absolute w-32 top-8 right-0 border rounded-lg shadow-md bg-white">
+                    <button
+                      onClick={handleEditBoard}
+                      className="w-full flex items-center cursor-pointer py-1 px-3"
+                    >
+                      <HiOutlinePencilAlt className="mr-2" />
+                      수정하기
+                    </button>
+                    <button
+                      onClick={handleDeleteBoard}
+                      className="w-full flex items-center cursor-pointer py-1 px-3"
+                    >
+                      <HiOutlineTrash className="mr-2" />
+                      삭제하기
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
           <div
-            className="bd-content w-full h-full px-3 pt-4 pb-7 scroll-smooth overflow-auto bg-gray-1 text-sm md:text-base leading-6 md:leading-7"
+            className="bd-content w-full h-full px-3 pt-4 pb-7 scroll-smooth overflow-auto bg-gray-1 
+                      text-sm md:text-base leading-6 md:leading-7"
             dangerouslySetInnerHTML={{
-              __html: marked(!data.error ? data.content : ''),
+              __html: marked(data?.content || ''),
             }}
           />
         </div>
 
-        <div className="w-full md:w-2/5 h-full flex flex-col justify-between">
+        <div className="w-full md:w-2/5 h-[300px] md:h-full flex flex-col justify-between">
           <div className="p-3">
             <p className="mb-2 text-sm md:text-base">
               댓글수 {data?.commentList?.length}개
@@ -177,5 +188,3 @@ function BoardDetail() {
     </section>
   );
 }
-
-export default BoardDetail;

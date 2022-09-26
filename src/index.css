@@ -63,9 +63,6 @@ button:hover {
 }
 
 /* Board Detail */
-.bd-container {
-  height: 650px;
-}
 .bd-content h1 {
   @apply font-semibold text-3xl border-b pb-2 mb-2;
 }
@@ -89,6 +86,9 @@ button:hover {
 }
 .bd-content ol {
   @apply list-decimal ml-4;
+}
+.bd-content img {
+  @apply mb-4;
 }
 .bd-content blockquote {
   margin: 1rem 0 0.5rem 0;

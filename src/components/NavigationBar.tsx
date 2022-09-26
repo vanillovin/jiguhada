@@ -41,7 +41,7 @@ function NavigationBar() {
                 to={`/user/${currentUser?.userid}`}
                 className="flex items-center"
               >
-                <div className="w-10 h-10 border border-gray-2 rounded-full mr-1">
+                <div className="w-8 h-8 md:w-10 md:h-10 border border-gray-2 rounded-full mr-1">
                   <img
                     src={currentUser?.userImgUrl || defaultProfileImage}
                     className="rounded-full w-full h-full"

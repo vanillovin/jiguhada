@@ -2,7 +2,7 @@ import { BoardList, BoardListParams, CreateBoard, BoardDetail } from './type';
 
 const API_END_POINT = `${import.meta.env.VITE_APP_HOST}/board`;
 
-export const headers: HeadersInit = new Headers();
+const headers: HeadersInit = new Headers();
 headers.set('Content-Type', 'application/json');
 headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
@@ -49,7 +49,7 @@ export const getBoardList = async (
   }
 };
 
-export const createBoardRequest = async (token: string, data: CreateBoard) => {
+export const createPostRequest = async (token: string, data: CreateBoard) => {
   headers.set('Authorization', token);
   try {
     return await (
@@ -85,9 +85,7 @@ export const uploadImgRequest = async (formData: FormData) => {
   }
 };
 
-export const getBoardDetailRequest = async (
-  id: number
-): Promise<BoardDetail> => {
+export const getPostRequest = async (id: number): Promise<BoardDetail> => {
   try {
     return await (
       await fetch(`${API_END_POINT}/read/${id}`, {
@@ -100,7 +98,7 @@ export const getBoardDetailRequest = async (
   }
 };
 
-export const deleteBoardRequest = async (token: string, id: number) => {
+export const deletePostRequest = async (token: string, id: number) => {
   headers.set('Authorization', token);
   try {
     return await (
