@@ -204,7 +204,19 @@ function Board() {
             </ul>
             {currentUser && (
               <button
-                onClick={() => navigate('/board/new')}
+                onClick={() =>
+                  navigate('/board/new', {
+                    state: {
+                      data: {
+                        category: '',
+                        title: '',
+                        content: '',
+                        contentImgList: [],
+                        tempImgList: [],
+                      },
+                    },
+                  })
+                }
                 className="bg-jghd-blue text-white px-2 text-sm md:text-base py-1 md:px-4 md:py-2 rounded-md"
               >
                 글쓰기

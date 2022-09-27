@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
+import React, { useRef, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue, useResetRecoilState } from 'recoil';
-import React, { useRef } from 'react';
 import '@toast-ui/editor/dist/i18n/ko-kr';
 import { Editor as ToastEditor } from '@toast-ui/react-editor';
 import 'tui-color-picker/dist/tui-color-picker.css';
@@ -10,21 +10,40 @@ import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 import { currentUserState } from '../modules/user/atom';
 import { createPostRequest, uploadImgRequest } from '../modules/board/api';
 
+interface LocationState {
+  data: {
+    category: string;
+    title: string;
+    content: string;
+    contentImgList: string[];
+    tempImgList: string[];
+  };
+}
+
 export default function WritePost() {
-  let imgList: string[] = []; // 에디터
-  let tempImgList: string[] = []; // 전부
   const editorRef = useRef<ToastEditor>(null);
   const currentUser = useRecoilValue(currentUserState);
   const resetUser = useResetRecoilState(currentUserState);
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as LocationState;
+  let contentImgList: string[] = locationState?.data.contentImgList || []; // 에디터
+  let tempImgList: string[] = locationState?.data.tempImgList || []; // 전부
+
+  useEffect(() => {
+    if (!currentUser?.accessToken) {
+      alert('쓰기 권한이 없습니다');
+      navigate(-1);
+    }
+  }, []);
 
   const onChange = () => {
     const data = editorRef.current?.getInstance().getHTML();
-    imgList = tempImgList.filter((img) => data?.includes(img));
+    contentImgList = tempImgList.filter((img) => data?.includes(img));
   };
 
   const onUploadImage = async (blob: Blob, callback: any) => {
-    if (imgList.length >= 3) {
+    if (contentImgList.length >= 3) {
       alert('이미지 파일은 3개까지 첨부할 수 있습니다');
       return;
     }
@@ -33,7 +52,7 @@ export default function WritePost() {
     uploadImgRequest(formData)
       .then((data) => {
         console.log('onUploadImage data', data);
-        imgList.push(data.imgUrl);
+        contentImgList.push(data.imgUrl);
         tempImgList.push(data.imgUrl);
         callback(data.imgUrl);
       })
@@ -45,14 +64,26 @@ export default function WritePost() {
   const handleCreateBoard = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData);
+    // const data = Object.fromEntries(formData);
     const instance = editorRef.current?.getInstance();
+    const category = formData.get('category') as string;
+    const title = formData.get('title') as string;
     const content = instance?.getHTML() as string;
-    if (!formData.get('category')) {
+    if (!currentUser?.accessToken) {
+      alert('토큰을 읽을 수 없습니다. 다시 로그인해 주세요!');
+      navigate('/register', {
+        state: {
+          path: '/board/new',
+          data: { category, title, content, contentImgList, tempImgList },
+        },
+      });
+      return;
+    }
+    if (!category) {
       alert('카테고리를 선택해 주세요');
       return;
     }
-    if (!formData.get('title')) {
+    if (!title) {
       alert('제목을 입력해 주세요');
       return;
     }
@@ -65,13 +96,14 @@ export default function WritePost() {
     }
     const imgList = tempImgList.filter((img) => content?.includes(img));
     const deletedImgList = tempImgList.filter((img) => !imgList.includes(img));
-    const newData = {
-      ...data,
+    const data = {
+      category,
+      title,
       imgList,
       content,
       deletedImgList,
     };
-    createPostRequest(currentUser?.accessToken as string, newData)
+    createPostRequest(currentUser?.accessToken as string, data)
       .then((res) => {
         console.log('createBoardRequest res', res);
         if (!res.errorCode) {
@@ -79,7 +111,10 @@ export default function WritePost() {
         } else {
           alert(res.message);
           resetUser();
-          navigate('/register');
+          // 작성중인게시글데이터보관
+          navigate('/register', {
+            state: { path: '/board/new', data },
+          });
         }
       })
       .catch((err) => {
@@ -90,7 +125,11 @@ export default function WritePost() {
   return (
     <form onSubmit={handleCreateBoard} className="w-screen max-w-4xl p-4">
       <div className="flex w-full text-start border-b border-gray-300 mb-4">
-        <select name="category" className="outline-none p-2">
+        <select
+          name="category"
+          defaultValue={locationState?.data.category || ''}
+          className="outline-none p-2"
+        >
           <option value="">카테고리 선택</option>
           <option value="VEGAN">비건</option>
           <option value="ENVIRONMENT">환경</option>
@@ -98,12 +137,14 @@ export default function WritePost() {
           <option value="FREE">자유게시판</option>
         </select>
         <input
+          defaultValue={locationState?.data.title || ''}
           name="title"
           className="outline-none p-2 flex-grow"
           placeholder="글 제목을 입력해 주세요"
         />
       </div>
       <ToastEditor
+        initialValue={locationState?.data.content || ''}
         ref={editorRef}
         useCommandShortcut={true}
         placeholder="내용을 입력해 주세요!"

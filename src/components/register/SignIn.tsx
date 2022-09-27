@@ -4,7 +4,7 @@ import { loginRequest } from '../../modules/auth/api';
 import { currentUserState } from '../../modules/user/atom';
 
 interface SignInProps {
-  goToHome(): void;
+  goToPrevOrHome(): void;
   setIsRegistered(val: boolean): void;
 }
 
@@ -17,7 +17,7 @@ const signInputsData = [
   ['pw', '비밀번호', '비밀번호를 입력해주세요.'],
 ];
 
-function SignIn({ goToHome, setIsRegistered }: SignInProps) {
+function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
   const [currentUser, setCurrentUser] = useRecoilState(currentUserState);
   // const { value: loading, setValue: setLoading } = useInput<boolean>(false);
   const [signInInputs, setSignInInputs] = useState<SignInInputs>({
@@ -71,7 +71,7 @@ function SignIn({ goToHome, setIsRegistered }: SignInProps) {
           }
         } else {
           setCurrentUser(data);
-          goToHome();
+          goToPrevOrHome();
         }
       })
       .catch((err) => {

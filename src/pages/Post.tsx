@@ -29,7 +29,7 @@ export default function Post() {
   const handleEditBoard = () => {
     navigate(`/board/${data?.boardId}/edit`, {
       state: {
-        prevBoardData: {
+        data: {
           boardId: data?.boardId,
           boardCategory: data?.boardCategory,
           title: data?.title,

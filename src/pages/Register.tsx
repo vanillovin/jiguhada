@@ -1,15 +1,21 @@
 import SignIn from '../components/register/SignIn';
 import useInput from '../hooks/useInput';
 import SignUp from '../components/register/SignUp';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const defaultProfileImage =
   'https://jiguhada-user-img.s3.ap-northeast-2.amazonaws.com/profile-img/earth_default.png';
 
 function Register() {
+  const location = useLocation();
+  const locationState = location.state as { path: string; data: any };
   const navigate = useNavigate();
   const { value: isRegistered, setValue: setIsRegistered } = useInput(true);
   const goToHome = () => navigate('/');
+  const goToPrevOrHome = () =>
+    navigate(locationState.path || '/', {
+      state: { data: locationState.data },
+    });
   return (
     <div className="border w-96 p-7 rounded-lg">
       <h1 className="flex flex-col items-center text-3xl font-bold">
@@ -24,7 +30,10 @@ function Register() {
       {!isRegistered ? (
         <SignUp goToHome={goToHome} setIsRegistered={setIsRegistered} />
       ) : (
-        <SignIn goToHome={goToHome} setIsRegistered={setIsRegistered} />
+        <SignIn
+          goToPrevOrHome={goToPrevOrHome}
+          setIsRegistered={setIsRegistered}
+        />
       )}
     </div>
   );

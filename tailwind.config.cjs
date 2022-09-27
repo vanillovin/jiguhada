@@ -9,6 +9,7 @@ module.exports = {
       colors: {
         'jghd-blue': '#4D96FF',
         'jghd-green': '#6BCB77',
+        'jghd-red': '#ff8787',
         'gray-1': '#fcfcfc',
         'gray-2': '#f2f2f2',
         'gray-3': '#adadad',
