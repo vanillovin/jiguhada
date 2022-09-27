@@ -7,6 +7,7 @@ import UserInfo from './pages/UserInfo';
 import Board from './pages/Board';
 import Settings from './components/userinfo/Settings';
 import Post from './pages/Post';
+import EditPost from './pages/EditPost';
 import WritePost from './pages/WritePost';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/board" element={<Board />} />
         <Route path="/board/:id" element={<Post />} />
+        <Route path="/board/:id/edit" element={<EditPost />} />
         <Route path="/board/new" element={<WritePost />} />
         <Route path="/user/:id" element={<UserInfo />}>
           <Route path="settings" element={<Settings />} />

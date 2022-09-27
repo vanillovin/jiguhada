@@ -111,3 +111,32 @@ export const deletePostRequest = async (token: string, id: number) => {
     throw new Error(`게시글 삭제를 실패했습니다. ${e}`);
   }
 };
+
+export const getPrevPostDataRequest = async (token: string, id: number) => {
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${API_END_POINT}/update/${id}`, {
+        method: 'GET',
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`게시글 수정 정보 가져오기를 실패했습니다. ${e}`);
+  }
+};
+
+export const updatePostRequest = async (token: string, data: any) => {
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${API_END_POINT}/update`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`게시글 업데이트를 실패했습니다. ${e}`);
+  }
+};
