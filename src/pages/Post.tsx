@@ -59,7 +59,7 @@ export default function Post() {
       });
   };
 
-  if (!data) {
+  if (data?.error) {
     return (
       <Message
         message="게시글을 조회할 수 없습니다"
@@ -69,9 +69,9 @@ export default function Post() {
   }
 
   return (
-    <section className="w-full max-h-screen max-w-6xl px-10">
-      <div className="h-[700px] md:h-[650px] flex flex-col md:flex-row w-full rounded-sm border">
-        <div className="flex flex-col w-full md:w-3/5 h-[400px] md:h-full md:border-r">
+    <section className="w-full max-h-screen max-w-6xl px-5 md:px-10">
+      <div className=" md:h-[650px] flex flex-col md:flex-row w-full rounded-sm border">
+        <div className="flex flex-col w-full md:w-3/5 h-[450px] md:h-full md:border-r">
           <div className="w-full flex justify-between border-b p-3">
             <div className="flex flex-col md:flex-row">
               <div className="flex items-center mb-1 md:items-start md:flex-col mr-3 md:mb-0">
@@ -125,7 +125,7 @@ export default function Post() {
           />
         </div>
 
-        <div className="w-full md:w-2/5 h-[300px] md:h-full flex flex-col justify-between">
+        <div className="w-full md:w-2/5 h-[300px] md:h-full flex flex-col justify-between border-t md:border-t-0">
           <div className="p-3">
             <p className="mb-2 text-sm md:text-base">
               댓글수 {data?.commentList?.length}개

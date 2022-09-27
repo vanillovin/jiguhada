@@ -19,7 +19,7 @@ function User() {
       <div className="border-r w-full md:w-1/4 p-4 border rounded-tl-sm md:rounded-bl-sm">
         <div>
           <div className="flex md:flex-col items-center md:items-start mb-6">
-            <div className="flex items-center mb-2">
+            <div className="flex items-center mb-3">
               <img
                 src={currentUser?.userImgUrl}
                 className="rounded-full w-20 h-20 border mr-2"
@@ -31,7 +31,7 @@ function User() {
             </div>
             <div>
               <button
-                className="text-sm md:text-base text-white bg-red-400 p-1 px-2"
+                className="text-sm md:text-base text-white bg-red-400 p-1 px-2 ml-2 md:ml-0"
                 onClick={logout}
               >
                 로그아웃

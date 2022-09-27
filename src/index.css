@@ -24,10 +24,13 @@ body {
   padding: 0;
   display: flex;
   justify-content: center;
-  @apply mt-28 mb-8;
+  @apply mt-20 md:mt-28 mb-8;
 }
 
-/*  */
+.pBtn {
+  @apply cursor-pointer text-sm md:text-base flex items-center justify-center w-6 md:w-7 h-6 md:h-7 rounded-md;
+}
+
 .hr-lines-con {
   position: relative;
   padding: 10px 0px;

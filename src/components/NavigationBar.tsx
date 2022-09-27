@@ -11,7 +11,7 @@ function NavigationBar() {
   return (
     <nav
       className="fixed top-0 left-0 bg-white bg-opacity-95 border-b w-full h-16
-      flex items-center justify-between px-10 md:px-32 z-50 select-none"
+      flex items-center justify-between px-5 md:px-32 z-50 select-none"
     >
       <h1 className="text-xl md:text-2xl font-bold group">
         <Link to="/">
@@ -23,7 +23,7 @@ function NavigationBar() {
       </h1>
       <ul className="flex h-full items-center font-medium">
         <li
-          className={`flex items-center px-1 ml-3 h-full transition-all ${
+          className={`flex items-center px-1 ml-2 md:ml-3 h-full transition-all ${
             currentPath.includes('board')
               ? 'border-b-2 border-black -mb-1 transition-all'
               : 'hover:text-gray-400'
@@ -36,7 +36,7 @@ function NavigationBar() {
 
         {currentUser ? (
           <>
-            <li className={`flex items-center px-1 ml-3`}>
+            <li className={`flex items-center px-1 ml-2 md:ml-3`}>
               <Link
                 to={`/user/${currentUser?.userid}`}
                 className="flex items-center"
@@ -47,7 +47,10 @@ function NavigationBar() {
                     className="rounded-full w-full h-full"
                   />
                 </div>
-                <span className="font-medium">{currentUser?.nickname}</span>님
+                <span className="hidden md:block font-medium">
+                  {currentUser?.nickname}
+                </span>
+                <span className="hidden md:block">님</span>
                 {/* {currentUser?.nickname}<span className="font-light">님</span> */}
               </Link>
             </li>

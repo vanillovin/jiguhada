@@ -64,14 +64,14 @@ const PageList = ({
 
   return (
     <nav className="w-full flex items-center justify-center select-none">
-      <ul className="flex items-center px-2 ">
+      <ul className="flex items-center px-2">
         {endPage > 1 && currentPage > 1 && (
-          <li onClick={onBackward} className="cursor-pointer px-2">
-            <AiOutlineBackward />
+          <li onClick={onBackward} className="pBtn">
+            <AiOutlineBackward size={18} />
           </li>
         )}
         {currentPage > 1 && (
-          <li onClick={onPrevious} className="cursor-pointer px-2">
+          <li onClick={onPrevious} className="pBtn ml-1 md:ml-2">
             <AiOutlineCaretLeft />
           </li>
         )}
@@ -79,21 +79,23 @@ const PageList = ({
           <li
             onClick={() => onPageChange(num)}
             key={i}
-            className={`cursor-pointer mx-2 px-2 rounded-md ${
-              currentPage === num ? 'bg-jghd-green text-white font-medium' : ''
+            className={`pBtn mx-1 md:mx-2 ${
+              currentPage === num
+                ? 'bg-jghd-green text-white font-medium hover:text-white'
+                : ''
             }`}
           >
             {num}
           </li>
         ))}
         {currentPage < endPage && (
-          <li onClick={onNext} className="cursor-pointer px-2">
+          <li onClick={onNext} className="pBtn mr-1 md:mr-2">
             <AiOutlineCaretRight />
           </li>
         )}
         {endPage > 1 && currentPage < endPage && (
-          <li onClick={onForward} className="cursor-pointer px-2">
-            <AiOutlineForward />
+          <li onClick={onForward} className="pBtn">
+            <AiOutlineForward size={18} />
           </li>
         )}
       </ul>

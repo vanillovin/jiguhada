@@ -1,7 +1,7 @@
 import { AiOutlineComment, AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 import { BoardItem as BItem } from '../../modules/board/type';
-import { getBoardCatText, getDateText } from '../../utils';
+import { displayedAt, getBoardCatText, getDateText } from '../../utils';
 
 function BoardItem({
   board,
@@ -19,30 +19,39 @@ function BoardItem({
         navigate(`/board/${board.boardId}`, { state: board.boardId })
       }
       key={board.boardId}
-      className={`w-full cursor-pointer flex items-center py-3 text-sm md:text-base font-light
+      className={`w-full cursor-pointer flex items-center py-3 font-light
         ${isLastBoard ? '' : 'border-b'} 
       `}
     >
-      <p className="w-1/12 text-center text-gray-4">{board.boardId}</p>
-      <p className="w-4/12 font-normal">
+      <p className="w-1/12 text-center text-gray-4 hidden md:block">
+        {board.boardId}
+      </p>
+      <p className="w-5/12 md:w-4/12 font-normal text-sm md:text-base">
         {!categoryParam ? `[${getBoardCatText(board.category)}]` : ''}{' '}
         {board.boardTitle}
       </p>
-      <p className="w-2/12 text-center">{board.writer}</p>
-      <p className="w-2/12 text-center tracking-tighter text-gray-4">
-        {getDateText(board.createDate)}
+      <p className="w-2/12 text-center text-xs md:text-base">{board.writer}</p>
+      <p className="w-2/12 text-center tracking-tighter text-gray-4 text-xs md:text-base">
+        <span className="hidden md:block">{getDateText(board.createDate)}</span>
+        <span className="block md:hidden">
+          {displayedAt(new Date(board.createDate).getTime())}
+        </span>
       </p>
-      <p className="w-1/12 flex items-center justify-center">
-        <AiOutlineComment color="#6BCB77" size={15} />{' '}
-        <span className="ml-1 text-gray-4">{board.commentCount}</span>
+      <p className="w-1/12 flex items-center justify-center text-xs md:text-base">
+        <AiOutlineComment
+          className="hidden md:block"
+          color="#6BCB77"
+          size={15}
+        />{' '}
+        <span className="md:ml-1 text-gray-4">{board.commentCount}</span>
       </p>
-      <p className="w-1/12 flex items-center justify-center">
-        <AiOutlineEye color="#ff8787" size={15} />{' '}
-        <span className="ml-1 text-gray-4">{board.viewCount}</span>
+      <p className="w-1/12 flex items-center justify-center text-xs md:text-base">
+        <AiOutlineEye className="hidden md:block" color="#ff8787" size={15} />{' '}
+        <span className="md:ml-1 text-gray-4">{board.viewCount}</span>
       </p>
-      <p className="w-1/12 flex items-center justify-center">
-        <AiOutlineLike color="#4D96FF" size={15} />{' '}
-        <span className="ml-1 text-gray-4">{board.likeCount}</span>
+      <p className="w-1/12 flex items-center justify-center text-xs md:text-base">
+        <AiOutlineLike className="hidden md:block" color="#4D96FF" size={15} />{' '}
+        <span className="md:ml-1 text-gray-4">{board.likeCount}</span>
       </p>
     </li>
   );

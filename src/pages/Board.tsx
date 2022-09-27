@@ -8,6 +8,7 @@ import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { currentUserState } from '../modules/user/atom';
 import Loading from '../components/Loading';
+import { AiOutlineComment, AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
 
 const categoryData = [
   ['', '전체'],
@@ -113,10 +114,12 @@ function Board() {
   };
 
   return (
-    <section className="w-full max-w-6xl px-10">
-      <div className="bg-gray-2 text-start p-6">
-        <h1 className="font-bold text-2xl">이야기를 나눠요</h1>
-        <p>카테고리의 성격에 맞는 게시글을 작성해주세요 {':>'}</p>
+    <section className="w-full max-w-6xl px-5 md:px-10">
+      <div className="bg-gray-2 text-start p-3 md:p-6">
+        <h1 className="font-bold text-xl md:text-2xl">이야기를 나눠요</h1>
+        <p className="text-sm md:text-base">
+          카테고리의 성격에 맞는 게시글을 작성해주세요 {':>'}
+        </p>
       </div>
 
       <div className="flex flex-col md:flex-row mt-5">
@@ -135,7 +138,10 @@ function Board() {
         </ul>
 
         <div className="flex flex-col flex-1 items-start">
-          <form className="flex w-full mb-4" onSubmit={onSubmit}>
+          <form
+            className="flex w-full mb-4 text-sm md:text-base"
+            onSubmit={onSubmit}
+          >
             <select
               name="type"
               defaultValue="title?"
@@ -199,7 +205,7 @@ function Board() {
             {currentUser && (
               <button
                 onClick={() => navigate('/board/new')}
-                className="bg-jghd-blue text-white px-4 py-2 rounded-md"
+                className="bg-jghd-blue text-white px-2 text-sm md:text-base py-1 md:px-4 md:py-2 rounded-md"
               >
                 글쓰기
               </button>
@@ -208,16 +214,37 @@ function Board() {
 
           <ul className="w-full mb-4">
             <li className="w-full flex items-center py-2 border-b border-black text-sm md:text-base font-semibold">
-              <p className="w-1/12 text-center">번호</p>
-              <p className="w-4/12 text-center">제목</p>
+              <p className="w-1/12 text-center hidden md:block">번호</p>
+              <p className="w-5/12 md:w-4/12 text-center">제목</p>
               <p className="w-2/12 text-center">글쓴이</p>
               <p className="w-2/12 text-center">작성일</p>
-              <p className="w-1/12 text-center">댓글수</p>
-              <p className="w-1/12 text-center">조회수</p>
-              <p className="w-1/12 text-center">좋아요</p>
+              <p className="w-1/12 text-center">
+                <span className="hidden md:block">댓글수</span>
+                <AiOutlineComment
+                  className="w-full block md:hidden"
+                  color="#6BCB77"
+                  size={15}
+                />
+              </p>
+              <p className="w-1/12 text-center">
+                <span className="hidden md:block">조회수</span>
+                <AiOutlineEye
+                  className="w-full block md:hidden"
+                  color="#ff8787"
+                  size={15}
+                />
+              </p>
+              <p className="w-1/12 text-center">
+                <span className="hidden md:block">좋아요</span>
+                <AiOutlineLike
+                  className="w-full block md:hidden"
+                  color="#4D96FF"
+                  size={15}
+                />
+              </p>
             </li>
             {!isLoading ? (
-              boardList.boardItemList.length > 0 ? (
+              boardList && boardList.boardItemList.length > 0 ? (
                 boardList?.boardItemList?.map((board, i) => (
                   <BoardItem
                     key={board.boardId}
