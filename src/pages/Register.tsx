@@ -13,8 +13,8 @@ function Register() {
   const { value: isRegistered, setValue: setIsRegistered } = useInput(true);
   const goToHome = () => navigate('/');
   const goToPrevOrHome = () =>
-    navigate(locationState.path || '/', {
-      state: { data: locationState.data },
+    navigate(locationState ? locationState.path : '/', {
+      state: locationState ? { data: locationState.data } : null,
     });
   return (
     <div className="border w-96 p-7 rounded-lg">
