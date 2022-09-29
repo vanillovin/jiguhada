@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export const defaultProfileImage =
   'https://jiguhada-user-img.s3.ap-northeast-2.amazonaws.com/profile-img/earth_default.png';
 
-function Register() {
+export default function Register() {
   const location = useLocation();
   const locationState = location.state as { path: string; data: any };
   const navigate = useNavigate();
@@ -38,5 +38,3 @@ function Register() {
     </div>
   );
 }
-
-export default Register;

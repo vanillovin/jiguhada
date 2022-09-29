@@ -13,7 +13,7 @@ export default function Message({
     <div className="mt-28 text-center">
       <p className="text-lg">{message}</p>
       <button
-        onClick={() => navigate(`/${path}`)}
+        onClick={() => navigate(path)}
         className="py-1 px-2 mt-2 border rounded-full hover:bg-jghd-blue hover:text-white"
       >
         {name}으로 이동하기

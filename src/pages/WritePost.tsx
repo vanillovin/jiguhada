@@ -69,16 +69,6 @@ export default function WritePost() {
     const category = formData.get('category') as string;
     const title = formData.get('title') as string;
     const content = instance?.getHTML() as string;
-    if (!currentUser?.accessToken) {
-      alert('토큰을 읽을 수 없습니다. 다시 로그인해 주세요!');
-      navigate('/register', {
-        state: {
-          path: '/board/new',
-          data: { category, title, content, contentImgList, tempImgList },
-        },
-      });
-      return;
-    }
     if (!category) {
       alert('카테고리를 선택해 주세요');
       return;

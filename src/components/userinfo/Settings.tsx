@@ -17,7 +17,7 @@ const initialPasswords = {
   checkpassword: '',
 } as const;
 
-function Settings() {
+export default function Settings() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const nicknameInputRef = useRef() as React.MutableRefObject<HTMLInputElement>;
@@ -264,5 +264,3 @@ function Settings() {
     </>
   );
 }
-
-export default Settings;

@@ -2,7 +2,7 @@ import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue, useResetRecoilState } from 'recoil';
 import { currentUserState } from '../modules/user/atom';
 
-function User() {
+export default function User() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const currentUser = useRecoilValue(currentUserState);
@@ -15,10 +15,10 @@ function User() {
   const currentPath = location.pathname;
 
   return (
-    <section className="w-full flex flex-col md:flex-row px-10 pb-10 max-w-5xl">
+    <section className="w-full flex flex-col md:flex-row px-5 md:px-10 pb-10 max-w-5xl">
       <div className="border-r w-full md:w-1/4 p-4 border rounded-tl-sm md:rounded-bl-sm">
         <div>
-          <div className="flex md:flex-col items-center md:items-start mb-6">
+          <div className="flex md:flex-col items-center md:items-start mb-3 md:mb-6">
             <div className="flex items-center mb-3">
               <img
                 src={currentUser?.userImgUrl}
@@ -39,7 +39,7 @@ function User() {
             </div>
           </div>
 
-          <ul className="flex md:flex-col text-start">
+          <ul className="flex md:flex-col text-start text-sm md:text-base">
             {id == currentUser?.userid && (
               <>
                 <li className="mt-2 text-lg font-bold mb-1 hidden md:block">
@@ -74,5 +74,3 @@ function User() {
     </section>
   );
 }
-
-export default User;

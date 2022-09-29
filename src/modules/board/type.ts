@@ -51,13 +51,14 @@ interface Comment {
   createdDate: string;
 }
 
-interface Like {
-  likeId: number;
-  username: string;
-  nickname: string;
+export interface Like {
+  likeId?: number;
+  username?: string;
+  nickname?: string;
+  userId?: number;
 }
 
-export interface BoardDetail {
+export interface Post {
   error?: string;
   userId: number;
   boardId: number;
