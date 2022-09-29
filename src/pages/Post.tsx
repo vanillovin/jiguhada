@@ -6,8 +6,13 @@ import { BsBookmarkFill } from 'react-icons/bs';
 import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { defaultProfileImage } from './Register';
-import { useQuery } from 'react-query';
-import { deletePostRequest, getPostRequest } from '../modules/board/api';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import {
+  cancelLikePostRequest,
+  deletePostRequest,
+  getPostRequest,
+  likePostRequest,
+} from '../modules/board/api';
 import { getBoardCatText, getDateText } from '../utils';
 import { Category } from '../modules/board/type';
 import { marked } from 'marked';
@@ -19,12 +24,14 @@ export default function Post() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams<{ id: string }>();
-  const { isLoading, data } = useQuery(`BoardDetail${id || state}`, () =>
+  const { data } = useQuery(['Post', id || state], () =>
     getPostRequest(Number(id) || Number(state))
   );
-  // console.log('BoardDetail data', data);
   const [toggleOpen, setToggleOpen] = useState(false);
   const currentUser = useRecoilValue(currentUserState);
+  console.log('Post data:', data);
+
+  const queryClient = useQueryClient();
 
   const handleEditBoard = () => {
     navigate(`/board/${data?.boardId}/edit`, {
@@ -59,14 +66,65 @@ export default function Post() {
       });
   };
 
-  if (data?.error) {
-    return (
-      <Message
-        message="게시글을 조회할 수 없습니다"
-        navigateInfo={{ name: '게시판', path: 'board' }}
-      />
+  const { mutate: likePost } = useMutation(
+    () => likePostRequest(currentUser?.accessToken as string, Number(id)),
+    {
+      onSuccess: (data, variables, context) => {
+        console.log('likePost success!', data, variables, context);
+        queryClient.setQueryData(['Post', id], (old: any) => ({
+          ...old,
+          likeList: data,
+        }));
+      },
+      onError: (err, variables, context) => {
+        console.log('likePost success', err, variables, context);
+      },
+    }
+  );
+
+  const { mutate: cancleLikePost } = useMutation(
+    (likeId: number) =>
+      cancelLikePostRequest(currentUser?.accessToken as string, likeId),
+    {
+      onSuccess: (data, variables, context) => {
+        console.log('cancleLikePost success!', data, variables, context);
+        queryClient.setQueryData(['Post', id], (old: any) => ({
+          ...old,
+          likeList: data,
+        }));
+      },
+      onError: (err, variables, context) => {
+        console.log('cancleLikePost success', err, variables, context);
+      },
+    }
+  );
+
+  const handleLikeOrCancelLikePost = () => {
+    if (!currentUser?.accessToken) {
+      if (confirm('로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?!')) {
+        navigate('/register', { state: { path: `/board/${id}` } });
+        return;
+      }
+      return;
+    }
+    // const liked = new Set(data?.likeList.map(({ userId }) => userId)).has(
+    //   currentUser?.userid
+    // );
+    const liked = data?.likeList.find(
+      ({ userId }) => userId === currentUser.userid
     );
-  }
+    liked ? cancleLikePost(Number(liked.likeId)) : likePost();
+  };
+
+  // 로딩중일때도뜸
+  // if (!data?.boardId) {
+  //   return (
+  //     <Message
+  //       message="존재하지 않는 게시글입니다"
+  //       navigateInfo={{ name: '게시판', path: '/board' }}
+  //     />
+  //   );
+  // }
 
   return (
     <section className="w-full max-h-screen max-w-6xl px-5 md:px-10">
@@ -153,13 +211,18 @@ export default function Post() {
 
           <div>
             <div className="flex items-center py-2 px-3 border-t">
-              <button className="flex items-center mr-6">
-                {true ? (
-                  <AiOutlineHeart size={22} />
-                ) : (
+              <button
+                onClick={handleLikeOrCancelLikePost}
+                className="flex items-center mr-6"
+              >
+                {new Set(data?.likeList.map(({ userId }) => userId)).has(
+                  currentUser?.userid
+                ) ? (
                   <AiFillHeart size={22} />
+                ) : (
+                  <AiOutlineHeart size={22} />
                 )}
-                <span className="ml-1">0</span>
+                <span className="ml-1">{data?.likeList.length}</span>
               </button>
               <button className="flex items-center mr-6">
                 <AiOutlineComment size={22} /> <span className="ml-1">1</span>

@@ -1,6 +1,7 @@
-import { BoardList, BoardListParams, CreateBoard, BoardDetail } from './type';
+import { BoardList, BoardListParams, CreateBoard, Post, Like } from './type';
 
-const API_END_POINT = `${import.meta.env.VITE_APP_HOST}/board`;
+const BOARD_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/board`;
+const BOARD_LIKE_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/boardLike`;
 
 const headers: HeadersInit = new Headers();
 headers.set('Content-Type', 'application/json');
@@ -18,14 +19,14 @@ export const getBoardList = async (
       if (category) {
         return await (
           await fetch(
-            `${API_END_POINT}/list?query=${query}&page=${page}&order=${order}&category=${category}&searchType=${searchType}`,
+            `${BOARD_API_END_POINT}/list?query=${query}&page=${page}&order=${order}&category=${category}&searchType=${searchType}`,
             { headers }
           )
         ).json();
       } else {
         return await (
           await fetch(
-            `${API_END_POINT}/list?query=${query}&page=${page}&order=${order}&searchType=${searchType}`,
+            `${BOARD_API_END_POINT}/list?query=${query}&page=${page}&order=${order}&searchType=${searchType}`,
             { headers }
           )
         ).json();
@@ -33,13 +34,13 @@ export const getBoardList = async (
     } else if (category) {
       return await (
         await fetch(
-          `${API_END_POINT}/list?page=${page}&order=${order}&category=${category}`,
+          `${BOARD_API_END_POINT}/list?page=${page}&order=${order}&category=${category}`,
           { headers }
         )
       ).json();
     } else {
       return await (
-        await fetch(`${API_END_POINT}/list?page=${page}&order=${order}`, {
+        await fetch(`${BOARD_API_END_POINT}/list?page=${page}&order=${order}`, {
           headers,
         })
       ).json();
@@ -53,7 +54,7 @@ export const createPostRequest = async (token: string, data: CreateBoard) => {
   headers.set('Authorization', token);
   try {
     return await (
-      await fetch(`${API_END_POINT}/create`, {
+      await fetch(`${BOARD_API_END_POINT}/create`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers,
@@ -74,7 +75,7 @@ export const uploadImgRequest = async (formData: FormData) => {
   headers.set('Access-Control-Allow-Credentials', 'true');
   try {
     return await (
-      await fetch(`${API_END_POINT}/uploadImg`, {
+      await fetch(`${BOARD_API_END_POINT}/uploadImg`, {
         method: 'POST',
         body: formData,
         headers,
@@ -85,10 +86,10 @@ export const uploadImgRequest = async (formData: FormData) => {
   }
 };
 
-export const getPostRequest = async (id: number): Promise<BoardDetail> => {
+export const getPostRequest = async (id: number): Promise<Post> => {
   try {
     return await (
-      await fetch(`${API_END_POINT}/read/${id}`, {
+      await fetch(`${BOARD_API_END_POINT}/read/${id}`, {
         method: 'GET',
         headers,
       })
@@ -102,7 +103,7 @@ export const deletePostRequest = async (token: string, id: number) => {
   headers.set('Authorization', token);
   try {
     return await (
-      await fetch(`${API_END_POINT}/delete/${id}`, {
+      await fetch(`${BOARD_API_END_POINT}/delete/${id}`, {
         method: 'DELETE',
         headers,
       })
@@ -116,7 +117,7 @@ export const getPrevPostDataRequest = async (token: string, id: number) => {
   headers.set('Authorization', token);
   try {
     return await (
-      await fetch(`${API_END_POINT}/update/${id}`, {
+      await fetch(`${BOARD_API_END_POINT}/update/${id}`, {
         method: 'GET',
         headers,
       })
@@ -130,7 +131,7 @@ export const updatePostRequest = async (token: string, data: any) => {
   headers.set('Authorization', token);
   try {
     return await (
-      await fetch(`${API_END_POINT}/update`, {
+      await fetch(`${BOARD_API_END_POINT}/update`, {
         method: 'PUT',
         body: JSON.stringify(data),
         headers,
@@ -138,5 +139,36 @@ export const updatePostRequest = async (token: string, data: any) => {
     ).json();
   } catch (e) {
     throw new Error(`게시글 업데이트를 실패했습니다. ${e}`);
+  }
+};
+
+export const likePostRequest = async (
+  token: string,
+  boardId: number
+): Promise<Like[] | { errorCode: string }> => {
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${BOARD_LIKE_API_END_POINT}/create/${boardId}`, {
+        method: 'POST',
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`게시글 좋아요를 실패했습니다. ${e}`);
+  }
+};
+
+export const cancelLikePostRequest = async (token: string, likeId: number) => {
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${BOARD_LIKE_API_END_POINT}/delete/${likeId}`, {
+        method: 'DELETE',
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`게시글 좋아요 취소를 실패했습니다. ${e}`);
   }
 };
