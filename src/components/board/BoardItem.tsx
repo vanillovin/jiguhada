@@ -43,15 +43,21 @@ function BoardItem({
           color="#6BCB77"
           size={15}
         />{' '}
-        <span className="md:ml-1 text-gray-4">{board.commentCount}</span>
+        <span className="md:ml-1 text-jghd-green md:text-gray-4">
+          {board.commentCount}
+        </span>
       </p>
       <p className="w-1/12 flex items-center justify-center text-xs md:text-base">
         <AiOutlineEye className="hidden md:block" color="#ff8787" size={15} />{' '}
-        <span className="md:ml-1 text-gray-4">{board.viewCount}</span>
+        <span className="md:ml-1 text-jghd-red md:text-gray-4">
+          {board.viewCount}
+        </span>
       </p>
       <p className="w-1/12 flex items-center justify-center text-xs md:text-base">
         <AiOutlineLike className="hidden md:block" color="#4D96FF" size={15} />{' '}
-        <span className="md:ml-1 text-gray-4">{board.likeCount}</span>
+        <span className="md:ml-1 text-jghd-blue md:text-gray-4">
+          {board.likeCount}
+        </span>
       </p>
     </li>
   );
