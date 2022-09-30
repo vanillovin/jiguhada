@@ -144,15 +144,19 @@ export const updatePostRequest = async (token: string, data: any) => {
 
 export const likePostRequest = async (
   token: string,
-  boardId: number
+  boardId: number,
+  userId: number
 ): Promise<Like[] | { errorCode: string }> => {
   headers.set('Authorization', token);
   try {
     return await (
-      await fetch(`${BOARD_LIKE_API_END_POINT}/create/${boardId}`, {
-        method: 'POST',
-        headers,
-      })
+      await fetch(
+        `${BOARD_LIKE_API_END_POINT}/create/${boardId}?userId=${userId}`,
+        {
+          method: 'POST',
+          headers,
+        }
+      )
     ).json();
   } catch (e) {
     throw new Error(`게시글 좋아요를 실패했습니다. ${e}`);

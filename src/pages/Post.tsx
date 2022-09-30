@@ -18,14 +18,22 @@ import { Category } from '../modules/board/type';
 import { marked } from 'marked';
 import { useRecoilValue } from 'recoil';
 import { currentUserState } from '../modules/user/atom';
-import Message from '../components/Message';
 
 export default function Post() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams<{ id: string }>();
-  const { data } = useQuery(['Post', id || state], () =>
-    getPostRequest(Number(id) || Number(state))
+  const { data } = useQuery(
+    ['Post', id || state],
+    () => getPostRequest(Number(id) || Number(state))
+    // {
+    //   onSuccess: (data) => {
+    //     console.log('onSuccess Post data', data);
+    //   },
+    //   onError: (err) => {
+    //     console.log('onError Post data', err);
+    //   },
+    // }
   );
   const [toggleOpen, setToggleOpen] = useState(false);
   const currentUser = useRecoilValue(currentUserState);
@@ -67,7 +75,12 @@ export default function Post() {
   };
 
   const { mutate: likePost } = useMutation(
-    () => likePostRequest(currentUser?.accessToken as string, Number(id)),
+    () =>
+      likePostRequest(
+        currentUser?.accessToken as string,
+        Number(id),
+        currentUser?.userid as number
+      ),
     {
       onSuccess: (data, variables, context) => {
         console.log('likePost success!', data, variables, context);
@@ -77,7 +90,7 @@ export default function Post() {
         }));
       },
       onError: (err, variables, context) => {
-        console.log('likePost success', err, variables, context);
+        console.log('likePost error', err, variables, context);
       },
     }
   );
@@ -94,37 +107,24 @@ export default function Post() {
         }));
       },
       onError: (err, variables, context) => {
-        console.log('cancleLikePost success', err, variables, context);
+        console.log('cancleLikePost error', err, variables, context);
       },
     }
   );
 
   const handleLikeOrCancelLikePost = () => {
-    if (!currentUser?.accessToken) {
+    if (!currentUser) {
       if (confirm('로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?!')) {
         navigate('/register', { state: { path: `/board/${id}` } });
         return;
       }
       return;
     }
-    // const liked = new Set(data?.likeList.map(({ userId }) => userId)).has(
-    //   currentUser?.userid
-    // );
     const liked = data?.likeList.find(
       ({ userId }) => userId === currentUser.userid
     );
     liked ? cancleLikePost(Number(liked.likeId)) : likePost();
   };
-
-  // 로딩중일때도뜸
-  // if (!data?.boardId) {
-  //   return (
-  //     <Message
-  //       message="존재하지 않는 게시글입니다"
-  //       navigateInfo={{ name: '게시판', path: '/board' }}
-  //     />
-  //   );
-  // }
 
   return (
     <section className="w-full max-h-screen max-w-6xl px-5 md:px-10">
