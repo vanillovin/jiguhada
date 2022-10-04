@@ -19,12 +19,66 @@ body {
   place-items: center;
 }
 
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+}
+
 #root {
   width: 100vw;
   padding: 0;
   display: flex;
   justify-content: center;
   @apply mt-20 md:mt-28 mb-8;
+}
+
+.likes::-webkit-scrollbar {
+  width: 8px;
+}
+.likes::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  @apply bg-gray-3;
+}
+.likes::-webkit-scrollbar-track {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: inset 0px 0px 5px white;
+}
+
+/* Comment */
+.cmt::-webkit-scrollbar {
+  width: 8px;
+}
+.cmt::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  @apply bg-gray-3;
+}
+.cmt::-webkit-scrollbar-track {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: inset 0px 0px 5px white;
+}
+.cine {
+  align-items: stretch;
+  border: 0;
+  border-bottom: 1px solid rgb(142, 142, 142);
+  box-sizing: border-box;
+  display: inline-block;
+  flex-direction: column;
+  flex-shrink: 0;
+  font: inherit;
+  font-size: 100%;
+  height: 0;
+  margin: 0;
+  margin-right: 16px;
+  padding: 0;
+  position: relative;
+  vertical-align: middle;
+  width: 24px;
 }
 
 .pBtn {
