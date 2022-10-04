@@ -43,7 +43,8 @@ export interface Img {
   imgUrl: string;
 }
 
-interface Comment {
+export interface ChildComment {
+  parentCommentId: number;
   commentId: number;
   username: string;
   nickname: string;
@@ -51,25 +52,55 @@ interface Comment {
   createdDate: string;
 }
 
+export interface Comment {
+  totalCommentCount: number;
+  currentPage: number;
+  totalPage: number;
+  commentList: [
+    {
+      boardId: number;
+      boardTitle: string;
+      boardCategory: string;
+      commentId: number;
+      commentContent: string;
+      commentCount: number;
+      nickname: string;
+      userId: number;
+      userImg: string;
+      commentCreateDate: string;
+      commentUpdateDate: string;
+    }
+  ];
+}
+
 export interface Like {
   likeId?: number;
+  userId?: number;
   username?: string;
   nickname?: string;
-  userId?: number;
+  userImgUrl?: string;
+}
+
+export interface Likes {
+  currentPage: number;
+  totalLikeCount: number;
+  toalPage: number;
+  likeList: Like[];
 }
 
 export interface Post {
   error?: string;
-  userId: number;
   boardId: number;
   title: string;
   content: string;
-  createDate: string;
   viewCount: number;
   boardCategory: string;
   username: string;
+  userId: number;
+  userImgUrl: string;
   nickname: string;
-  commentList: Comment[];
-  likeList: Like[];
-  imgList: Img[];
+  commentCount: number;
+  likeCount: number;
+  createDate: string;
+  updateDate: string;
 }

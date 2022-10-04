@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import { AiFillHeart, AiOutlineComment, AiOutlineHeart } from 'react-icons/ai';
 import { BiDotsHorizontalRounded } from 'react-icons/bi';
 import { FiBookmark } from 'react-icons/fi';
 import { BsBookmarkFill } from 'react-icons/bs';
 import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { defaultProfileImage } from './Register';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   cancelLikePostRequest,
+  createPostCommentRequest,
   deletePostRequest,
+  getLikeRequest,
   getPostRequest,
   likePostRequest,
 } from '../modules/board/api';
@@ -18,12 +19,14 @@ import { Category } from '../modules/board/type';
 import { marked } from 'marked';
 import { useRecoilValue } from 'recoil';
 import { currentUserState } from '../modules/user/atom';
+import useToggle from '../hooks/useToggle';
+import CommentList from '../components/post/CommentList';
 
 export default function Post() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams<{ id: string }>();
-  const { data } = useQuery(
+  const { data: post } = useQuery(
     ['Post', id || state],
     () => getPostRequest(Number(id) || Number(state))
     // {
@@ -35,20 +38,24 @@ export default function Post() {
     //   },
     // }
   );
-  const [toggleOpen, setToggleOpen] = useState(false);
-  const currentUser = useRecoilValue(currentUserState);
-  console.log('Post data:', data);
+  const { data: likes } = useQuery(['Like', id], () =>
+    getLikeRequest(Number(id))
+  );
 
+  const toggleRef = useRef() as React.RefObject<HTMLDivElement>;
+  const { toggle, onToggleChange } = useToggle(toggleRef);
+  const currentUser = useRecoilValue(currentUserState);
   const queryClient = useQueryClient();
+  // console.log('Post likes:', likes);
 
   const handleEditBoard = () => {
-    navigate(`/board/${data?.boardId}/edit`, {
+    navigate(`/board/${post?.boardId}/edit`, {
       state: {
         data: {
-          boardId: data?.boardId,
-          boardCategory: data?.boardCategory,
-          title: data?.title,
-          content: data?.content,
+          boardId: post?.boardId,
+          boardCategory: post?.boardCategory,
+          title: post?.title,
+          content: post?.content,
         },
       },
     });
@@ -120,40 +127,86 @@ export default function Post() {
       }
       return;
     }
-    const liked = data?.likeList.find(
+    const liked = likes?.likeList.find(
       ({ userId }) => userId === currentUser.userid
     );
     liked ? cancleLikePost(Number(liked.likeId)) : likePost();
   };
 
+  const { mutate: createComment } = useMutation(
+    (data: { boardId: number; content: string }) =>
+      createPostCommentRequest(currentUser?.accessToken as string, data),
+    {
+      onSuccess: (data, variables, context) => {
+        // resData, {boardId, content}, undefined
+        const errorCode = data.errorCode || '';
+        if (errorCode) {
+          if (errorCode === 'EXPIRE_ACCESS_TOKEN') {
+            alert(data.message);
+            navigate('/register', { state: { path: `/board/${id}` } });
+          }
+          return;
+        }
+        console.log('createComment success!', data, variables, context);
+        queryClient.setQueryData(['Post', id], (old: any) => ({
+          ...old,
+          commentList: data,
+        }));
+        // variables.clearContent();
+      },
+      onError: (err, variables, context) => {
+        console.log('createComment error', err, variables, context);
+      },
+    }
+  );
+
+  const handleCreateComment = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!currentUser) {
+      if (confirm('로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?!')) {
+        navigate('/register', { state: { path: `/board/${id}` } });
+        return;
+      }
+      return;
+    }
+    const formData = new FormData(e.currentTarget);
+    const content = formData.get('content') as string;
+    if (content.trim().length < 2) {
+      alert('댓글은 2자 이상 입력해 주세요!');
+      return;
+    }
+    // formData.set('content', '');
+    createComment({ boardId: Number(id), content });
+  };
+
   return (
     <section className="w-full max-h-screen max-w-6xl px-5 md:px-10">
-      <div className=" md:h-[650px] flex flex-col md:flex-row w-full rounded-sm border">
+      <div className="md:h-[650px] flex flex-col md:flex-row w-full rounded-sm border">
         <div className="flex flex-col w-full md:w-3/5 h-[450px] md:h-full md:border-r">
           <div className="w-full flex justify-between border-b p-3">
             <div className="flex flex-col md:flex-row">
               <div className="flex items-center mb-1 md:items-start md:flex-col mr-3 md:mb-0">
                 <h2 className="text-sm md:text-base font-medium">{id}</h2>
                 <h3 className="text-sm text-gray-4 mt-0 ml-1 md:mt-1 md:ml-0">
-                  {getBoardCatText(data?.boardCategory as Category)}
+                  {getBoardCatText(post?.boardCategory as Category)}
                 </h3>
               </div>
               <div className="flex flex-col justify-between">
-                <h1 className="font-semibold md:text-lg">{data?.title}</h1>
+                <h1 className="font-semibold md:text-lg">{post?.title}</h1>
                 <h2 className="flex items-center text-sm md:text-base">
-                  {data?.nickname} ·{' '}
+                  {post?.nickname} ·{' '}
                   <span className="ml-1 text-gray-3 text-xs">
-                    {getDateText(data?.createDate as string)}
+                    {getDateText(post?.createDate as string)}
                   </span>
                 </h2>
               </div>
             </div>
-            {currentUser?.userid === data?.userId && (
-              <div className="relative">
-                <button onClick={() => setToggleOpen((prev) => !prev)}>
+            {currentUser?.userid === post?.userId && (
+              <div className="relative" ref={toggleRef}>
+                <button onClick={onToggleChange}>
                   <BiDotsHorizontalRounded size={28} />
                 </button>
-                {toggleOpen && (
+                {toggle && (
                   <div className="absolute w-32 top-8 right-0 border rounded-lg shadow-md bg-white">
                     <button
                       onClick={handleEditBoard}
@@ -178,68 +231,65 @@ export default function Post() {
             className="bd-content w-full h-full px-3 pt-4 pb-7 scroll-smooth overflow-auto bg-gray-1 
                       text-sm md:text-base leading-6 md:leading-7"
             dangerouslySetInnerHTML={{
-              __html: marked(data?.content || ''),
+              __html: marked(post?.content || ''),
             }}
           />
         </div>
 
-        <div className="w-full md:w-2/5 h-[300px] md:h-full flex flex-col justify-between border-t md:border-t-0">
-          <div className="p-3">
-            <p className="mb-2 text-sm md:text-base">
-              댓글수 {data?.commentList?.length}개
+        <div className="w-full md:w-2/5 h-[450px] md:h-full flex flex-col justify-between border-t md:border-t-0">
+          <div className="p-3 overflow-y-auto cmt">
+            <p className="mb-2 font-medium text-sm md:text-base">
+              댓글수 {post?.commentCount}개
             </p>
-            <ul>
-              <li className="flex items-center">
-                <div className="w-10 h-10 mr-2">
-                  <img
-                    src={defaultProfileImage}
-                    className="w-full h-full rounded-full"
-                  />
-                </div>
-                <div>
-                  <p className="text-sm md:text-base font-medium">
-                    지구님
-                    <span className="ml-1 text-gray-3 text-xs">
-                      2022.09.21 20:56
-                    </span>
-                  </p>
-                  <p className="text-sm md:text-base">{'안녕하세요구르트'}</p>
-                </div>
-              </li>
-            </ul>
+            <CommentList id={id as string} />
           </div>
 
           <div>
             <div className="flex items-center py-2 px-3 border-t">
-              <button
-                onClick={handleLikeOrCancelLikePost}
-                className="flex items-center mr-6"
-              >
-                {new Set(data?.likeList.map(({ userId }) => userId)).has(
-                  currentUser?.userid
-                ) ? (
-                  <AiFillHeart size={22} />
-                ) : (
-                  <AiOutlineHeart size={22} />
-                )}
-                <span className="ml-1">{data?.likeList.length}</span>
-              </button>
-              <button className="flex items-center mr-6">
-                <AiOutlineComment size={22} /> <span className="ml-1">1</span>
-              </button>
+              <div className="flex items-center mr-5 md:mr-7">
+                <button onClick={handleLikeOrCancelLikePost}>
+                  {new Set(likes?.likeList.map(({ userId }) => userId)).has(
+                    currentUser?.userid
+                  ) ? (
+                    <AiFillHeart size={22} color="#ed4956" />
+                  ) : (
+                    <AiOutlineHeart size={22} />
+                  )}
+                </button>
+                <span
+                  onClick={() => {
+                    navigate(`/board/${id}/likes`);
+                  }}
+                  className="cursor-pointer ml-1 text-sm md:text-base"
+                >
+                  {post?.likeCount}
+                  {/* <ul className="likes absolute bottom-10 left-0 border shadow-sm bg-white w-28 max-h-40 overflow-y-auto">
+                    {likes?.likeList.map((like) => (
+                      <li key={like.likeId} className="border-b py-1 px-2">
+                        {like.nickname}
+                      </li>
+                    ))}
+                  </ul> */}
+                </span>
+              </div>
+              <div className="flex items-center mr-5 md:mr-7">
+                <AiOutlineComment size={22} />{' '}
+                <span className="ml-1 text-sm md:text-base">
+                  {post?.commentCount}
+                </span>
+              </div>
               <button className="">
                 {true ? <FiBookmark size={22} /> : <BsBookmarkFill />}
               </button>
             </div>
             <form
               className="flex items-center border-t"
-              onSubmit={(e) => {
-                e.preventDefault();
-              }}
+              onSubmit={handleCreateComment}
             >
-              <input className="outline-none flex-1 py-2 px-3" />
+              <input name="content" className="outline-none flex-1 py-2 px-3" />
               <button
                 type="submit"
+                // disabled
                 className={`py-1 px-3 ${true ? 'text-jghd-green' : ''}`}
               >
                 입력
@@ -248,6 +298,7 @@ export default function Post() {
           </div>
         </div>
       </div>
+      <Outlet />
     </section>
   );
 }

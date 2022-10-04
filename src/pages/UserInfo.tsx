@@ -58,7 +58,22 @@ export default function User() {
             <li className="mt-2 text-lg font-bold mb-1 hidden md:block">
               게시판
             </li>
-            <li className={`ml-2 mb-1`}>작성한 게시글</li>
+            <li
+              className={`ml-2 mb-1 ${
+                currentPath === `/user/${id}/comments` &&
+                'text-jghd-blue font-bold'
+              }`}
+            >
+              <Link to={`/user/${id}/comments`}>작성한 댓글</Link>
+            </li>
+            <li
+              className={`ml-2 mb-1 ${
+                currentPath === `/user/${id}/posts` &&
+                'text-jghd-blue font-bold'
+              }`}
+            >
+              <Link to={`/user/${id}/posts`}>작성한 게시글</Link>
+            </li>
             <li className="mt-2 text-lg font-bold mb-1 hidden md:block">
               챌린지
             </li>
