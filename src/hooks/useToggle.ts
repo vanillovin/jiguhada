@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-function useToggle(toggleRef: React.MutableRefObject<HTMLElement>) {
+export default function useToggle(toggleRef: React.RefObject<HTMLElement>) {
   const [toggle, setToggle] = useState(false);
 
   const onToggleChange = () => setToggle((prev) => !prev);
@@ -21,7 +21,5 @@ function useToggle(toggleRef: React.MutableRefObject<HTMLElement>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toggle]);
 
-  return [toggle, onToggleChange];
+  return { toggle, onToggleChange };
 }
-
-export default useToggle;
