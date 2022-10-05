@@ -24,16 +24,26 @@ function NavigationBar() {
       <ul className="flex h-full items-center font-medium">
         <li
           className={`flex items-center px-1 ml-2 md:ml-3 h-full transition-all ${
+            currentPath.includes('challenge')
+              ? 'border-b-2 border-black -mb-1 transition-all'
+              : 'hover:text-amber-400'
+          }`}
+        >
+          <Link to="/challenge" className="flex items-center">
+            챌린지
+          </Link>
+        </li>
+        <li
+          className={`flex items-center px-1 ml-2 md:ml-3 h-full transition-all ${
             currentPath.includes('board')
               ? 'border-b-2 border-black -mb-1 transition-all'
-              : 'hover:text-gray-400'
+              : 'hover:text-amber-400'
           }`}
         >
           <Link to="/board" className="flex items-center">
             게시판
           </Link>
         </li>
-
         {currentUser ? (
           <>
             <li className={`flex items-center px-1 ml-2 md:ml-3`}>
@@ -60,7 +70,7 @@ function NavigationBar() {
             className={`flex items-center px-1 ml-3 h-full transition-all ${
               currentPath.includes('register')
                 ? 'border-b-2 border-black -mb-1'
-                : 'hover:text-gray-400 '
+                : 'hover:text-amber-400 '
             }`}
           >
             <Link to={`/register`}>로그인·회원가입</Link>

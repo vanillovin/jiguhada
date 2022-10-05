@@ -12,6 +12,7 @@ import WritePost from './pages/WritePost';
 import Comments from './components/userinfo/Comments';
 import Posts from './components/userinfo/Posts';
 import LikeList from './components/post/LikeList';
+import Challenge from './pages/Challenge';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="comments" element={<Comments />} />
           <Route path="posts" element={<Posts />} />
         </Route>
+        <Route path="/challenge" element={<Challenge />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
