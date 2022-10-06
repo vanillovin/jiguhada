@@ -258,13 +258,19 @@ export const getPostCommentDataRequest = async (token: string, id: number) => {
   }
 };
 
-export const getCommentRequest = async (boardId: number): Promise<Comment> => {
+export const getCommentsRequest = async (
+  boardId: number,
+  page: number
+): Promise<Comment> => {
   try {
     return await (
-      await fetch(`${BOARD_COMMENT_API_END_POINT}/read/${boardId}`, {
-        method: 'GET',
-        headers,
-      })
+      await fetch(
+        `${BOARD_COMMENT_API_END_POINT}/read/${boardId}?page=${page || 1}`,
+        {
+          method: 'GET',
+          headers,
+        }
+      )
     ).json();
   } catch (e) {
     throw new Error(`댓글 데이터를 가져오지 못했습니다. ${e}`);
