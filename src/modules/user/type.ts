@@ -4,4 +4,5 @@ export interface ICurrentUser {
   nickname: string;
   userImgUrl: string;
   userid: number;
+  username: number;
 }

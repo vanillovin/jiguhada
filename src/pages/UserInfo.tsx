@@ -26,7 +26,9 @@ export default function User() {
               />
               <div className="text-start">
                 <h2 className="font-semibold">{currentUser?.nickname}</h2>
-                <p className="text-sm text-gray-4 -mt-1">@test</p>
+                <p className="text-sm text-gray-4 -mt-1">
+                  @{currentUser?.username}
+                </p>
               </div>
             </div>
             <div>
