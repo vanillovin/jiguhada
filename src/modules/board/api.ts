@@ -295,7 +295,7 @@ export const deleteCommentRequest = async (
 };
 
 // Board Like
-export const getLikeRequest = async (
+export const getLikesRequest = async (
   boardId: number,
   page?: number
 ): Promise<Likes> => {

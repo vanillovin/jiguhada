@@ -10,7 +10,7 @@ import {
   cancelLikePostRequest,
   createPostCommentRequest,
   deletePostRequest,
-  getLikeRequest,
+  getLikesRequest,
   getPostRequest,
   likePostRequest,
 } from '../modules/board/api';
@@ -39,7 +39,7 @@ export default function Post() {
     // }
   );
   const { data: likes } = useQuery(['Like', id], () =>
-    getLikeRequest(Number(id))
+    getLikesRequest(Number(id))
   );
 
   const toggleRef = useRef() as React.RefObject<HTMLDivElement>;
@@ -147,11 +147,17 @@ export default function Post() {
           }
           return;
         }
+
         console.log('createComment success!', data, variables, context);
         queryClient.setQueryData(['Post', id], (old: any) => ({
           ...old,
-          commentList: data,
+          commentCount: old.commentCount + 1,
         }));
+        queryClient.invalidateQueries(['CommentList', id]);
+        const commentInput = document.getElementById(
+          'comment'
+        ) as HTMLInputElement;
+        commentInput.value = '';
         // variables.clearContent();
       },
       onError: (err, variables, context) => {
@@ -286,7 +292,11 @@ export default function Post() {
               className="flex items-center border-t"
               onSubmit={handleCreateComment}
             >
-              <input name="content" className="outline-none flex-1 py-2 px-3" />
+              <input
+                id="comment"
+                name="content"
+                className="outline-none flex-1 py-2 px-3"
+              />
               <button
                 type="submit"
                 // disabled

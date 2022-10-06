@@ -84,7 +84,7 @@ export interface Like {
 export interface Likes {
   currentPage: number;
   totalLikeCount: number;
-  toalPage: number;
+  totalPage: number;
   likeList: Like[];
 }
 
