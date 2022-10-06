@@ -2,18 +2,21 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getLikesRequest } from '../../modules/board/api';
+import { useInView } from 'react-intersection-observer';
 
 export default function LikeList() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const observerElem = useRef(null);
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
 
   const fetchLikes = (page: number) => getLikesRequest(+id, page);
 
-  const { data, fetchNextPage, isFetchingNextPage, hasNextPage } =
+  const { data, fetchNextPage, isFetching, isFetchingNextPage, hasNextPage } =
     useInfiniteQuery(
       ['Likes', { id }],
-      ({ pageParam = 1 }) => fetchLikes(pageParam),
+      ({ pageParam = 0 }) => fetchLikes(pageParam),
       {
         getNextPageParam: (lastPage, allPages) => {
           return lastPage.currentPage < lastPage.totalPage
@@ -23,20 +26,7 @@ export default function LikeList() {
       }
     );
 
-  console.log(isFetchingNextPage, hasNextPage);
-
-  const handleObserver = useCallback(
-    (entries) => {
-      const [target] = entries;
-      if (target.isIntersecting && hasNextPage) {
-        fetchNextPage();
-      }
-    },
-    [fetchNextPage, hasNextPage]
-  );
-
   useEffect(() => {
-    // top: -${window.scrollY}px
     document.body.style.cssText = `
     position: fixed; 
     overflow-y: scroll;
@@ -50,12 +40,8 @@ export default function LikeList() {
   }, []);
 
   useEffect(() => {
-    const element = observerElem.current;
-    const option = { threshold: 0 };
-    const observer = new IntersectionObserver(handleObserver, option);
-    observer.observe(element);
-    return () => observer.unobserve(element);
-  }, [fetchNextPage, hasNextPage, handleObserver]);
+    if (inView) fetchNextPage();
+  }, [inView]);
 
   return (
     <div
@@ -84,7 +70,7 @@ export default function LikeList() {
               <li
                 key={like.likeId}
                 onClick={() => navigate(`/user/${like.userId}`)}
-                className="cursor-pointer flex items-center px-4 py-2 hover:bg-gray-2"
+                className="cursor-pointer flex items-center px-4 py-3 hover:bg-gray-100 transition-colors"
               >
                 <div className="w-12 h-12 mr-2">
                   <img
@@ -99,8 +85,10 @@ export default function LikeList() {
               </li>
             ))
           )}
-          <div ref={observerElem} className="m1-1">
-            {isFetchingNextPage && hasNextPage && '불러오는 중...'}
+          <div ref={ref} className="m-1">
+            {isFetching && isFetchingNextPage && hasNextPage
+              ? '불러오는 중...'
+              : null}
           </div>
         </ul>
       </div>
