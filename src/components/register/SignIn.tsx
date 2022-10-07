@@ -17,7 +17,10 @@ const signInputsData = [
   ['pw', '비밀번호', '비밀번호를 입력해주세요.'],
 ];
 
-function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
+export default function SignIn({
+  goToPrevOrHome,
+  setIsRegistered,
+}: SignInProps) {
   const [currentUser, setCurrentUser] = useRecoilState(currentUserState);
   // const { value: loading, setValue: setLoading } = useInput<boolean>(false);
   const [signInInputs, setSignInInputs] = useState<SignInInputs>({
@@ -59,6 +62,7 @@ function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
     event.preventDefault();
     loginRequest({ username: id.value, password: pw.value })
       .then((data) => {
+        console.log(data);
         const errorCode = data.errorCode;
         const errorMessage = data.message;
         if (errorCode) {
@@ -133,5 +137,3 @@ function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
     </form>
   );
 }
-
-export default SignIn;

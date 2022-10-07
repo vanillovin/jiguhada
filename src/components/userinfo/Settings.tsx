@@ -5,6 +5,7 @@ import { useRecoilState, useResetRecoilState } from 'recoil';
 import {
   checkDuplicateNicknameRequest,
   imageUploadRequest,
+  signOut,
   updateImgRequest,
   updateNicknameRequest,
   updatePasswordRequest,
@@ -15,6 +16,7 @@ const initialPasswords = {
   nowpassword: '',
   newpassword: '',
   checkpassword: '',
+  prevpassword: '',
 } as const;
 
 export default function Settings() {
@@ -28,7 +30,7 @@ export default function Settings() {
   const [fileData, setFileData] = useState<Blob>();
   const [fileDataUrl, setFileDataUrl] = useState(currentUser?.userImgUrl);
   const [passwords, setPasswords] = useState(initialPasswords);
-  const { nowpassword, newpassword, checkpassword } = passwords;
+  const { nowpassword, newpassword, checkpassword, prevpassword } = passwords;
 
   const onChangePasswords = (e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log([e.target.name], ':', e.target.value);
@@ -83,10 +85,7 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    if (id != currentUser?.userid) {
-      // navigate(-1);
-      navigate('/');
-    }
+    if (id != currentUser?.username) navigate(-1);
   }, [id]);
 
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,11 +109,14 @@ export default function Settings() {
     formData.append('imgFile', fileData);
     updateImgRequest(currentUser?.accessToken as string, formData)
       .then((data) => {
-        setCurrentUser((prev: any) => ({
-          ...prev,
-          userImgUrl: data.imgUrl,
-        }));
-        setFileDataUrl(data.imgUrl);
+        console.log('updateImgRequest data', data);
+        if (!data.error) {
+          setCurrentUser((prev: any) => ({
+            ...prev,
+            userImgUrl: data.imgUrl,
+          }));
+          setFileDataUrl(data.imgUrl);
+        }
       })
       .catch((e) => {
         alert(`프로필 사진 변경에 실패했습니다. ${e}`);
@@ -148,6 +150,27 @@ export default function Settings() {
       .catch((err) => {
         console.log('updatePasswordRequest error', err);
       });
+  };
+
+  const handleSignOut = () => {
+    if (!currentUser) {
+      alert('재로그인이 필요합니다.');
+      navigate('/register', { state: { path: `/user/${id}/settings` } });
+      return;
+    }
+    signOut(currentUser?.accessToken, { password: prevpassword })
+      .then((res) => {
+        console.log('handleSignOut res', res);
+        if (res.code === 200) {
+          alert(res.message);
+          resetUser();
+          navigate('/');
+        }
+      })
+      .catch((err) => {
+        console.log('handleSignOut err', err);
+      });
+    setPasswords((prev) => ({ ...prev, prevpassword: '' }));
   };
 
   return (
@@ -250,12 +273,18 @@ export default function Settings() {
         <h2 className="text-gray-5 mb-2 font-semibold">회원 탈퇴</h2>
         <div className="w-full flex flex-col md:flex-row items-start md:items-center">
           <input
-            type="text"
+            type="password"
+            name="prevpassword"
+            value={prevpassword}
+            onChange={onChangePasswords}
             className="placeholder:text-sm outline-none border rounded-sm p-2 w-full md:w-3/5"
             placeholder="현재 비밀번호를 주세요"
           />
           <div className="flex mt-2 md:m-0">
-            <button className="text-sm md:text-base text-white bg-red-400 rounded-sm px-2 py-2 mr-1 md:mx-2">
+            <button
+              onClick={handleSignOut}
+              className="text-sm md:text-base text-white bg-red-400 rounded-sm px-2 py-2 mr-1 md:mx-2"
+            >
               탈퇴하기
             </button>
           </div>

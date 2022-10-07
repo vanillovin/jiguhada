@@ -8,6 +8,15 @@ interface SignupData {
   socialType: 'GENERAL' | 'KAKAO';
 }
 
+interface UserInfo {
+  errorCode?: string;
+  message?: string;
+  username: string;
+  nickname: string;
+  imgUrl: string;
+  socialType: 'GENERAL' | 'KAKAO';
+}
+
 export const headers: HeadersInit = new Headers();
 headers.set('Content-Type', 'application/json');
 headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -104,7 +113,11 @@ export const updateImgRequest = async (token: string, formData: FormData) => {
     'Access-Control-Allow-Origin',
     `${import.meta.env.VITE_APP_LOCAL}`
   );
-  headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  headers.set(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
+  );
   headers.set('Access-Control-Allow-Credentials', 'true');
   headers.set('Authorization', token);
   try {
@@ -135,5 +148,37 @@ export const updatePasswordRequest = async (
     ).json();
   } catch (e) {
     throw new Error(`비밀번호 변경을 실패했습니다. ${e}`);
+  }
+};
+
+export const getUserInfo = async (
+  token: string,
+  username: string
+): Promise<UserInfo> => {
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${API_END_POINT}/info/${username}`, {
+        method: 'GET',
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`회원정보 조회를 실패했습니다. ${e}`);
+  }
+};
+
+export const signOut = async (token: string, data: { password: string }) => {
+  headers.set('Authorization', token);
+  try {
+    return await (
+      await fetch(`${API_END_POINT}/signOut`, {
+        method: 'DELETE',
+        body: JSON.stringify(data),
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`회원 탈퇴를 실패했습니다. ${e}`);
   }
 };
