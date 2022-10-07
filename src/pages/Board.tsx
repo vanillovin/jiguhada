@@ -84,6 +84,7 @@ function Board() {
       : changeSearchParams([
           ['cat', value],
           ['page', '1'],
+          ['order', 'RECENT'],
         ])();
   };
 
