@@ -12,7 +12,7 @@ import WritePost from './pages/WritePost';
 import Comments from './components/userinfo/Comments';
 import Posts from './components/userinfo/Posts';
 import LikeList from './components/post/LikeList';
-import Challenge from './pages/Challenge';
+import ChallengeList from './pages/ChallengeList';
 import CreateChallenge from './pages/CreateChallenge';
 
 function App() {
@@ -33,7 +33,7 @@ function App() {
           <Route path="comments" element={<Comments />} />
           <Route path="posts" element={<Posts />} />
         </Route>
-        <Route path="/challenge" element={<Challenge />} />
+        <Route path="/challenge" element={<ChallengeList />} />
         <Route path="/challenge/new" element={<CreateChallenge />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

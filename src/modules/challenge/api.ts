@@ -1,4 +1,4 @@
-import { CreateChallenge } from './type';
+import { CreateChallenge, GetChallenge, ChallengeList } from './type';
 
 const CHALLENGE_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/challenge`;
 
@@ -8,6 +8,70 @@ headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
 headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
 headers.set('Access-Control-Allow-Credentials', 'true');
+
+export const getChallengeList = async (params): Promise<ChallengeList> => {
+  const { query, page, order, category, searchType, tagList } = params;
+  console.log('tagList:', tagList);
+  // &tagList=${tagList}
+  try {
+    if (query) {
+      if (category) {
+        return await (
+          await fetch(
+            `${CHALLENGE_API_END_POINT}/list?query=${query}&page=${page}&orderType=${order}&category=${category}&searchType=${searchType}${
+              tagList ? `&tagList=${tagList}` : ''
+            }`,
+            { headers }
+          )
+        ).json();
+      } else {
+        return await (
+          await fetch(
+            `${CHALLENGE_API_END_POINT}/list?query=${query}&page=${page}&orderType=${order}&searchType=${searchType}${
+              tagList ? `&tagList=${tagList}` : ''
+            }`,
+            { headers }
+          )
+        ).json();
+      }
+    } else if (category) {
+      return await (
+        await fetch(
+          `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}&category=${category}${
+            tagList ? `&tagList=${tagList}` : ''
+          }`,
+          { headers }
+        )
+      ).json();
+    } else {
+      return await (
+        await fetch(
+          `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}${
+            tagList ? `&tagList=${tagList}` : ''
+          }`,
+          {
+            headers,
+          }
+        )
+      ).json();
+    }
+  } catch (e) {
+    throw new Error(`챌린지 목록을 불러오지 못했습니다. ${e}`);
+  }
+};
+
+export const getChallengeRequest = async (id: number | string): Promise<GetChallenge> => {
+  try {
+    return await (
+      await fetch(`${CHALLENGE_API_END_POINT}/${id}`, {
+        method: 'GET',
+        headers,
+      })
+    ).json();
+  } catch (e) {
+    throw new Error(`챌린지 정보 조회를 실패했습니다. ${e}`);
+  }
+};
 
 export const imageUploadRequest = async (
   formData: FormData
