@@ -14,6 +14,7 @@ import Posts from './components/userinfo/Posts';
 import LikeList from './components/post/LikeList';
 import ChallengeList from './pages/ChallengeList';
 import CreateChallenge from './pages/CreateChallenge';
+import Challenge from './pages/Challenge';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="posts" element={<Posts />} />
         </Route>
         <Route path="/challenge" element={<ChallengeList />} />
+        <Route path="/challenge/:id" element={<Challenge />} />
         <Route path="/challenge/new" element={<CreateChallenge />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

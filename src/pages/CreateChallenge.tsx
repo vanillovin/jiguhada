@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { BiCalendar, BiCamera } from 'react-icons/bi';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { createChallengeRequest, imageUploadRequest } from '../modules/challenge/api';
-import { AuthFrequency } from '../modules/challenge/type';
+import { AuthFrequency, CahllengeCategory } from '../modules/challenge/type';
 import { getChallengeEndData, getChallengeStartDate } from '../modules/challenge/utils';
 import { currentUserState } from '../modules/user/atom';
 import { getDay, getToday } from '../utils';
@@ -115,6 +116,7 @@ const authFrequencyData: {
 ];
 
 export default function CreateChallenge() {
+  const navigate = useNavigate();
   const currentUser = useRecoilValue(currentUserState);
   const [inputs, setInputs] = useState({
     title: '',
@@ -156,10 +158,11 @@ export default function CreateChallenge() {
   const [tags, setTags] = useState(tagsData);
   const handleChageTags = (value: string) => {
     setTags((prev) => {
-      const checkable = prev[challengeCategory].filter((p) => p.checked).length <= 2;
+      const checkable =
+        prev[challengeCategory as CahllengeCategory].filter((p) => p.checked).length <= 2;
       return {
         ...prev,
-        [challengeCategory]: prev[challengeCategory].map((p) => {
+        [challengeCategory]: prev[challengeCategory as CahllengeCategory].map((p) => {
           if (!p.checked && !checkable) return p;
           return p.value === value ? { ...p, checked: !p.checked } : p;
         }),
@@ -179,6 +182,7 @@ export default function CreateChallenge() {
     startDate
   );
   const eDay = getToday(getDay(+eYear, +eMonth, +eDate));
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!currentUser) {
@@ -192,7 +196,7 @@ export default function CreateChallenge() {
     const [sHour, sMin] = formData.get('appt1')?.split(':');
     const [eHour, eMin] = formData.get('appt2')?.split(':');
     const data = {
-      challengeTag: tags[challengeCategory as 'VEGAN' | 'ENVIRONMENT' | 'ETC']
+      challengeTag: tags[challengeCategory as CahllengeCategory]
         .filter((_) => _.checked)
         .map((_) => _.value),
       title,
@@ -217,6 +221,7 @@ export default function CreateChallenge() {
     console.log('onSubmit data:', data);
     // createChallengeRequest(currentUser?.accessToken as string, data).then((res) => {
     //   console.log('createChallengeRequest res', res);
+    //   navigate(`challenge/${res.challengeId}`);
     // });
   };
 
@@ -259,6 +264,13 @@ export default function CreateChallenge() {
     // fileReader.readAsDataURL(file);
   };
 
+  const handleClearInput = (name: string) => {
+    setInputs((prev) => ({
+      ...prev,
+      [name]: '',
+    }));
+  };
+
   return (
     <section className="w-full max-w-md px-5">
       {/* <div className="w-full flex items-center justify-between">
@@ -267,7 +279,7 @@ export default function CreateChallenge() {
       </div> */}
       <h1 className="font-bold text-lg">챌린지를 만들어 주세요!</h1>
       <form onSubmit={onSubmit}>
-        <div className="w-full mt-6">
+        <div className="w-full mt-6 relative">
           <label htmlFor="title">
             <h2 className="font-bold">
               챌린지 제목<span className="text-red-400">*</span>
@@ -277,17 +289,37 @@ export default function CreateChallenge() {
             id="title"
             name="title"
             required
+            value={title}
+            minLength={3}
             maxLength={30}
             onChange={onChange}
-            className="w-full border-b border-gray-4 outline-none p-2 mt-2 placeholder:text-sm"
+            className={`w-full border-b border-gray-4 outline-none p-2 mt-2 placeholder:text-sm
+              ${title && title.length < 3 ? 'border-red-600' : ''}
+            `}
             placeholder="예) 1만보 걷기"
           />
-          <p className="text-end text-xs md:text-sm text-gray-4 mt-1">
-            {title.length}/30
-          </p>
+          {title.length > 0 && (
+            <button
+              type="button"
+              onClick={() => handleClearInput('title')}
+              className="absolute bottom-8 right-0 px-2"
+            >
+              x
+            </button>
+          )}
+          <div className="mt-1 flex items-center justify-between">
+            {title && title.length < 3 && (
+              <p className="text-xs md:text-sm text-red-600 ml-1">
+                최소 3글자 이상 입력해주세요.
+              </p>
+            )}
+            <p className="text-xs md:text-sm text-gray-4 grow-1 text-end flex-1 justify-self-end">
+              {title.length}/30
+            </p>
+          </div>
         </div>
 
-        <div className="w-full mt-4">
+        {/* <div className="w-full mt-4">
           <label htmlFor="challenge-detail">
             <h2 className="font-bold">
               챌린지 상세 설명<span className="text-red-400">*</span>
@@ -303,7 +335,7 @@ export default function CreateChallenge() {
             className="w-full border-b border-gray-4 outline-none p-2 mt-2 placeholder:text-sm"
             placeholder="예) 분리수거 인증하기"
           />
-        </div>
+        </div> */}
 
         <div className="w-full mt-6">
           <label>
@@ -399,19 +431,30 @@ export default function CreateChallenge() {
             name="authMethodContent"
             onChange={onChange}
             value={authMethodContent}
-            className="w-full p-2 h-20 border border-gray-4 outline-none resize-none mt-2 placeholder:text-sm"
+            className={`w-full p-2 h-20 border border-gray-4 outline-none resize-none mt-2 placeholder:text-sm
+             ${authMethodContent && authMethodContent.length < 14 ? 'border-red-600' : ''}
+            `}
             placeholder="예) 오늘 날짜와 걸음 수가 적힌 만보기 캡쳐 화면 업로드"
+            minLength={14}
+            maxLength={400}
             required
           />
-          <ul className="text-sm text-gray-4">
+          <div className="flex items-center justify-between">
+            {authMethodContent && authMethodContent.length < 14 && (
+              <p className="text-xs md:text-sm text-red-600 ml-1">
+                최소 14글자 이상 입력해주세요.
+              </p>
+            )}
+            <p className="text-xs md:text-sm text-gray-4 grow-1 text-end flex-1 justify-self-end">
+              {authMethodContent.length}/400
+            </p>
+          </div>
+          <ul className="text-sm text-gray-4 mt-2">
             <li className="ml-5 list-disc">
               챌린지가 시작되면 인증 방법을 수정할 수 없습니다. 신중히 작성해주세요.
             </li>
             <li className="ml-5 list-disc">
               참가자들이 혼란을 겪지 않도록 정확한 기준과 구체적인 인증방법을 적어주세요.
-            </li>
-            <li className="ml-5 list-disc">
-              유저 챌린지에서 발생한 분쟁에는 챌린저스가 관여하지 않습니다.
             </li>
           </ul>
         </div>
@@ -528,8 +571,12 @@ export default function CreateChallenge() {
             value={challengeAddDetails}
             className="w-full p-2 h-20 border border-gray-4 outline-none resize-none mt-2 placeholder:text-sm"
             placeholder="예) 매일 1만보 걷고 건강해지기! 오늘부터 같이 해봐요 :)"
+            maxLength={400}
           />
-          <div className="border border-gray-3 flex items-center justify-center w-12 h-12">
+          <p className="text-xs md:text-sm text-gray-4 grow-1 text-end">
+            {challengeAddDetails.length}/400
+          </p>
+          <div className="border border-gray-3 flex items-center justify-center w-14 h-14 -mt-4">
             <label htmlFor="add-img">
               {challengeAddImg ? (
                 <img src={challengeAddImg} />
@@ -635,7 +682,7 @@ export default function CreateChallenge() {
             </h2>
           </label>
           {challengeCategory ? (
-            tags[challengeCategory as 'VEGAN' | 'ENVIRONMENT' | 'ETC'].map((tag, i) => (
+            tags[challengeCategory as CahllengeCategory].map((tag, i) => (
               <button
                 key={i}
                 type="button"

@@ -7,6 +7,7 @@ import PageList from '../components/PageList';
 import { getChallengeList } from '../modules/challenge/api';
 import { CahllengeCategory, ChallengeTag } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
+import { challengePeroidName } from './Challenge';
 import { getChallengeDefaultImgUrl } from './CreateChallenge';
 
 export const tagsNameObj = {
@@ -75,7 +76,7 @@ function test(sdate: string) {
   let dday = new Date(+y, +m - 1, +d).getTime();
   let gap = dday - today;
   let result = Math.ceil(gap / (1000 * 60 * 60 * 24));
-  return `D-${result}`;
+  return result;
 }
 
 export default function ChallengeList() {
@@ -315,8 +316,8 @@ export default function ChallengeList() {
             {data?.challengeList?.map((c) => (
               <li
                 key={c.challengeId}
-                onClick={() => console.log(c.challengeId)}
-                className={`border rounded-sm p-2 w-full ${
+                onClick={() => navigate(`/challenge/${c.challengeId}`)}
+                className={`border rounded-sm p-2 w-full cursor-pointer ${
                   c.challengeStatus !== 'BEFORE' ? 'opacity-60' : ''
                 }`}
               >
@@ -329,23 +330,33 @@ export default function ChallengeList() {
                         : c.challengeImgUrl
                     }
                   />
-                  <div className="flex items-center absolute top-2 right-2 bg-black bg-opacity-40 px-2 rounded-sm text-white text-sm">
-                    <BsPersonFill />
-                    {c.currentParticipantsCount}
+                  <div className="flex items-center absolute top-2 right-2 bg-black bg-opacity-40 p-1 rounded-sm text-white text-xs">
+                    <BsPersonFill size={14} />
+                    {c.currentParticipantsCount}명
                   </div>
+                  {/* {test(c.challengeStartDate) === 1 && (
+                    <div className="w-full bg-black bg-opacity-40 absolute left-0 bottom-0 text-center text-white text-sm py-1">
+                      마감까지 00:00:00
+                    </div>
+                  )} */}
                 </div>
                 <div className="p-1">
                   <div className="flex items-center justify-between">
                     <h2 className="font-semibold">{c.challengeTitle}</h2>
-                    <p>
-                      {(c.challengeStatus === 'BEFORE' && test(c.challengeStartDate)) ||
+                    <p className="text-sm">
+                      {(c.challengeStatus === 'BEFORE' &&
+                        `D-${test(c.challengeStartDate)}`) ||
                         (c.challengeStatus === 'INPROGRESS' && '진행중') ||
                         (c.challengeStatus === 'END' && '종료')}
                     </p>
                   </div>
-                  <ul className="flex text-sm flex-wrap">
+                  <ul className="flex text-sm flex-wrap mt-1">
+                    <li className="mr-1 font-medium">
+                      #{challengePeroidName[c.challengePeroid]}
+                    </li>
+                    {/* <li className="mr-1">#{c.authFrequency}</li> */}
                     {c.challengeTagList.map((t: ChallengeTag) => (
-                      <li key={t} className="mr-1">
+                      <li key={t} className="mr-1 font-medium">
                         #{tagsNameObj[t]}
                       </li>
                     ))}

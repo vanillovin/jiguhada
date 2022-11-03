@@ -1,6 +1,9 @@
 import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue, useResetRecoilState } from 'recoil';
+import { useQuery } from 'react-query';
 import { currentUserState } from '../modules/user/atom';
+import { getUserInfo } from '../modules/user/api';
+import Message from '../components/Message';
 
 export default function User() {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +17,19 @@ export default function User() {
   };
   const currentPath = location.pathname;
 
+  const { data: user } = useQuery(['UserInfo', id], () =>
+    getUserInfo(currentUser?.accessToken, id)
+  );
+
+  if (user?.errorCode) {
+    return (
+      <Message
+        message={user?.message as string}
+        navigateInfo={{ name: '홈', path: '/' }}
+      />
+    );
+  }
+
   return (
     <section className="w-full flex flex-col md:flex-row px-5 md:px-10 pb-10 max-w-5xl">
       <div className="border-r w-full md:w-1/4 p-4 border rounded-tl-sm md:rounded-bl-sm">
@@ -21,14 +37,12 @@ export default function User() {
           <div className="flex md:flex-col items-center md:items-start mb-3 md:mb-6">
             <div className="flex items-center mb-3">
               <img
-                src={currentUser?.userImgUrl}
+                src={user?.imgUrl}
                 className="rounded-full w-20 h-20 border mr-2"
               />
               <div className="text-start">
-                <h2 className="font-semibold">{currentUser?.nickname}</h2>
-                <p className="text-sm text-gray-4 -mt-1">
-                  @{currentUser?.username}
-                </p>
+                <h2 className="font-semibold">{user?.nickname}</h2>
+                <p className="text-sm text-gray-4 -mt-1">@{user?.username}</p>
               </div>
             </div>
             <div>
@@ -42,7 +56,7 @@ export default function User() {
           </div>
 
           <ul className="flex md:flex-col text-start text-sm md:text-base">
-            {id == currentUser?.userid && (
+            {id == currentUser?.username && (
               <>
                 <li className="mt-2 text-lg font-bold mb-1 hidden md:block">
                   회원정보

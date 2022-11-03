@@ -10,9 +10,7 @@ import {
 
 const BOARD_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/board`;
 const BOARD_LIKE_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/boardLike`;
-const BOARD_COMMENT_API_END_POINT = `${
-  import.meta.env.VITE_APP_HOST
-}/boardComment`;
+const BOARD_COMMENT_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/boardComment`;
 
 const headers: HeadersInit = new Headers();
 headers.set('Content-Type', 'application/json');
@@ -21,9 +19,7 @@ headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
 headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
 headers.set('Access-Control-Allow-Credentials', 'true');
 
-export const getBoardList = async (
-  params: BoardListParams
-): Promise<BoardList> => {
+export const getBoardList = async (params: BoardListParams): Promise<BoardList> => {
   const { query, page, order, category, searchType } = params;
   try {
     if (query) {
@@ -78,10 +74,7 @@ export const createPostRequest = async (token: string, data: CreateBoard) => {
 
 export const uploadImgRequest = async (formData: FormData) => {
   const headers: HeadersInit = new Headers();
-  headers.set(
-    'Access-Control-Allow-Origin',
-    `${import.meta.env.VITE_APP_LOCAL}`
-  );
+  headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
   headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
   headers.set('Access-Control-Allow-Credentials', 'true');
   try {
@@ -162,13 +155,10 @@ export const likePostRequest = async (
   headers.set('Authorization', token);
   try {
     return await (
-      await fetch(
-        `${BOARD_LIKE_API_END_POINT}/create/${boardId}?userId=${userId}`,
-        {
-          method: 'POST',
-          headers,
-        }
-      )
+      await fetch(`${BOARD_LIKE_API_END_POINT}/create/${boardId}?userId=${userId}`, {
+        method: 'POST',
+        headers,
+      })
     ).json();
   } catch (e) {
     throw new Error(`게시글 좋아요를 실패했습니다. ${e}`);
@@ -264,13 +254,10 @@ export const getCommentsRequest = async (
 ): Promise<Comment> => {
   try {
     return await (
-      await fetch(
-        `${BOARD_COMMENT_API_END_POINT}/read/${boardId}?page=${page || 1}`,
-        {
-          method: 'GET',
-          headers,
-        }
-      )
+      await fetch(`${BOARD_COMMENT_API_END_POINT}/read/${boardId}?page=${page || 1}`, {
+        method: 'GET',
+        headers,
+      })
     ).json();
   } catch (e) {
     throw new Error(`댓글 데이터를 가져오지 못했습니다. ${e}`);
@@ -295,19 +282,13 @@ export const deleteCommentRequest = async (
 };
 
 // Board Like
-export const getLikesRequest = async (
-  boardId: number,
-  page?: number
-): Promise<Likes> => {
+export const getLikesRequest = async (boardId: number, page?: number): Promise<Likes> => {
   try {
     return await (
-      await fetch(
-        `${BOARD_LIKE_API_END_POINT}/read/${boardId}?page=${page || 1}`,
-        {
-          method: 'GET',
-          headers,
-        }
-      )
+      await fetch(`${BOARD_LIKE_API_END_POINT}/read/${boardId}?page=${page || 1}`, {
+        method: 'GET',
+        headers,
+      })
     ).json();
   } catch (e) {
     throw new Error(`좋아요 데이터를 가져오지 못했습니다. ${e}`);

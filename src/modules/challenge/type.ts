@@ -49,7 +49,39 @@ export type CahllengeCategory = 'VEGAN' | 'ENVIRONMENT' | 'ETC';
 
 type ChallengePeroid = 'ONEWEEK' | 'TWOWEEK' | 'THREEWEEK' | 'FOURWEEK';
 
-export interface CreateChallenge {
+type ChallengeStatus = 'BEFORE' | 'INPROGRESS' | 'END';
+
+export interface CreateChallengeRes {
+  achievementRate: number;
+  authAvailableEndTime: string;
+  authAvailableStartTime: string;
+  authAvailableTimeType: string;
+  authCountPerDay: 1;
+  authFrequency: string;
+  authMethodContent: string;
+  authMethodFailImgUrl: string;
+  authMethodImgUrl: string;
+  challengeAddDetails: string;
+  challengeAddImgs: string;
+  challengeCategory: string;
+  challengeDetails: string;
+  challengeEndDate: string;
+  challengeId: number;
+  challengeImg: string;
+  challengeManagerId: number;
+  challengeManagerImgUrl: string;
+  challengeManagerName: string;
+  challengePeroid: ChallengePeroid;
+  challengeStartDate: string;
+  challengeStatus: ChallengeStatus;
+  challengeTag: ChallengeTag[];
+  challengeTitle: string;
+  currrentParticipantsCount: number;
+  isOfficial: boolean;
+  participantsCount: number;
+}
+
+export interface CreateChallengeReq {
   challengeTag: ChallengeTag[];
   title: string;
   challengeDetails: string;
@@ -89,7 +121,7 @@ export interface Challenge {
   challengeImgUrl: string;
   challengePeroid: ChallengePeroid;
   challengeStartDate: string;
-  challengeStatus: 'BEFORE' | 'INPROGRESS' | 'END';
+  challengeStatus: ChallengeStatus;
   challengeTagList: ChallengeTag[];
   challengeTitle: string;
   currentParticipantsCount: number;
@@ -128,7 +160,7 @@ export interface GetChallenge {
   authAvailableTimeType: string;
   authAvailableStartTime: string;
   authAvailableEndTime: string;
-  isOfficial: false;
+  isOfficial: boolean;
   challengeStatus: string;
   achievementRate: number;
 }

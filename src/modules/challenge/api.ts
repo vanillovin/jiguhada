@@ -1,4 +1,9 @@
-import { CreateChallenge, GetChallenge, ChallengeList } from './type';
+import {
+  GetChallenge,
+  ChallengeList,
+  CreateChallengeReq,
+  CreateChallengeRes,
+} from './type';
 
 const CHALLENGE_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/challenge`;
 
@@ -93,7 +98,10 @@ export const imageUploadRequest = async (
   }
 };
 
-export const createChallengeRequest = async (token: string, data: CreateChallenge) => {
+export const createChallengeRequest = async (
+  token: string,
+  data: CreateChallengeReq
+): Promise<CreateChallengeRes> => {
   headers.set('Authorization', token);
   try {
     return await (

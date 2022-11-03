@@ -48,7 +48,7 @@ function NavigationBar() {
           <>
             <li className={`flex items-center px-1 ml-2 md:ml-3`}>
               <Link
-                to={`/user/${currentUser?.userid}`}
+                to={`/user/${currentUser?.username}`}
                 className="flex items-center"
               >
                 <div className="w-8 h-8 md:w-10 md:h-10 border border-gray-2 rounded-full mr-1">

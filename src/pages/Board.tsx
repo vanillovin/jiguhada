@@ -55,7 +55,7 @@ function Board() {
         searchType: searchTypeParam as Search,
       })
   );
-  console.log('Board boardList', boardList);
+  // console.log('Board boardList', boardList);
 
   const clearSearchParams = (name: string | string[]) => () => {
     if (Array.isArray(name)) {
@@ -130,7 +130,7 @@ function Board() {
               key={value}
               onClick={() => handleChangeCategory(value)}
               className={`md:mb-3 cursor-pointer mx-2 md:mr-0 ${
-                categoryParam === value ? 'font-bold text-jghd-green' : ''
+                categoryParam === value ? 'font-bold text-jghd-blue' : ''
               }`}
             >
               {name}
@@ -139,10 +139,7 @@ function Board() {
         </ul>
 
         <div className="flex flex-col flex-1 items-start">
-          <form
-            className="flex w-full mb-4 text-sm md:text-base"
-            onSubmit={onSubmit}
-          >
+          <form className="flex w-full mb-4 text-sm md:text-base" onSubmit={onSubmit}>
             <select
               name="type"
               defaultValue="title?"
@@ -257,7 +254,7 @@ function Board() {
               </p>
             </li>
             {!isLoading ? (
-              boardList && boardList.boardItemList.length > 0 ? (
+              boardList && boardList?.boardItemList?.length > 0 ? (
                 boardList?.boardItemList?.map((board, i) => (
                   <BoardItem
                     key={board.boardId}
@@ -265,9 +262,7 @@ function Board() {
                     categoryParam={categoryParam}
                     isLastBoard={
                       board ===
-                      boardList.boardItemList[
-                        boardList.boardItemList.length - 1
-                      ]
+                      boardList.boardItemList[boardList.boardItemList.length - 1]
                     }
                   />
                 ))
@@ -279,7 +274,7 @@ function Board() {
             )}
           </ul>
 
-          {boardList && boardList.boardItemList.length > 0 && (
+          {boardList && boardList?.boardItemList?.length > 0 && (
             <PageList
               currentPage={boardList?.currentPage}
               endPage={boardList?.totalPage}
