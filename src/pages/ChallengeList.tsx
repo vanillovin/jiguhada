@@ -8,7 +8,7 @@ import { getChallengeList } from '../modules/challenge/api';
 import { CahllengeCategory, ChallengeTag } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
 import { challengePeroidName } from './Challenge';
-import { getChallengeDefaultImgUrl } from './CreateChallenge';
+import { getChallengeDefaultImgUrl, tagsData } from './CreateChallenge';
 
 export const tagsNameObj = {
   VEGAN: '비건',
@@ -33,31 +33,6 @@ export const tagsNameObj = {
   VEGAN_DAY: '비건의 날',
   ENERGE_DAY: '에너지의 날',
 };
-
-const tagsData = [
-  { cat: 'VEGAN', value: 'VEGAN', name: '비건' },
-  { cat: 'VEGAN', value: 'VEGANRECIPE', name: '비건 레시피' },
-  { cat: 'VEGAN', value: 'VEGANBEAUTY', name: '비건 뷰티' },
-  { cat: 'VEGAN', value: 'VEGANFASHION', name: '비건 패션' },
-  { cat: 'VEGAN', value: 'PESCOVEGAN', name: '페스코' },
-
-  { cat: 'ENVIRONMENT', value: 'ZERO_WASTE', name: '제로 웨이스트' },
-  { cat: 'ENVIRONMENT', value: 'ZEROENERGE', name: '제로 에너지' },
-  { cat: 'ENVIRONMENT', value: 'PLOGGING', name: '쓰레기 줍기' },
-  { cat: 'ENVIRONMENT', value: 'TUMBLER', name: '텀블러 사용' },
-  { cat: 'ENVIRONMENT', value: 'RECYCLING', name: '재활용' },
-
-  { cat: 'ETC', value: 'ETC', name: '기타' },
-  { cat: 'ETC', value: 'LIFESTYLE', name: '생활습관' },
-  { cat: 'ETC', value: 'ENVIRONMENT_DAY', name: '환경의 날' },
-  { cat: 'ETC', value: 'EARTH_DAY', name: '지구의 날' },
-  { cat: 'ETC', value: 'PLANT_DAY', name: '식목일' },
-  { cat: 'ETC', value: 'WATER_DAY', name: '물의 날' },
-  { cat: 'ETC', value: 'SEA_DAY', name: '바다의 날' },
-  { cat: 'ETC', value: 'BUY_NOTHING_DAY', name: '아무것도 사지 않는 날' },
-  { cat: 'ETC', value: 'VEGAN_DAY', name: '비건의 날' },
-  { cat: 'ETC', value: 'ENERGE_DAY', name: '에너지의 날' },
-];
 
 const categoryData = [
   ['', '전체'],
@@ -250,26 +225,60 @@ export default function ChallengeList() {
 
           <div className="ml-1">
             <button
-              className="flex items-center mb-1 cursor-pointer"
+              className="flex items-center mb-2 cursor-pointer font-medium"
               onClick={() => setOpenTags((prev) => !prev)}
             >
               태그로 찾기{' '}
               <span className="ml-1 text-sm select-none">{openTags ? '▲' : '▼'}</span>
             </button>
-            {openTags &&
-              tagsData.map((tag) => (
-                <button
-                  key={tag.name}
-                  onClick={() => handleChageTagList(tag.value as ChallengeTag)}
-                  className={`select-none border border-gray-3 rounded-sm px-2 py-1 mr-1 mt-1 text-sm
-                    ${
-                      tagList.includes(tag.value) ? 'bg-gray-3 text-white' : 'text-gray-4'
-                    }
-                  `}
-                >
-                  {tag.name}
-                </button>
-              ))}
+            {openTags
+              ? categoryParam === ''
+                ? Object.keys(tagsData).map((cat) => {
+                    return (
+                      <div key={cat} className={`flex itmes-center my-1 ml-1`}>
+                        <h3 className="pt-2 w-10">
+                          {(cat === 'VEGAN' && '비건') ||
+                            (cat === 'ETC' && '기타') ||
+                            '환경'}
+                        </h3>
+                        <div className="flex-wrap flex-1">
+                          {tagsData[cat].map((tag) => (
+                            <button
+                              key={tag.name}
+                              onClick={() =>
+                                handleChageTagList(tag.value as ChallengeTag)
+                              }
+                              className={`select-none border border-gray-3 rounded-sm px-2 py-1 text-sm mr-1 mt-1
+                          ${
+                            tagList.includes(tag.value)
+                              ? 'bg-gray-3 text-white'
+                              : 'text-gray-4'
+                          }
+                        `}
+                            >
+                              {tag.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
+                : tagsData[categoryParam].map((tag) => (
+                    <button
+                      key={tag.name}
+                      onClick={() => handleChageTagList(tag.value as ChallengeTag)}
+                      className={`select-none border border-gray-3 rounded-sm px-2 py-1 text-sm mr-1
+                          ${
+                            tagList.includes(tag.value)
+                              ? 'bg-gray-3 text-white'
+                              : 'text-gray-4'
+                          }
+                        `}
+                    >
+                      {tag.name}
+                    </button>
+                  ))
+              : null}
           </div>
 
           <div className="w-full flex items-center justify-between mt-2 mb-6">
