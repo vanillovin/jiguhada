@@ -38,6 +38,7 @@ const categoryData = [
   ['', '전체'],
   ['VEGAN', '비건'],
   ['ENVIRONMENT', '환경'],
+  ['ETC', '기타'],
 ];
 
 const orderData = [
@@ -167,6 +168,7 @@ export default function ChallengeList() {
       ['page', '1'],
     ])();
   };
+
   return (
     <section className="w-full max-w-6xl px-5 md:px-10">
       <div className="bg-gray-2 text-start p-3 md:p-6">
@@ -242,7 +244,7 @@ export default function ChallengeList() {
                             '환경'}
                         </h3>
                         <div className="flex-wrap flex-1">
-                          {tagsData[cat].map((tag) => (
+                          {tagsData[cat as CahllengeCategory].map((tag) => (
                             <button
                               key={tag.name}
                               onClick={() =>
@@ -263,7 +265,7 @@ export default function ChallengeList() {
                       </div>
                     );
                   })
-                : tagsData[categoryParam].map((tag) => (
+                : tagsData[categoryParam as CahllengeCategory].map((tag) => (
                     <button
                       key={tag.name}
                       onClick={() => handleChageTagList(tag.value as ChallengeTag)}
