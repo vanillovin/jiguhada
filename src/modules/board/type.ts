@@ -53,24 +53,24 @@ export interface ChildComment {
 }
 
 export interface Comment {
+  boardId: number;
+  boardTitle: string;
+  boardCategory: string;
+  commentId: number;
+  commentContent: string;
+  commentCount: number;
+  nickname: string;
+  userId: number;
+  userImg: string;
+  commentCreateDate: string;
+  commentUpdateDate: string;
+}
+
+export interface CommentList {
   totalCommentCount: number;
   currentPage: number;
   totalPage: number;
-  commentList: [
-    {
-      boardId: number;
-      boardTitle: string;
-      boardCategory: string;
-      commentId: number;
-      commentContent: string;
-      commentCount: number;
-      nickname: string;
-      userId: number;
-      userImg: string;
-      commentCreateDate: string;
-      commentUpdateDate: string;
-    }
-  ];
+  commentList: Comment[];
 }
 
 export interface Like {

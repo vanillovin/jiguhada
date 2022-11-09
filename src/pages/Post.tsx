@@ -236,15 +236,12 @@ export default function Post() {
         </div>
 
         <div className="w-full md:w-2/5 h-[450px] md:h-full flex flex-col justify-between border-t md:border-t-0">
-          <div className="p-3 overflow-y-auto cmt h-full">
-            <p className="mb-2 font-medium text-sm md:text-base">
-              댓글수 {post?.commentCount}개
-            </p>
+          <div className="h-5/6">
             <CommentList id={id as string} />
           </div>
 
-          <div>
-            <div className="flex items-center py-2 px-3 border-t">
+          <div className="h-1/6 bg-red-500">
+            <div className="flex items-center p-3 border-t">
               <div className="flex items-center mr-5 md:mr-7">
                 <button onClick={handleLikeOrCancelLikePost}>
                   {new Set(likes?.likeList.map(({ userId }) => userId)).has(
@@ -279,16 +276,19 @@ export default function Post() {
                 {true ? <FiBookmark size={22} /> : <BsBookmarkFill />}
               </button>
             </div>
-            <form className="flex items-center border-t" onSubmit={handleCreateComment}>
+            <form
+              className="flex items-center border-t bg-blue-200"
+              onSubmit={handleCreateComment}
+            >
               <input
                 id="comment"
                 name="content"
-                className="outline-none flex-1 py-2 px-3"
+                className="outline-none flex-1 h-full bg-amber-200"
               />
               <button
                 type="submit"
                 // disabled
-                className={`py-1 px-3 ${true ? 'text-jghd-green' : ''}`}
+                className={`py-1 px-3 bg-red-200 h-full ${true ? 'text-jghd-green' : ''}`}
               >
                 입력
               </button>

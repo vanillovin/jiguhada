@@ -6,6 +6,7 @@ import {
   Like,
   Comment,
   Likes,
+  CommentList,
 } from './type';
 
 const BOARD_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/board`;
@@ -251,7 +252,7 @@ export const getPostCommentDataRequest = async (token: string, id: number) => {
 export const getCommentsRequest = async (
   boardId: number,
   page: number
-): Promise<Comment> => {
+): Promise<CommentList> => {
   try {
     return await (
       await fetch(`${BOARD_COMMENT_API_END_POINT}/read/${boardId}?page=${page || 1}`, {
