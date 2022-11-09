@@ -1,33 +1,67 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { BiDotsHorizontalRounded } from 'react-icons/bi';
 import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
+import {
+  InfiniteData,
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+} from 'react-query';
+import useInput from '../../hooks/useInput';
 import useToggle from '../../hooks/useToggle';
-import { deleteCommentRequest } from '../../modules/board/api';
-import { Comment } from '../../modules/board/type';
+import { createPostCommentRequest, deleteCommentRequest } from '../../modules/board/api';
+import { Comment, CommentList } from '../../modules/board/type';
 import { ICurrentUser } from '../../modules/user/type';
 import { getDateText } from '../../utils';
 
 interface CommentProps {
   comment: Comment;
   currentUser: ICurrentUser | null;
-  refetch: (opt: any) => void;
+  // refetchPage: (page: TData, index: number, allPages: TData[]) => boolean;
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
+  ) => Promise<QueryObserverResult<InfiniteData<CommentList>, unknown>>;
 }
 
 export default function CommentItem({ comment, currentUser, refetch }: CommentProps) {
   const toggleRef = useRef() as React.RefObject<HTMLDivElement>;
   const { toggle, onToggleChange } = useToggle(toggleRef);
+  const [edit, setEdit] = useState(false);
+  const {
+    value: content,
+    onChangeValue,
+    onClearValue,
+  } = useInput(comment.commentContent);
 
-  const handleDeleteComment = (id: number) => {
+  const handleDeleteComment = () => {
     if (!currentUser) {
       return;
     }
-    deleteCommentRequest(currentUser?.accessToken, id)
+    deleteCommentRequest(currentUser?.accessToken, comment.commentId)
       .then((res) => {
         console.log('delComment res', res);
         refetch({ refetchPage: (page, index) => index === 0 });
       })
       .catch((err) => {
         console.log('delComment err', err);
+      });
+  };
+
+  const handleCreateComment = () => {
+    if (!currentUser) {
+      return;
+    }
+    setEdit(false);
+    createPostCommentRequest(currentUser?.accessToken, {
+      boardId: comment.boardId,
+      content,
+    })
+      .then((res) => {
+        console.log('handleCreateComment res', res);
+        refetch({ refetchPage: (page, index) => index === 0 });
+      })
+      .catch((err) => {
+        console.log('handleCreateComment err', err);
       });
   };
 
@@ -51,7 +85,10 @@ export default function CommentItem({ comment, currentUser, refetch }: CommentPr
               </button>
               {toggle && (
                 <div className="absolute w-28 top-0 right-0 border rounded-lg shadow-md bg-white">
-                  <button className="w-full flex items-center cursor-pointer py-1 px-3">
+                  <button
+                    className="w-full flex items-center cursor-pointer py-1 px-3"
+                    onClick={() => setEdit((prev) => !prev)}
+                  >
                     <HiOutlinePencilAlt className="mr-2" />
                     수정하기
                   </button>
@@ -67,7 +104,38 @@ export default function CommentItem({ comment, currentUser, refetch }: CommentPr
             </div>
           )}
         </div>
-        <p className="text-xs md:text-sm">{comment.commentContent}</p>
+        {!edit ? (
+          <p className="text-xs md:text-sm">{comment.commentContent}</p>
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleCreateComment();
+            }}
+          >
+            <input
+              value={content}
+              onChange={onChangeValue}
+              className="outline-none border w-full p-2 text-xs md:text-sm"
+            />
+            <div className="w-full text-end mt-1">
+              <button
+                type="button"
+                className="bg-red-100 px-1 rounded-sm mr-1"
+                onClick={() => setEdit(false)}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className="bg-gray-200 px-1 rounded-sm"
+                onClick={handleCreateComment}
+              >
+                확인
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </li>
   );
