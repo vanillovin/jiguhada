@@ -38,9 +38,7 @@ export default function Post() {
     //   },
     // }
   );
-  const { data: likes } = useQuery(['Like', id], () =>
-    getLikesRequest(Number(id))
-  );
+  const { data: likes } = useQuery(['Like', id], () => getLikesRequest(Number(id)));
 
   const toggleRef = useRef() as React.RefObject<HTMLDivElement>;
   const { toggle, onToggleChange } = useToggle(toggleRef);
@@ -103,8 +101,7 @@ export default function Post() {
   );
 
   const { mutate: cancleLikePost } = useMutation(
-    (likeId: number) =>
-      cancelLikePostRequest(currentUser?.accessToken as string, likeId),
+    (likeId: number) => cancelLikePostRequest(currentUser?.accessToken as string, likeId),
     {
       onSuccess: (data, variables, context) => {
         console.log('cancleLikePost success!', data, variables, context);
@@ -127,9 +124,7 @@ export default function Post() {
       }
       return;
     }
-    const liked = likes?.likeList.find(
-      ({ userId }) => userId === currentUser.userid
-    );
+    const liked = likes?.likeList.find(({ userId }) => userId === currentUser.userid);
     liked ? cancleLikePost(Number(liked.likeId)) : likePost();
   };
 
@@ -154,9 +149,7 @@ export default function Post() {
           commentCount: old.commentCount + 1,
         }));
         queryClient.invalidateQueries(['CommentList', id]);
-        const commentInput = document.getElementById(
-          'comment'
-        ) as HTMLInputElement;
+        const commentInput = document.getElementById('comment') as HTMLInputElement;
         commentInput.value = '';
         // variables.clearContent();
       },
@@ -243,7 +236,7 @@ export default function Post() {
         </div>
 
         <div className="w-full md:w-2/5 h-[450px] md:h-full flex flex-col justify-between border-t md:border-t-0">
-          <div className="p-3 overflow-y-auto cmt">
+          <div className="p-3 overflow-y-auto cmt h-full">
             <p className="mb-2 font-medium text-sm md:text-base">
               댓글수 {post?.commentCount}개
             </p>
@@ -280,18 +273,13 @@ export default function Post() {
               </div>
               <div className="flex items-center mr-5 md:mr-7">
                 <AiOutlineComment size={22} />{' '}
-                <span className="ml-1 text-sm md:text-base">
-                  {post?.commentCount}
-                </span>
+                <span className="ml-1 text-sm md:text-base">{post?.commentCount}</span>
               </div>
               <button className="">
                 {true ? <FiBookmark size={22} /> : <BsBookmarkFill />}
               </button>
             </div>
-            <form
-              className="flex items-center border-t"
-              onSubmit={handleCreateComment}
-            >
+            <form className="flex items-center border-t" onSubmit={handleCreateComment}>
               <input
                 id="comment"
                 name="content"
