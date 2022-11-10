@@ -9,7 +9,7 @@ import {
 } from 'react-query';
 import useInput from '../../hooks/useInput';
 import useToggle from '../../hooks/useToggle';
-import { createPostCommentRequest, deleteCommentRequest } from '../../modules/board/api';
+import { deleteCommentRequest, updatePostCommentRequest } from '../../modules/board/api';
 import { Comment, CommentList } from '../../modules/board/type';
 import { ICurrentUser } from '../../modules/user/type';
 import { getDateText } from '../../utils';
@@ -47,21 +47,21 @@ export default function CommentItem({ comment, currentUser, refetch }: CommentPr
       });
   };
 
-  const handleCreateComment = () => {
+  const handleUpdateComment = () => {
     if (!currentUser) {
       return;
     }
     setEdit(false);
-    createPostCommentRequest(currentUser?.accessToken, {
-      boardId: comment.boardId,
+    updatePostCommentRequest(currentUser?.accessToken, {
+      commentId: comment.commentId,
       content,
     })
       .then((res) => {
-        console.log('handleCreateComment res', res);
+        console.log('handleUpdateComment res', res);
         refetch({ refetchPage: (page, index) => index === 0 });
       })
       .catch((err) => {
-        console.log('handleCreateComment err', err);
+        console.log('handleUpdateComment err', err);
       });
   };
 
@@ -94,7 +94,7 @@ export default function CommentItem({ comment, currentUser, refetch }: CommentPr
                   </button>
                   <button
                     className="w-full flex items-center cursor-pointer py-1 px-3"
-                    onClick={() => handleDeleteComment(comment.commentId)}
+                    onClick={() => handleDeleteComment()}
                   >
                     <HiOutlineTrash className="mr-2" />
                     삭제하기
@@ -110,7 +110,7 @@ export default function CommentItem({ comment, currentUser, refetch }: CommentPr
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              handleCreateComment();
+              handleUpdateComment();
             }}
           >
             <input
