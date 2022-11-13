@@ -26,7 +26,7 @@ const categoryData = [
   { value: 'ETC', name: '기타' },
 ];
 
-const tagsData = {
+export const tagsData = {
   VEGAN: [
     { checked: false, value: 'VEGAN', name: '비건' },
     { checked: false, value: 'VEGANRECIPE', name: '비건 레시피' },

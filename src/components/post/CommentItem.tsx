@@ -51,6 +51,9 @@ export default function CommentItem({ comment, currentUser, refetch }: CommentPr
     if (!currentUser) {
       return;
     }
+    if (comment.commentContent === content) {
+      return;
+    }
     setEdit(false);
     updatePostCommentRequest(currentUser?.accessToken, {
       commentId: comment.commentId,
@@ -107,12 +110,7 @@ export default function CommentItem({ comment, currentUser, refetch }: CommentPr
         {!edit ? (
           <p className="text-xs md:text-sm">{comment.commentContent}</p>
         ) : (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleUpdateComment();
-            }}
-          >
+          <>
             <input
               value={content}
               onChange={onChangeValue}
@@ -129,12 +127,12 @@ export default function CommentItem({ comment, currentUser, refetch }: CommentPr
               <button
                 type="button"
                 className="bg-gray-200 px-1 rounded-sm"
-                onClick={handleCreateComment}
+                onClick={handleUpdateComment}
               >
                 확인
               </button>
             </div>
-          </form>
+          </>
         )}
       </div>
     </li>

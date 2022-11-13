@@ -21,14 +21,16 @@ export default function CommentList({ id }: { id: string }) {
     ['CommentList', id],
     ({ pageParam = 1 }) => fetchComments(pageParam),
     {
+      refetchOnWindowFocus: false,
       // keepPreviousData: true,
       getNextPageParam: (lastPage, allPages) => {
-        // console.log('getNextPageParam:', lastPage, allPages);
         const nextPage = allPages.length + 1;
         return lastPage.currentPage < lastPage.totalPage ? nextPage : undefined;
       },
     }
   );
+
+  // console.log(data);
 
   return status === 'loading' ? (
     <p>Loading...</p>
