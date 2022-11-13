@@ -92,16 +92,14 @@ export const uploadImgRequest = async (formData: FormData) => {
 };
 
 export const getPostRequest = async (id: number): Promise<Post> => {
-  try {
-    return await (
-      await fetch(`${BOARD_API_END_POINT}/read/${id}`, {
-        method: 'GET',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`게시글 조회를 실패했습니다. ${e}`);
-  }
+  const json = await (
+    await fetch(`${BOARD_API_END_POINT}/read/${id}`, {
+      method: 'GET',
+      headers,
+    })
+  ).json();
+  if (json.errorCode) throw json.message;
+  else return json;
 };
 
 export const deletePostRequest = async (token: string, id: number) => {

@@ -4,7 +4,7 @@ import { BiDotsHorizontalRounded } from 'react-icons/bi';
 import { FiBookmark } from 'react-icons/fi';
 import { BsBookmarkFill } from 'react-icons/bs';
 import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
-import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   cancelLikePostRequest,
@@ -21,30 +21,30 @@ import { useRecoilValue } from 'recoil';
 import { currentUserState } from '../modules/user/atom';
 import useToggle from '../hooks/useToggle';
 import CommentList from '../components/post/CommentList';
+import Error from '../components/Error';
 
 export default function Post() {
   const navigate = useNavigate();
-  const { state } = useLocation();
   const { id } = useParams<{ id: string }>();
-  const { data: post } = useQuery(
-    ['Post', id || state],
-    () => getPostRequest(Number(id) || Number(state))
-    // {
-    //   onSuccess: (data) => {
-    //     console.log('onSuccess Post data', data);
-    //   },
-    //   onError: (err) => {
-    //     console.log('onError Post data', err);
-    //   },
-    // }
-  );
+  const { data: post, error } = useQuery(['Post', id], () => getPostRequest(Number(id)), {
+    retry: 1,
+    refetchOnWindowFocus: false,
+    // staleTime: 5000,
+    // useErrorBoundary: (error) => error.response.status >= 500,
+    // onSuccess: (res) => {
+    //   console.log('onSuccess:', res);
+    // },
+    // onError: (err) => {
+    //   console.log('onError:', err);
+    // },
+  });
+
   const { data: likes } = useQuery(['Like', id], () => getLikesRequest(Number(id)));
 
   const toggleRef = useRef() as React.RefObject<HTMLDivElement>;
   const { toggle, onToggleChange } = useToggle(toggleRef);
   const currentUser = useRecoilValue(currentUserState);
   const queryClient = useQueryClient();
-  // console.log('Post likes:', likes);
 
   const handleEditBoard = () => {
     navigate(`/board/${post?.boardId}/edit`, {
@@ -177,6 +177,8 @@ export default function Post() {
     // formData.set('content', '');
     createComment({ boardId: Number(id), content });
   };
+
+  if (error) return <Error message={error} />;
 
   return (
     <section className="w-full max-h-screen max-w-6xl px-5 md:px-10">
