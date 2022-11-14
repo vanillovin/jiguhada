@@ -65,17 +65,16 @@ export const getChallengeList = async (params): Promise<ChallengeList> => {
   }
 };
 
-export const getChallengeRequest = async (id: number | string): Promise<GetChallenge> => {
-  try {
-    return await (
-      await fetch(`${CHALLENGE_API_END_POINT}/${id}`, {
-        method: 'GET',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`챌린지 정보 조회를 실패했습니다. ${e}`);
-  }
+export const getChallengeRequest = async (token: string, id: number | string) => {
+  headers.set('Authorization', token);
+  const json = await (
+    await fetch(`${CHALLENGE_API_END_POINT}/${id}`, {
+      method: 'GET',
+      headers,
+    })
+  ).json();
+  if (json.errorCode) throw json;
+  else return json;
 };
 
 export const imageUploadRequest = async (

@@ -1,14 +1,13 @@
-import { marked } from 'marked';
-import React from 'react';
-import { AiFillHeart, AiOutlineComment, AiOutlineHeart } from 'react-icons/ai';
+import { useEffect } from 'react';
 import { BiDotsHorizontalRounded } from 'react-icons/bi';
-import { BsBookmarkFill, BsPersonFill } from 'react-icons/bs';
-import { FiBookmark } from 'react-icons/fi';
-import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
+import { BsPersonFill } from 'react-icons/bs';
 import { useQuery } from 'react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import Message from '../components/Message';
+import { useRecoilValue } from 'recoil';
+import Error from '../components/Error';
 import { getChallengeRequest } from '../modules/challenge/api';
+import { GetChallenge } from '../modules/challenge/type';
+import { currentUserState } from '../modules/user/atom';
 import { getDateText } from '../utils';
 import { tagsNameObj } from './ChallengeList';
 import { getChallengeDefaultImgUrl } from './CreateChallenge';
@@ -33,21 +32,34 @@ export const challengePeroidNames = {
 };
 
 export default function Challenge() {
+  const location = useLocation();
   const navigate = useNavigate();
-  // const { state } = useLocation();
+  const currentUser = useRecoilValue(currentUserState);
   const { id } = useParams<{ id: string }>();
-  const { data } = useQuery(['Challenge', id], () => getChallengeRequest(id));
+  const { data, error } = useQuery<GetChallenge, { errorCode: string; message: string }>(
+    ['Challenge', id],
+    () => getChallengeRequest(currentUser?.accessToken, Number(id)),
+    {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    }
+  );
 
-  console.log('Challenge data', data);
+  console.log('Challenge data', data, '/ error:', error);
 
-  if (data?.status === 500) {
-    return (
-      <Message
-        message="존재하지 않는 챌린지 정보"
-        navigateInfo={{ name: '챌린지', path: '/challenge' }}
-      />
-    );
-  }
+  useEffect(() => {
+    if (error?.errorCode === 'REQUEST_NOT_INCLUDE_TOKEN') {
+      if (confirm('로그인 하시겠습니까?')) {
+        navigate('/register', {
+          state: { path: location.pathname },
+        });
+      } else {
+        navigate(-1);
+      }
+    }
+  }, [navigate, error]);
+
+  if (error?.errorCode === 'BAD_REQUEST') return <Error message={error.message} />;
 
   return (
     <section className="w-full max-w-6xl px-5 md:px-10">
@@ -55,10 +67,7 @@ export default function Challenge() {
         <img src={getChallengeDefaultImgUrl('VEGAN')} className="w-1/4" />
         <div className="bg-gray-1 flex flex-1 items-center justify-between px-4">
           <div>
-            <h1 className="text-2xl font-semibold">
-              {data?.challengeTitle}
-              <span>{data?.challengeDetails}</span>
-            </h1>
+            <h1 className="text-2xl font-semibold">{data?.challengeTitle}</h1>
             <ul className="flex items-center">
               {data?.challengeTag?.map((tag) => (
                 <li key={tag} className="mr-1 font-medium">
@@ -75,7 +84,18 @@ export default function Challenge() {
       </div>
 
       <div className="w-full flex flex-col p-2 border my-2">
-        <h3 className="text-lg font-semibold">챌린지 정보</h3>
+        <div className="flex justify-between">
+          <h3 className="text-lg font-semibold">챌린지 정보</h3>
+          {true ? (
+            <button className="cursor-pointer bg-jghd-red py-1 px-2 text-white rounded-sm">
+              참가하기
+            </button>
+          ) : (
+            <div className="bg-jghd-red py-1 px-2 text-white rounded-sm">
+              현재 참가 중인 챌린지입니다
+            </div>
+          )}
+        </div>
         <div className="border-b p-2">
           <h4 className="font-medium">평균 달성률</h4>
           <div className="text-sm text-gray-4 mt-1">
@@ -95,7 +115,7 @@ export default function Challenge() {
 
         <div className="flex p-2">
           <div className="w-1/2">
-            <h3 className="font-medium flex items-center">
+            <h3 className="font-medium flex items-center mb-2">
               <BsPersonFill size={18} />
               현재 {data?.currrentParticipantsCount} /
               <span className="font-bold ml-1">{data?.participantsCount}</span> 명
@@ -105,15 +125,15 @@ export default function Challenge() {
                 {data?.isOfficial ? '공식 챌린지' : '개설 챌린지'}
               </li>
               <li className="bg-gray-200 rounded-md mr-1 px-1">
-                {authFrequencyName[data?.authFrequency]}
+                {authFrequencyNames[data?.authFrequency]}
               </li>
               <li className="bg-gray-200 rounded-md mr-1 px-1">
-                {challengePeroidName[data?.challengePeroid]}
+                {challengePeroidNames[data?.challengePeroid]}
               </li>
             </ul>
           </div>
           <div className="w-1/2">
-            <h3 className="font-medium">챌린지 호스트</h3>
+            <h3 className="font-medium mb-2">챌린지 호스트</h3>
             <div className="flex items-center">
               <img
                 className="w-10 h-10 rounded-full mr-1"
@@ -156,13 +176,13 @@ export default function Challenge() {
             <h2 className="font-medium text-lg">챌린지 소개</h2>
             <p>{data?.challengeAddDetails}</p>
 
-            <h2 className="font-medium text-lg">챌린지 기간</h2>
+            <h2 className="font-medium text-lg mt-4">챌린지 기간</h2>
             <p>
               {getDateText(data?.challengeStartDate)} -{' '}
               {getDateText(data?.challengeEndDate)}
             </p>
 
-            <h2 className="font-medium text-lg">챌린지 인증 방법</h2>
+            <h2 className="font-medium text-lg mt-4">챌린지 인증 방법</h2>
             <p>{data?.authMethodContent}</p>
             {(data?.authMethodImgUrl || data?.authMethodFailImgUrl) && (
               <div className="flex">

@@ -137,11 +137,12 @@ export interface ChallengeList {
 }
 
 export interface GetChallenge {
+  achievementRate: number;
   challengeCategory: string;
   challengeId: number;
   challengeTag: ChallengeTag[];
   challengeTitle: string;
-  challengeDetails: string;
+  // challengeDetails: string;
   challengeImg: string;
   challengeAddDetails: string;
   challengeAddImgs: string;
@@ -162,6 +163,5 @@ export interface GetChallenge {
   authAvailableStartTime: string;
   authAvailableEndTime: string;
   isOfficial: boolean;
-  challengeStatus: string;
-  achievementRate: number;
+  challengeStatus: ChallengeStatus;
 }
