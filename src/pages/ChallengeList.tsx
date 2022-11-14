@@ -7,7 +7,7 @@ import PageList from '../components/PageList';
 import { getChallengeList } from '../modules/challenge/api';
 import { CahllengeCategory, ChallengeTag } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
-import { challengePeroidName } from './Challenge';
+import { authFrequencyNames, challengePeroidNames } from './Challenge';
 import { getChallengeDefaultImgUrl, tagsData } from './CreateChallenge';
 
 export const tagsNameObj = {
@@ -71,7 +71,7 @@ export default function ChallengeList() {
 
   const { data } = useQuery(
     [
-      `${categoryParam}Challenge/${orderParam}/${pageParam}/${queryParam}/${searchTypeParam}/${tagListParam}`,
+      `ChallengeList`,
       categoryParam,
       queryParam,
       orderParam,
@@ -87,7 +87,10 @@ export default function ChallengeList() {
         category: categoryParam,
         searchType: searchTypeParam,
         tagList: tagListParam,
-      })
+      }),
+    {
+      refetchOnWindowFocus: false,
+    }
   );
 
   console.log('Challenge data:', data);
@@ -363,7 +366,10 @@ export default function ChallengeList() {
                   </div>
                   <ul className="flex text-sm flex-wrap mt-1">
                     <li className="mr-1 font-medium">
-                      #{challengePeroidName[c.challengePeroid]}
+                      #{authFrequencyNames[c.authFrequency]}
+                    </li>
+                    <li className="mr-1 font-medium">
+                      #{challengePeroidNames[c.challengePeroid]}
                     </li>
                     {/* <li className="mr-1">#{c.authFrequency}</li> */}
                     {c.challengeTagList.map((t: ChallengeTag) => (

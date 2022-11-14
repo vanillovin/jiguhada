@@ -13,7 +13,7 @@ import { getDateText } from '../utils';
 import { tagsNameObj } from './ChallengeList';
 import { getChallengeDefaultImgUrl } from './CreateChallenge';
 
-export const authFrequencyName = {
+export const authFrequencyNames = {
   EVERYDAY: '매일',
   WEEKDAY: '평일 매일',
   WEEKEND: '주말 매일',
@@ -25,7 +25,7 @@ export const authFrequencyName = {
   ONCEAWEEK: '주 1일',
 };
 
-export const challengePeroidName = {
+export const challengePeroidNames = {
   ONEWEEK: '1주 동안',
   TWOWEEK: '2주 동안',
   THREEWEEK: '3주 동안',

@@ -114,6 +114,7 @@ export interface CreateChallengeReq {
 }
 
 export interface Challenge {
+  authFrequency: AuthFrequency;
   achievementRate: number;
   challengeDetails: string;
   challengeEndDate: string;
