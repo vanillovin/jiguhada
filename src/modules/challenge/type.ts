@@ -136,6 +136,13 @@ export interface ChallengeList {
   totalPage: number;
 }
 
+export interface IsJoinChallenge {
+  challengeId: number;
+  userId: number;
+  joinStatus: 'JOIN' | 'NOTJOIN';
+  isChallengeMaster: boolean;
+}
+
 export interface GetChallenge {
   achievementRate: number;
   challengeCategory: string;

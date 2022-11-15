@@ -1,16 +1,20 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BiDotsHorizontalRounded } from 'react-icons/bi';
 import { BsPersonFill } from 'react-icons/bs';
 import { useQuery } from 'react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import Error from '../components/Error';
-import { getChallengeRequest } from '../modules/challenge/api';
-import { GetChallenge } from '../modules/challenge/type';
+import { getChallengeRequest, getIsJoinChallengeRequest } from '../modules/challenge/api';
+import { GetChallenge, IsJoinChallenge } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
-import { getDateText } from '../utils';
+import { getBoardCatText, getDateText } from '../utils';
 import { tagsNameObj } from './ChallengeList';
-import { getChallengeDefaultImgUrl } from './CreateChallenge';
+
+interface ErrorInfo {
+  errorCode: string;
+  message: string;
+}
 
 export const authFrequencyNames = {
   EVERYDAY: '매일',
@@ -36,7 +40,7 @@ export default function Challenge() {
   const navigate = useNavigate();
   const currentUser = useRecoilValue(currentUserState);
   const { id } = useParams<{ id: string }>();
-  const { data, error } = useQuery<GetChallenge, { errorCode: string; message: string }>(
+  const { data, error } = useQuery<GetChallenge, ErrorInfo>(
     ['Challenge', id],
     () => getChallengeRequest(currentUser?.accessToken, Number(id)),
     {
@@ -44,8 +48,16 @@ export default function Challenge() {
       refetchOnWindowFocus: false,
     }
   );
+  console.log('Challenge data:', data, '/ error:', error);
+  const [isJoin, setIsJoin] = useState<IsJoinChallenge | null>();
 
-  console.log('Challenge data', data, '/ error:', error);
+  useEffect(() => {
+    if (currentUser) {
+      getIsJoinChallengeRequest(currentUser.userid, Number(id)).then((data) => {
+        setIsJoin(data);
+      });
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (error?.errorCode === 'REQUEST_NOT_INCLUDE_TOKEN') {
@@ -57,28 +69,28 @@ export default function Challenge() {
         navigate(-1);
       }
     }
-  }, [navigate, error]);
+  }, [error, navigate]);
 
   if (error?.errorCode === 'BAD_REQUEST') return <Error message={error.message} />;
 
   return (
     <section className="w-full max-w-6xl px-5 md:px-10">
       <div className="flex w-full border">
-        <img src={getChallengeDefaultImgUrl('VEGAN')} className="w-1/4" />
-        <div className="bg-gray-1 flex flex-1 items-center justify-between px-4">
+        <img src={data?.challengeImg} className="w-1/4" />
+        <div className="bg-gray-1 flex flex-1 items-center justify-between px-4 py-2">
           <div>
-            <h1 className="text-2xl font-semibold">{data?.challengeTitle}</h1>
-            <ul className="flex items-center">
+            <h1 className="text-xl md:text-2xl font-semibold">{data?.challengeTitle}</h1>
+            <ul className="flex flex-wrap items-center">
               {data?.challengeTag?.map((tag) => (
-                <li key={tag} className="mr-1 font-medium">
+                <li key={tag} className="mr-1 font-medium text-sm md:text-base">
                   #{tagsNameObj[tag]}
                 </li>
               ))}
             </ul>
           </div>
-          <div>
-            {getDateText(data?.challengeStartDate)} -{' '}
-            {getDateText(data?.challengeEndDate)}
+          <div className="flex items-center justify-end flex-wrap text-gray-5 text-sm md:text-base">
+            <p>{getDateText(data?.challengeStartDate)} -</p>
+            <p>{getDateText(data?.challengeEndDate)}</p>
           </div>
         </div>
       </div>
@@ -86,7 +98,7 @@ export default function Challenge() {
       <div className="w-full flex flex-col p-2 border my-2">
         <div className="flex justify-between">
           <h3 className="text-lg font-semibold">챌린지 정보</h3>
-          {true ? (
+          {currentUser && isJoin?.joinStatus === 'NOTJOIN' ? (
             <button className="cursor-pointer bg-jghd-red py-1 px-2 text-white rounded-sm">
               참가하기
             </button>
@@ -120,14 +132,14 @@ export default function Challenge() {
               현재 {data?.currrentParticipantsCount} /
               <span className="font-bold ml-1">{data?.participantsCount}</span> 명
             </h3>
-            <ul className="flex">
-              <li className="bg-gray-200 rounded-md mr-1 px-1">
+            <ul className="flex flex-wrap">
+              <li className="bg-gray-200 rounded-md mr-1 mb-1 px-1">
                 {data?.isOfficial ? '공식 챌린지' : '개설 챌린지'}
               </li>
-              <li className="bg-gray-200 rounded-md mr-1 px-1">
+              <li className="bg-gray-200 rounded-md mr-1 mb-1 px-1">
                 {authFrequencyNames[data?.authFrequency]}
               </li>
-              <li className="bg-gray-200 rounded-md mr-1 px-1">
+              <li className="bg-gray-200 rounded-md mr-1 mb-1 px-1">
                 {challengePeroidNames[data?.challengePeroid]}
               </li>
             </ul>
@@ -152,14 +164,14 @@ export default function Challenge() {
               <div className="flex items-center mb-1 md:items-start md:flex-col mr-3 md:mb-0">
                 <h2 className="text-sm md:text-base font-medium">{id}</h2>
                 <h3 className="text-sm text-gray-4 mt-0 ml-1 md:mt-1 md:ml-0">
-                  카테고리
+                  {getBoardCatText(data?.challengeCategory)}
                 </h3>
               </div>
               <div className="flex flex-col justify-between">
                 <h1 className="font-semibold md:text-lg">{data?.challengeTitle}</h1>
                 <h2 className="flex items-center text-sm md:text-base">
                   {/* {post?.nickname} ·{' '} */}
-                  <span className="ml-1 text-gray-3 text-xs">데이트</span>
+                  <span className="ml-1 text-gray-3 text-xs">{/* {date} */}</span>
                 </h2>
               </div>
             </div>

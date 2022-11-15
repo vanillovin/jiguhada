@@ -5,6 +5,7 @@ export function getBoardCatText(name: Category) {
   if (name === 'FREE') return '자유게시판';
   if (name === 'ENVIRONMENT') return '환경';
   if (name === 'QUESTION') return 'Q&A';
+  return '기타';
 }
 
 export function getToday(index: number) {
@@ -41,9 +42,7 @@ export function getDateText(date: string) {
   return `${date
     ?.split('T')[0]
     .replaceAll('-', '.')
-    .substring(2, date.split('T')[0].length)} ${date
-    ?.split('T')[1]
-    .substring(0, 5)}`;
+    .substring(2, date.split('T')[0].length)} ${date?.split('T')[1].substring(0, 5)}`;
 }
 
 export function getLastDate(year: number, month: number) {
@@ -52,15 +51,11 @@ export function getLastDate(year: number, month: number) {
 }
 
 export function removeWeekend(year: number, month: number, days: number[]) {
-  return days.filter(
-    (n) => getDay(year, month, n) > 0 && getDay(year, month, n) < 6
-  );
+  return days.filter((n) => getDay(year, month, n) > 0 && getDay(year, month, n) < 6);
 }
 
 export function removeWeek(year: number, month: number, days: number[]) {
-  return days.filter(
-    (n) => getDay(year, month, n) === 0 && getDay(year, month, n) === 6
-  );
+  return days.filter((n) => getDay(year, month, n) === 0 && getDay(year, month, n) === 6);
 }
 
 export function getNearSaturday(month: number, date: number, day: number) {

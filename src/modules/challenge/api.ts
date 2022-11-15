@@ -114,3 +114,14 @@ export const createChallengeRequest = async (
     throw new Error(`챌린지를 생성하지 못했습니다. ${e}`);
   }
 };
+
+export const getIsJoinChallengeRequest = async (uid: number, cid: number) => {
+  const json = await (
+    await fetch(`${CHALLENGE_API_END_POINT}/isJoin?userid=${uid}&challengeid=${cid}`, {
+      method: 'GET',
+      headers,
+    })
+  ).json();
+  if (json.errorCode) throw json;
+  else return json;
+};
