@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BiCalendar, BiCamera } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
@@ -140,12 +140,14 @@ export default function CreateChallenge() {
     authMethodContent,
     challengeAddDetails,
   } = inputs;
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setInputs((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
+
   const onChangePCount = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     if (!isNaN(+value) && +value <= 20) {
@@ -155,7 +157,9 @@ export default function CreateChallenge() {
       }));
     }
   };
+
   const [tags, setTags] = useState(tagsData);
+
   const handleChageTags = (value: string) => {
     setTags((prev) => {
       const checkable =
@@ -169,12 +173,14 @@ export default function CreateChallenge() {
       };
     });
   };
+
   const handleChangeStartDate = (d: string) => {
     setInputs((prev) => ({
       ...prev,
       startDate: d,
     }));
   };
+
   const [sMonth, sDate, sDay] = startDate.split('.');
   const [eYear, eMonth, eDate] = getChallengeEndData(
     authFrequency as AuthFrequency,
@@ -232,12 +238,14 @@ export default function CreateChallenge() {
     authMethodFailImg: '',
   });
   const { challengeImg, challengeAddImg, authMethodImg, authMethodFailImg } = imgs;
+
   const removeChallengeImg = () => {
     setImgs((prev) => ({
       ...prev,
       challengeImg: '',
     }));
   };
+
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputName = event.currentTarget.name;
     const file = event.target.files?.[0];
@@ -270,6 +278,13 @@ export default function CreateChallenge() {
       [name]: '',
     }));
   };
+
+  useEffect(() => {
+    if (!currentUser) {
+      alert('회원만 접근이 가능합니다. 로그인 후 이용해 주세요');
+      navigate(-1);
+    }
+  }, [currentUser]);
 
   return (
     <section className="w-full max-w-md px-5">
