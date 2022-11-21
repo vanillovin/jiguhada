@@ -15,10 +15,11 @@ export type AuthFrequency =
   | 'ONCEAWEEK';
 
 export interface GetEndDataParams {
-  y: number;
-  m: number;
-  d: number;
-  o?: boolean; // option
+  year: number;
+  month: number;
+  date: number;
+  day: number;
+  opt?: boolean; // option
   // { [key: string]: boolean | number; };
 }
 
@@ -47,7 +48,7 @@ export type ChallengeTag =
 
 export type CahllengeCategory = 'VEGAN' | 'ENVIRONMENT' | 'ETC';
 
-type ChallengePeroid = 'ONEWEEK' | 'TWOWEEK' | 'THREEWEEK' | 'FOURWEEK';
+export type ChallengePeroid = 'ONEWEEK' | 'TWOWEEK' | 'THREEWEEK' | 'FOURWEEK';
 
 type ChallengeStatus = 'BEFORE' | 'INPROGRESS' | 'END';
 

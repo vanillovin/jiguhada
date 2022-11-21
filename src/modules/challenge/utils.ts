@@ -6,7 +6,7 @@ import {
   getNearMonday,
   getNearSaturday,
 } from '../../utils';
-import { AuthFrequency, GetEndDataParams } from './type';
+import { AuthFrequency, ChallengePeroid, GetEndDataParams } from './type';
 
 function removeWeekendData(
   dates: { year: number; month: number; date: number; day: number }[]
@@ -100,7 +100,11 @@ function getNWeekData({ year, month, date, day }: DateData) {
 }
 
 export function getChallengeStartDate(authFrequency: AuthFrequency) {
-  const { year, month, date, day } = getCurrentDate();
+  // const { year, month, date, day } = getCurrentDate();
+  const year = 2022;
+  const month = 11;
+  const date = 26;
+  const day = 1;
   switch (authFrequency) {
     case 'EVERYDAY':
       return getEverydayData({ year, month, date, day });
@@ -113,106 +117,194 @@ export function getChallengeStartDate(authFrequency: AuthFrequency) {
   }
 }
 
-export function getChallengeEndData(af: AuthFrequency, p: string, s: string) {
-  const year = new Date().getFullYear();
-  const [m, de, dy] = s.split('.'); // string type
-  const [month, date, day] = [+m, +de, +dy];
+function endDateHelper(eDate: DateData, func: (param: GetEndDataParams) => DateData) {
+  return func({ ...eDate, opt: true });
+}
 
-  function getEverydayEndData({ y, m, d }: GetEndDataParams) {
-    const { year, month } = getCurrentDate();
-    const lastDate = getLastDate(year, month);
-    let [tempYear, tempMonth, tempDate] = [y, m, d];
-    let day = getDay(y, m, d); // 시작일 요일
-    let leftDay = 7 - day;
-    tempDate += leftDay;
-    if (tempDate > lastDate) {
-      tempMonth += 1;
-      tempDate = Math.abs(lastDate - tempDate);
-    }
-    return [tempYear, tempMonth, tempDate];
+function getEverydayEndData({
+  year,
+  month,
+  date,
+  day,
+  opt = false,
+}: GetEndDataParams): DateData {
+  // console.log('getEverydayEndData :', year, month, date, day);
+
+  const lastDate = getLastDate(year, month);
+  let [tempYear, tempMonth, tempDate, tempDay] = [year, month, date, day];
+
+  if (opt) {
+    tempDate += 7;
+  } else {
+    if (day === 0) tempDate += 1;
+    else tempDate += 7 - day;
   }
 
-  function getWeekdayEndData({ y, m, d, o = false }: GetEndDataParams) {
-    const { year, month } = getCurrentDate();
-    const lastDate = getLastDate(year, month);
-    let [tempYear, tempMonth, tempDate] = [y, m, d];
-    let day = getDay(y, m, d); // 시작일 요일
-    if (day === 5 && o) {
-      day = 1;
-      tempDate += 3;
+  if (tempDate > lastDate) {
+    tempMonth += 1;
+    if (tempMonth > 11) {
+      tempYear += 1;
+      tempMonth = 0;
     }
-    let leftDay = 5 - day;
-    tempDate += leftDay;
-    if (tempDate > lastDate) {
-      tempMonth += 1;
-      tempDate = Math.abs(lastDate - tempDate);
-    }
-    return [tempYear, tempMonth, tempDate];
+    tempDate = tempDate - lastDate;
+    tempDay = getDay(tempYear, tempMonth, tempDate);
   }
 
-  function getWeekendEndDate({ y, m, d, o = false }: GetEndDataParams) {
-    const { year, month } = getCurrentDate();
-    const lastDate = getLastDate(year, month);
-    let [tempYear, tempMonth, tempDate] = [y, m, d];
-    let day = getDay(y, m, d); // 시작일 요일
-    if (day === 6) tempDate += 1;
-    if (o) tempDate += 7;
-    if (tempDate > lastDate) {
-      tempMonth += 1;
-      tempDate = Math.abs(lastDate - tempDate);
+  return { year: tempYear, month: tempMonth, date: tempDate, day: 0 };
+}
+
+function getWeekdayEndData({
+  year,
+  month,
+  date,
+  day,
+  opt = false,
+}: GetEndDataParams): DateData {
+  console.log('getWeekdayEndData :', year, month, date, day);
+
+  const lastDate = getLastDate(year, month);
+  let [tempYear, tempMonth, tempDate, tempDay] = [year, month, date, day];
+
+  if (opt) {
+    tempDate += 3;
+    tempDay = 1;
+  }
+  tempDate += 5 - tempDay;
+
+  if (tempDate > lastDate) {
+    tempMonth += 1;
+    if (tempMonth > 11) {
+      tempYear += 1;
+      tempMonth = 0;
     }
-    return [tempYear, tempMonth, tempDate];
+    tempDate = tempDate - lastDate;
+    tempDay = getDay(tempYear, tempMonth, tempDate);
   }
 
-  function getNTimesAWeekEndData({ y, m, d, o = false }: GetEndDataParams) {
-    const { year, month } = getCurrentDate();
-    const lastDate = getLastDate(year, month);
-    let [tempYear, tempMonth, tempDate] = [y, m, d];
-    if (o) tempDate += 7;
-    else tempDate += 6;
-    if (tempDate > lastDate) {
-      tempMonth += 1;
-      tempDate = Math.abs(lastDate - tempDate);
+  return { year: tempYear, month: tempMonth, date: tempDate, day: 5 };
+}
+
+function getWeekendEndDate({
+  year,
+  month,
+  date,
+  day,
+  opt = false,
+}: GetEndDataParams): DateData {
+  console.log('getWeekendEndDate :', year, month, date, day);
+
+  const lastDate = getLastDate(year, month);
+  let [tempYear, tempMonth, tempDate, tempDay] = [year, month, date, day];
+
+  if (day === 6) tempDate += 1;
+  if (opt) tempDate += 7;
+
+  if (tempDate > lastDate) {
+    tempMonth += 1;
+    if (tempMonth > 11) {
+      tempYear += 1;
+      tempMonth = 0;
     }
-    return [tempYear, tempMonth, tempDate];
+    tempDate = tempDate - lastDate;
+    tempDay = getDay(tempYear, tempMonth, tempDate);
   }
 
-  switch (af) {
+  return { year: tempYear, month: tempMonth, date: tempDate, day: 0 };
+}
+
+function getNTimesAWeekEndData({
+  year,
+  month,
+  date,
+  day,
+  opt = false,
+}: GetEndDataParams): DateData {
+  const lastDate = getLastDate(year, month);
+  let [tempYear, tempMonth, tempDate, tempDay] = [year, month, date, day];
+
+  if (opt) tempDate += 7;
+  else tempDate += 6;
+
+  if (tempDate > lastDate) {
+    tempMonth += 1;
+    if (tempMonth > 11) {
+      tempYear += 1;
+      tempMonth = 0;
+    }
+    tempDate = tempDate - lastDate;
+    tempDay = getDay(tempYear, tempMonth, tempDate);
+  }
+
+  return { year: tempYear, month: tempMonth, date: tempDate, day: 0 };
+}
+
+export function getChallengeEndDate(
+  authFrequency: AuthFrequency,
+  peroid: ChallengePeroid,
+  startDate: string
+) {
+  const [y, m, de, dy] = startDate.split('.');
+  const [year, month, date, day] = [+y, +m, +de, +dy];
+
+  // 매일
+  const oneweekEverydayEndDate = getEverydayEndData({ year, month, date, day });
+  const twoweekEverydayEndDate = endDateHelper(
+    oneweekEverydayEndDate,
+    getEverydayEndData
+  );
+  const threeweekEverydayEndData = endDateHelper(
+    twoweekEverydayEndDate,
+    getEverydayEndData
+  );
+  const fourweekEverydayEndData = endDateHelper(
+    threeweekEverydayEndData,
+    getEverydayEndData
+  );
+
+  // 평일 매일
+  const oneweekWeekdayEndDate = getWeekdayEndData({ year, month, date, day });
+  const twoweekWeekdayEndDate = endDateHelper(oneweekWeekdayEndDate, getWeekdayEndData);
+  const threeweekWeekdayEndDate = endDateHelper(twoweekWeekdayEndDate, getWeekdayEndData);
+  const fourweekWeekdayEndDate = endDateHelper(
+    threeweekWeekdayEndDate,
+    getWeekdayEndData
+  );
+
+  // 주말 매일
+  const oneweekWeekendEndDate = getWeekendEndDate({ year, month, date, day });
+  const twoweekWeekendEndDate = endDateHelper(oneweekWeekendEndDate, getWeekendEndDate);
+  const threeweekWeekendEndDate = endDateHelper(twoweekWeekendEndDate, getWeekendEndDate);
+  const fourweekWeekendEndDate = endDateHelper(
+    threeweekWeekendEndDate,
+    getWeekendEndDate
+  );
+
+  // 주 n일
+  const n1weekWeekendEndDate = getNTimesAWeekEndData({ year, month, date, day });
+  const n2weekWeekendEndDate = endDateHelper(n1weekWeekendEndDate, getNTimesAWeekEndData);
+  const n3weekWeekendEndDate = endDateHelper(n2weekWeekendEndDate, getNTimesAWeekEndData);
+  const n4weekWeekendEndDate = endDateHelper(n3weekWeekendEndDate, getNTimesAWeekEndData);
+
+  switch (authFrequency) {
     case 'EVERYDAY':
-      const e1 = getEverydayEndData({ y: year, m: +month, d: +date });
-      const e2 = getEverydayEndData({ y: e1[0], m: e1[1], d: e1[2] });
-      const e3 = getEverydayEndData({ y: e2[0], m: e2[1], d: e2[2] });
-      const e4 = getEverydayEndData({ y: e3[0], m: e3[1], d: e3[2] });
-      if (p === 'ONEWEEK') return e1;
-      else if (p === 'TWOWEEK') return e2;
-      else if (p === 'THREEWEEK') return e3;
-      else return e4;
+      if (peroid === 'ONEWEEK') return oneweekEverydayEndDate;
+      else if (peroid === 'TWOWEEK') return twoweekEverydayEndDate;
+      else if (peroid === 'THREEWEEK') return threeweekEverydayEndData;
+      else return fourweekEverydayEndData;
     case 'WEEKDAY':
-      const w1 = getWeekdayEndData({ y: year, m: +month, d: +date });
-      const w2 = getWeekdayEndData({ y: w1[0], m: w1[1], d: w1[2], o: true });
-      const w3 = getWeekdayEndData({ y: w2[0], m: w2[1], d: w2[2], o: true });
-      const w4 = getWeekdayEndData({ y: w3[0], m: w3[1], d: w3[2], o: true });
-      if (p === 'ONEWEEK') return w1;
-      else if (p === 'TWOWEEK') return w2;
-      else if (p === 'THREEWEEK') return w3;
-      else return w4;
+      if (peroid === 'ONEWEEK') return oneweekWeekdayEndDate;
+      else if (peroid === 'TWOWEEK') return twoweekWeekdayEndDate;
+      else if (peroid === 'THREEWEEK') return threeweekWeekdayEndDate;
+      else return fourweekWeekdayEndDate;
     case 'WEEKEND':
-      const k1 = getWeekendEndDate({ y: year, m: +month, d: +date });
-      const k2 = getWeekendEndDate({ y: k1[0], m: k1[1], d: k1[2], o: true });
-      const k3 = getWeekendEndDate({ y: k2[0], m: k2[1], d: k2[2], o: true });
-      const k4 = getWeekendEndDate({ y: k3[0], m: k3[1], d: k3[2], o: true });
-      if (p === 'ONEWEEK') return k1;
-      else if (p === 'TWOWEEK') return k2;
-      else if (p === 'THREEWEEK') return k3;
-      else return k4;
+      if (peroid === 'ONEWEEK') return oneweekWeekendEndDate;
+      else if (peroid === 'TWOWEEK') return twoweekWeekendEndDate;
+      else if (peroid === 'THREEWEEK') return threeweekWeekendEndDate;
+      else return fourweekWeekendEndDate;
     default:
-      const n1 = getNTimesAWeekEndData({ y: year, m: +month, d: +date });
-      const n2 = getNTimesAWeekEndData({ y: n1[0], m: n1[1], d: n1[2], o: true });
-      const n3 = getNTimesAWeekEndData({ y: n2[0], m: n2[1], d: n2[2], o: true });
-      const n4 = getNTimesAWeekEndData({ y: n3[0], m: n3[1], d: n3[2], o: true });
-      if (p === 'ONEWEEK') return n1;
-      else if (p === 'TWOWEEK') return n2;
-      else if (p === 'THREEWEEK') return n3;
-      else return n4;
+      if (peroid === 'ONEWEEK') return n1weekWeekendEndDate;
+      else if (peroid === 'TWOWEEK') return n2weekWeekendEndDate;
+      else if (peroid === 'THREEWEEK') return n3weekWeekendEndDate;
+      else return n4weekWeekendEndDate;
   }
 }
