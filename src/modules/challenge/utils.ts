@@ -1,4 +1,4 @@
-import { getEmptyStringArr, getSunday } from './../../utils';
+import { DateData, getEmptyStringArr, getSunday } from './../../utils';
 import {
   getCurrentDate,
   getDay,
@@ -14,12 +14,9 @@ function removeWeekendData(
   return dates.filter(({ day }) => day > 0 && day < 6);
 }
 
-export function getChallengeStartDate(af: AuthFrequency) {
-  const { year, month, date, day } = getCurrentDate();
+function getEverydayData({ year, month, date }: DateData) {
   const lastDate = getLastDate(year, month);
   const lastMonth = 11;
-
-  // - 매일
   const overflow7 = date + 7 > lastDate;
   const overflowDay7 = Math.abs(lastDate - (date + 7));
   const everydayData = !overflow7
@@ -47,8 +44,12 @@ export function getChallengeStartDate(af: AuthFrequency) {
           ),
         })),
       ];
+  return everydayData;
+}
 
-  // - 평일 매일
+function getWeekdayData({ year, month, date }: DateData) {
+  const lastDate = getLastDate(year, month);
+  const lastMonth = 11;
   const overflow9 = date + 9 > lastDate;
   const overflowDay9 = Math.abs(lastDate - (date + 9));
   const nineDays = !overflow9
@@ -77,30 +78,38 @@ export function getChallengeStartDate(af: AuthFrequency) {
         })),
       ];
   const weekdayData = removeWeekendData(nineDays);
+  return weekdayData;
+}
 
-  // - 주말 매일
+function getWeekendData({ year, month, date, day }: DateData) {
   const firstSat = getNearSaturday(year, month, date, day);
   const { year: fYear, month: fMonth, date: fDate, day: fDay } = firstSat;
   const firstSun = getSunday(firstSat);
   const secondSat = getNearSaturday(fYear, fMonth, fDate, fDay);
   const secondSun = getSunday(secondSat);
   const weekendData = [firstSat, firstSun, secondSat, secondSun];
+  return weekendData;
+}
 
-  // - 주 n일
+function getNWeekData({ year, month, date, day }: DateData) {
   const firstMon = getNearMonday({ year, month, date, day });
   const { year: fmy, month: fmm, date: fmd, day: fmday } = firstMon;
   const secondMon = getNearMonday({ year: fmy, month: fmm, date: fmd, day: fmday });
   const nWeekData = [firstMon, secondMon];
+  return nWeekData;
+}
 
-  switch (af) {
+export function getChallengeStartDate(authFrequency: AuthFrequency) {
+  const { year, month, date, day } = getCurrentDate();
+  switch (authFrequency) {
     case 'EVERYDAY':
-      return everydayData;
+      return getEverydayData({ year, month, date, day });
     case 'WEEKDAY':
-      return weekdayData;
+      return getWeekdayData({ year, month, date, day });
     case 'WEEKEND':
-      return weekendData;
+      return getWeekendData({ year, month, date, day });
     default:
-      return nWeekData;
+      return getNWeekData({ year, month, date, day });
   }
 }
 

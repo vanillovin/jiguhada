@@ -1,6 +1,6 @@
 import { Category } from './modules/board/type';
 
-interface DateData {
+export interface DateData {
   year: number;
   month: number;
   date: number;
