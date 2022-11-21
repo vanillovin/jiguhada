@@ -1,5 +1,12 @@
 import { Category } from './modules/board/type';
 
+interface DateData {
+  year: number;
+  month: number;
+  date: number;
+  day: number;
+}
+
 export function getBoardCatText(name: Category) {
   if (name === 'VEGAN') return '비건';
   if (name === 'FREE') return '자유게시판';
@@ -58,60 +65,90 @@ export function removeWeek(year: number, month: number, days: number[]) {
   return days.filter((n) => getDay(year, month, n) === 0 && getDay(year, month, n) === 6);
 }
 
-export function getNearSaturday(month: number, date: number, day: number) {
-  // console.log(month, date, day);
-  // 말일 체크 && 2주
-  const lastDate = getLastDate(new Date().getFullYear(), month);
+export function getNearSaturday(year: number, month: number, date: number, day: number) {
+  // console.log('getNearSaturday:', year, month, date, day);
+
+  const lastDate = getLastDate(year, month);
+  let tempYear = year;
   let tempMonth = month;
   let tempDate = date;
   let tempDay = day;
+
+  // 현재 주말이면 다음주주말로 표시해야하니까 일단 월요일로만들기 => 토+2, 일+1
   if (day === 6) {
     tempDate += 2;
-    tempDay = 1;
+    tempDay += 2;
   } else if (day === 0) {
     tempDate += 1;
-    tempDay = 1;
+    tempDay += 1;
   }
-  while (tempDay !== 6) {
-    if (tempDate >= lastDate) {
-      // console.log('lastDate!');
-      tempDate = 0;
-      tempMonth += 1;
-      continue;
+
+  // ex) 2021.12.31 -> 2021.12.33
+  // 원하는 결과 : 2022 12 31 토 -> 2023 1 7 토 (o)
+  if (tempDate > lastDate) {
+    tempMonth += 1;
+    if (tempMonth > 11) {
+      tempYear += 1;
+      tempMonth = 0;
     }
-    tempDay++;
-    tempDate++;
-    // console.log(tempDay);
+    tempDate = tempDate - lastDate;
+    tempDay = getDay(tempYear, tempMonth, tempDate);
   }
-  return [tempMonth, tempDate, tempDay];
+
+  // 말월말일체크 & 토요일(6)될때까지day+=1
+  const daysLeftUntilSat = 6 - tempDay;
+  const overflow = tempDate + daysLeftUntilSat > lastDate;
+  const overflowDay = tempDate + daysLeftUntilSat - lastDate;
+  if (overflow) {
+    tempMonth += 1;
+    if (tempMonth > 11) {
+      tempYear += 1;
+      tempMonth = 0;
+    }
+    tempDate = overflowDay;
+  } else {
+    tempDate += daysLeftUntilSat;
+  }
+
+  return { year: tempYear, month: tempMonth, date: tempDate, day: 6 };
 }
 
-export function getNearMonday(month: number, date: number, day: number) {
-  const lastDate = getLastDate(new Date().getFullYear(), month);
+export function getSunday({ year, month, date }: DateData) {
+  // 4.30 토 ~ 5.1 일 or 2022.12.31 토 ~ 2023.1.1 일
+  const lastDate = getLastDate(year, month);
+  let tempYear = year;
+  let tempMonth = month;
+  let tempDate = date + 1;
+  if (tempDate > lastDate) {
+    tempMonth += 1;
+    if (tempMonth > 11) {
+      tempYear += 1;
+      tempMonth = 0;
+    }
+    tempDate = 1;
+  }
+  return { year: tempYear, month: tempMonth, date: tempDate, day: 0 };
+}
+
+export function getNearMonday({ year, month, date, day }: DateData): DateData {
+  const lastDate = getLastDate(year, month);
+  let tempYear = year;
   let tempMonth = month;
   let tempDate = date;
   let tempDay = day;
-  if (day === 1) {
-    tempDate += 1;
-    tempDay = 2;
-  } else if (day === 6) {
-    tempDate += 1;
-    tempDay = 0;
-  }
-  while (tempDay !== 1) {
-    if (tempDate >= lastDate) {
-      console.log('lastDate!', lastDate);
-      tempDate = 1;
-      tempMonth += 1;
+  if (day === 0) tempDate += 1;
+  else if (day === 1) tempDate += 7;
+  else tempDate += 8 - tempDay;
+  if (tempDate > lastDate) {
+    tempMonth += 1;
+    if (tempMonth > 11) {
+      tempYear += 1;
+      tempMonth = 0;
     }
-    if (tempDay === 6) {
-      tempDate += 1;
-      tempDay = 0;
-    }
-    tempDay++;
-    tempDate++;
+    tempDate = tempDate - lastDate;
+    tempDay = getDay(tempYear, tempMonth, tempDate);
   }
-  return [tempMonth, tempDate, tempDay];
+  return { year: tempYear, month: tempMonth, date: tempDate, day: 1 };
 }
 
 export function displayedAt(createdAt: number) {
@@ -131,3 +168,5 @@ export function displayedAt(createdAt: number) {
   const years = days / 365;
   return `${Math.floor(years)}년 전`;
 }
+
+export const getEmptyStringArr = (length: number) => Array.from({ length }).fill('');

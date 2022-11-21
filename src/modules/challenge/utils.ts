@@ -1,96 +1,106 @@
+import { getEmptyStringArr, getSunday } from './../../utils';
 import {
   getCurrentDate,
   getDay,
   getLastDate,
   getNearMonday,
   getNearSaturday,
-  removeWeekend,
 } from '../../utils';
 import { AuthFrequency, GetEndDataParams } from './type';
 
+function removeWeekendData(
+  dates: { year: number; month: number; date: number; day: number }[]
+) {
+  return dates.filter(({ day }) => day > 0 && day < 6);
+}
+
 export function getChallengeStartDate(af: AuthFrequency) {
   const { year, month, date, day } = getCurrentDate();
-  // const lastMonth = 11; // 말월
   const lastDate = getLastDate(year, month);
-  const overflow = date + 7 > lastDate;
-  const overflowDay = lastDate - (date + 7);
+  const lastMonth = 11;
 
+  // - 매일
+  const overflow7 = date + 7 > lastDate;
+  const overflowDay7 = Math.abs(lastDate - (date + 7));
+  const everydayData = !overflow7
+    ? getEmptyStringArr(7).map((_, i) => ({
+        year,
+        month,
+        date: date + i + 1,
+        day: getDay(year, month, date + i + 1),
+      }))
+    : [
+        ...getEmptyStringArr(7 - overflowDay7).map((_, i) => ({
+          year,
+          month,
+          date: date + i + 1,
+          day: getDay(year, month, date + i + 1),
+        })),
+        ...getEmptyStringArr(overflowDay7).map((_, i) => ({
+          year: month + 1 > lastMonth ? year + 1 : year,
+          month: month + 1 > lastMonth ? 0 : month + 1,
+          date: i + 1,
+          day: getDay(
+            month + 1 > lastMonth ? year + 1 : year,
+            month + 1 > lastMonth ? 0 : month + 1,
+            i + 1
+          ),
+        })),
+      ];
+
+  // - 평일 매일
   const overflow9 = date + 9 > lastDate;
-  // const overflowDay9 = lastDate - (date + 9);
-  const nineDays = new Array(9).fill('').map((_, i) => date + i + 1);
-  const weekDays = removeWeekend(year, month, nineDays);
-  const removeOverLastDate = nineDays.filter((d, _) => d <= lastDate);
-  const removeOAndW = removeWeekend(
-    year,
-    month,
-    nineDays.filter((d, _) => d <= lastDate)
-  );
-  const nextMonthDays = removeWeekend(
-    year,
-    month + 1,
-    new Array(9 - removeOverLastDate.length).fill('').map((_, i) => i + 1)
-  );
+  const overflowDay9 = Math.abs(lastDate - (date + 9));
+  const nineDays = !overflow9
+    ? getEmptyStringArr(9).map((_, i) => ({
+        year,
+        month,
+        date: date + i + 1,
+        day: getDay(year, month, date + i + 1),
+      }))
+    : [
+        ...getEmptyStringArr(9 - overflowDay9).map((_, i) => ({
+          year,
+          month,
+          date: date + i + 1,
+          day: getDay(year, month, date + i + 1),
+        })),
+        ...getEmptyStringArr(overflowDay9).map((_, i) => ({
+          year: month + 1 > lastMonth ? year + 1 : year,
+          month: month + 1 > lastMonth ? 0 : month + 1,
+          date: i + 1,
+          day: getDay(
+            month + 1 > lastMonth ? year + 1 : year,
+            month + 1 > lastMonth ? 0 : month + 1,
+            i + 1
+          ),
+        })),
+      ];
+  const weekdayData = removeWeekendData(nineDays);
 
-  // 주말 매일
-  const firstSat = getNearSaturday(month, date, day);
-  const secondSat = getNearSaturday(firstSat[0], firstSat[1], firstSat[2]);
-  const firstAndSecondWeekendData = [
-    { month: firstSat[0], date: firstSat[1], day: 6 },
-    { month: firstSat[0], date: firstSat[1] + 1, day: 0 },
-    { month: secondSat[0], date: secondSat[1], day: 6 },
-    { month: secondSat[0], date: secondSat[1] + 1, day: 0 },
-  ];
+  // - 주말 매일
+  const firstSat = getNearSaturday(year, month, date, day);
+  const { year: fYear, month: fMonth, date: fDate, day: fDay } = firstSat;
+  const firstSun = getSunday(firstSat);
+  const secondSat = getNearSaturday(fYear, fMonth, fDate, fDay);
+  const secondSun = getSunday(secondSat);
+  const weekendData = [firstSat, firstSun, secondSat, secondSun];
 
-  const firstMon = getNearMonday(month, date, day);
-  const secondMon = getNearMonday(firstMon[0], firstMon[1], firstMon[2]);
-  const firstAndSecondMondayData = [
-    { month: firstMon[0], date: firstMon[1], day: firstMon[2] },
-    { month: secondMon[0], date: secondMon[1], day: secondMon[2] },
-  ];
+  // - 주 n일
+  const firstMon = getNearMonday({ year, month, date, day });
+  const { year: fmy, month: fmm, date: fmd, day: fmday } = firstMon;
+  const secondMon = getNearMonday({ year: fmy, month: fmm, date: fmd, day: fmday });
+  const nWeekData = [firstMon, secondMon];
 
   switch (af) {
     case 'EVERYDAY':
-      return !overflow
-        ? new Array(7).fill('').map((_, i) => ({
-            month: month,
-            date: date + i + 1,
-            day: getDay(year, month, date + i + 1),
-          }))
-        : [
-            ...new Array(7 - Math.abs(overflowDay)).fill('').map((_, i) => ({
-              month: month,
-              date: date + i + 1,
-              day: getDay(year, month, date + i + 1),
-            })),
-            ...new Array(Math.abs(overflowDay)).fill('').map((_, i) => ({
-              month: month + 1,
-              date: i + 1,
-              day: getDay(year, month, date + i + 1),
-            })),
-          ];
+      return everydayData;
     case 'WEEKDAY':
-      return !overflow9
-        ? weekDays.map((d) => ({
-            month: month,
-            date: d,
-            day: getDay(year, month, d),
-          }))
-        : [
-            ...removeOAndW.map((d) => ({
-              month: month,
-              date: d,
-              day: getDay(year, month, d),
-            })),
-            ...nextMonthDays.map((d) => ({
-              month: month + 1,
-              date: d,
-              day: getDay(year, month + 1, d),
-            })),
-          ];
+      return weekdayData;
     case 'WEEKEND':
-      return firstAndSecondWeekendData;
+      return weekendData;
     default:
-      return firstAndSecondMondayData;
+      return nWeekData;
   }
 }
 
