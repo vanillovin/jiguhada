@@ -81,8 +81,6 @@ export default function Challenge() {
       });
   };
 
-  console.log(currentUser);
-
   return (
     <section className="w-full max-w-6xl px-5 md:px-10">
       <div className="flex w-full border">
@@ -125,11 +123,13 @@ export default function Challenge() {
                   참가하기
                 </button>
               )}
-            {currentUser && isJoin?.joinStatus === 'JOIN' && (
-              <div className="select-none border border-jghd-red bg-jghd-red py-1 px-2 text-white rounded-sm">
-                현재 참가 중인 챌린지입니다
-              </div>
-            )}
+            {currentUser &&
+              isJoin?.joinStatus === 'JOIN' &&
+              data?.challengeStatus !== 'END' && (
+                <div className="select-none border border-jghd-red bg-jghd-red py-1 px-2 text-white rounded-sm">
+                  현재 참가 중인 챌린지입니다
+                </div>
+              )}
           </div>
         </div>
         <div className="border-b p-2">
