@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
-import { BiDotsHorizontalRounded } from 'react-icons/bi';
+import { useEffect, useRef, useState } from 'react';
+import { BiCalendar, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { BsPersonFill } from 'react-icons/bs';
 import { useQuery } from 'react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
+import CalendarUI from '../components/CalendarUI';
 import Error from '../components/Error';
+import useToggle from '../hooks/useToggle';
 import {
   getChallengeRequest,
   getIsJoinChallengeRequest,
@@ -25,16 +27,26 @@ interface ErrorInfo {
 }
 
 export default function Challenge() {
+  const ref = useRef() as React.RefObject<HTMLElement>;
+  const { toggle, onToggleChange } = useToggle(ref);
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = useRecoilValue(currentUserState);
   const { id } = useParams<{ id: string }>();
+  const [mark, setMark] = useState<string[]>([]);
+  const [openCalendar, setOpenCalendar] = useState(false);
   const { data, error } = useQuery<GetChallenge, ErrorInfo>(
     ['Challenge', id],
     () => getChallengeRequest(currentUser?.accessToken, Number(id)),
     {
       retry: 1,
       refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        setMark([
+          data.challengeStartDate.split('T')[0],
+          data.challengeEndDate.split('T')[0],
+        ]);
+      },
     }
   );
   const [isJoin, setIsJoin] = useState<IsJoinChallenge | null>();
@@ -82,7 +94,13 @@ export default function Challenge() {
   };
 
   return (
-    <section className="w-full max-w-6xl px-5 md:px-10">
+    <section className="relative w-full max-w-6xl px-5 md:px-10">
+      <CalendarUI
+        open={openCalendar}
+        close={() => setOpenCalendar((prev) => !prev)}
+        mark={mark}
+        className="absolute top-16 md:top-24 right-0 flex flex-col items-end w-72 md:w-96 px-5 md:px-10"
+      />
       <div className="flex w-full border">
         <img src={data?.challengeImg} className="w-1/4" />
         <div className="bg-gray-1 flex flex-1 items-center justify-between px-4 py-2">
@@ -99,6 +117,12 @@ export default function Challenge() {
           <div className="flex items-center justify-end flex-wrap text-gray-5 text-sm md:text-base">
             <p className="mr-1">{getDateText(data?.challengeStartDate)} -</p>
             <p>{getDateText(data?.challengeEndDate)}</p>
+            <button
+              className="cursor-pointer ml-1"
+              onClick={() => setOpenCalendar((prev) => !prev)}
+            >
+              <BiCalendar size={20} />
+            </button>
           </div>
         </div>
       </div>
@@ -107,7 +131,7 @@ export default function Challenge() {
         <div className="flex justify-between">
           <h3 className="text-lg font-semibold">챌린지 정보</h3>
           <div className="flex items-center">
-            <div className="select-none border border-jghd-blue py-1 px-2 mr-1 rounded-sm">
+            <div className="select-none border border-jghd-blue md:py-1 px-1 md:px-2 mr-1 rounded-sm text-sm md:text-base">
               {(data?.challengeStatus === 'BEFORE' && '모집 중인 ') ||
                 (data?.challengeStatus === 'INPROGRESS' && '진행 중인 ') ||
                 (data?.challengeStatus === 'END' && '종료된 ')}
@@ -118,7 +142,7 @@ export default function Challenge() {
               data?.challengeStatus === 'BEFORE' && (
                 <button
                   onClick={handleJoinChallenge}
-                  className="select-none cursor-pointer border border-jghd-red bg-jghd-red py-1 px-2 text-white rounded-sm"
+                  className="select-none cursor-pointer border border-jghd-red bg-jghd-red md:py-1 px-1 md:px-2 text-white rounded-sm text-sm md:text-base"
                 >
                   참가하기
                 </button>
@@ -126,7 +150,7 @@ export default function Challenge() {
             {currentUser &&
               isJoin?.joinStatus === 'JOIN' &&
               data?.challengeStatus !== 'END' && (
-                <div className="select-none border border-jghd-red bg-jghd-red py-1 px-2 text-white rounded-sm">
+                <div className="select-none border border-jghd-red bg-jghd-red md:py-1 px-1 md:px-2 text-white rounded-sm text-sm md:text-base">
                   현재 참가 중인 챌린지입니다
                 </div>
               )}
