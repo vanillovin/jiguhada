@@ -5,7 +5,11 @@ import { useQuery } from 'react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import Error from '../components/Error';
-import { getChallengeRequest, getIsJoinChallengeRequest } from '../modules/challenge/api';
+import {
+  getChallengeRequest,
+  getIsJoinChallengeRequest,
+  joinChallengeRequest,
+} from '../modules/challenge/api';
 import {
   challengeAuthFrequencyNames,
   challengeListTagsNameObj,
@@ -33,8 +37,8 @@ export default function Challenge() {
       refetchOnWindowFocus: false,
     }
   );
-  console.log('Challenge data:', data, '/ error:', error);
   const [isJoin, setIsJoin] = useState<IsJoinChallenge | null>();
+  console.log('Challenge data:', data, '/ error:', error, '/ isJoin:', isJoin);
 
   useEffect(() => {
     if (currentUser) {
@@ -58,6 +62,27 @@ export default function Challenge() {
 
   if (error?.errorCode === 'BAD_REQUEST') return <Error message={error.message} />;
 
+  const handleJoinChallenge = () => {
+    if (!currentUser) {
+      return;
+    }
+    joinChallengeRequest(currentUser.accessToken, {
+      userId: currentUser?.userid,
+      challengeId: Number(id),
+    })
+      .then((res) => {
+        console.log('joinChallengeRequest res:', res);
+      })
+      .catch((err) => {
+        console.log('joinChallengeRequest err:', err);
+        if (err.errorCode) {
+          alert(err.message);
+        }
+      });
+  };
+
+  console.log(currentUser);
+
   return (
     <section className="w-full max-w-6xl px-5 md:px-10">
       <div className="flex w-full border">
@@ -74,7 +99,7 @@ export default function Challenge() {
             </ul>
           </div>
           <div className="flex items-center justify-end flex-wrap text-gray-5 text-sm md:text-base">
-            <p>{getDateText(data?.challengeStartDate)} -</p>
+            <p className="mr-1">{getDateText(data?.challengeStartDate)} -</p>
             <p>{getDateText(data?.challengeEndDate)}</p>
           </div>
         </div>
@@ -83,15 +108,29 @@ export default function Challenge() {
       <div className="w-full flex flex-col p-2 border my-2">
         <div className="flex justify-between">
           <h3 className="text-lg font-semibold">챌린지 정보</h3>
-          {currentUser && isJoin?.joinStatus === 'NOTJOIN' ? (
-            <button className="cursor-pointer bg-jghd-red py-1 px-2 text-white rounded-sm">
-              참가하기
-            </button>
-          ) : (
-            <div className="bg-jghd-red py-1 px-2 text-white rounded-sm">
-              현재 참가 중인 챌린지입니다
+          <div className="flex items-center">
+            <div className="select-none border border-jghd-blue py-1 px-2 mr-1 rounded-sm">
+              {(data?.challengeStatus === 'BEFORE' && '모집 중인 ') ||
+                (data?.challengeStatus === 'INPROGRESS' && '진행 중인 ') ||
+                (data?.challengeStatus === 'END' && '종료된 ')}
+              챌린지
             </div>
-          )}
+            {currentUser &&
+              isJoin?.joinStatus === 'NOTJOIN' &&
+              data?.challengeStatus === 'BEFORE' && (
+                <button
+                  onClick={handleJoinChallenge}
+                  className="select-none cursor-pointer border border-jghd-red bg-jghd-red py-1 px-2 text-white rounded-sm"
+                >
+                  참가하기
+                </button>
+              )}
+            {currentUser && isJoin?.joinStatus === 'JOIN' && (
+              <div className="select-none border border-jghd-red bg-jghd-red py-1 px-2 text-white rounded-sm">
+                현재 참가 중인 챌린지입니다
+              </div>
+            )}
+          </div>
         </div>
         <div className="border-b p-2">
           <h4 className="font-medium">평균 달성률</h4>

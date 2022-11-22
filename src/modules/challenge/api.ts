@@ -125,3 +125,22 @@ export const getIsJoinChallengeRequest = async (uid: number, cid: number) => {
   if (json.errorCode) throw json;
   else return json;
 };
+
+export const joinChallengeRequest = async (
+  token: string,
+  data: {
+    userId: number;
+    challengeId: number;
+  }
+) => {
+  headers.set('Authorization', token);
+  const json = await (
+    await fetch(`${CHALLENGE_API_END_POINT}/join`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.errorCode) throw json;
+  else return json;
+};

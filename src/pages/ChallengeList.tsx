@@ -205,7 +205,7 @@ export default function ChallengeList() {
               onClick={() => setOpenTags((prev) => !prev)}
             >
               태그로 찾기{' '}
-              <span className="ml-1 text-sm select-none">{openTags ? '▲' : '▼'}</span>
+              <span className="ml-1 text-sm select-none">{!openTags ? '▶' : '▼'}</span>
             </button>
             {openTags
               ? categoryParam === ''
@@ -243,7 +243,7 @@ export default function ChallengeList() {
                     <button
                       key={tag.name}
                       onClick={() => handleChageTagList(tag.value as ChallengeTag)}
-                      className={`select-none border border-gray-3 rounded-sm px-2 py-1 text-sm mr-1
+                      className={`select-none border border-gray-3 rounded-sm px-2 py-1 text-sm mr-1 mt-1
                           ${
                             tagList.includes(tag.value)
                               ? 'bg-gray-3 text-white'
