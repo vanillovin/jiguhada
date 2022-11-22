@@ -3,117 +3,21 @@ import { BiCalendar, BiCamera } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { createChallengeRequest, imageUploadRequest } from '../modules/challenge/api';
-import { AuthFrequency, CahllengeCategory } from '../modules/challenge/type';
-import { getChallengeEndData, getChallengeStartDate } from '../modules/challenge/utils';
+import {
+  getChallengeDefaultImgUrl,
+  tagsData,
+  authFrequencyData,
+  challengePeroidData,
+  categoryData,
+} from '../modules/challenge/data';
+import {
+  AuthFrequency,
+  CahllengeCategory,
+  ChallengePeroid,
+} from '../modules/challenge/type';
+import { getChallengeEndDate, getChallengeStartDate } from '../modules/challenge/utils';
 import { currentUserState } from '../modules/user/atom';
 import { getDay, getToday } from '../utils';
-
-export const getChallengeDefaultImgUrl = (cat: string) =>
-  `https://jiguhada-user-img.s3.ap-northeast-2.amazonaws.com/challenge-profile-img/challenge-${
-    cat ? cat.toLowerCase() : 'vegan'
-  }.png`;
-
-const ChallengeData = [
-  {
-    id: 1,
-    data: {},
-  },
-];
-
-const categoryData = [
-  { value: 'VEGAN', name: '비건' },
-  { value: 'ENVIRONMENT', name: '환경' },
-  { value: 'ETC', name: '기타' },
-];
-
-export const tagsData = {
-  VEGAN: [
-    { checked: false, value: 'VEGAN', name: '비건' },
-    { checked: false, value: 'VEGANRECIPE', name: '비건 레시피' },
-    { checked: false, value: 'VEGANBEAUTY', name: '비건 뷰티' },
-    { checked: false, value: 'VEGANFASHION', name: '비건 패션' },
-    { checked: false, value: 'PESCOVEGAN', name: '페스코' },
-    { checked: false, value: 'FLEXITERIANVEGAN', name: '플렉시테리언' },
-  ],
-  ENVIRONMENT: [
-    { checked: false, value: 'ZERO_WASTE', name: '제로 웨이스트' },
-    { checked: false, value: 'ZEROENERGE', name: '제로 에너지' },
-    { checked: false, value: 'PLOGGING', name: '쓰레기 줍기' },
-    { checked: false, value: 'TUMBLER', name: '텀블러 사용' },
-    { checked: false, value: 'RECYCLING', name: '재활용' },
-  ],
-  ETC: [
-    { checked: false, value: 'ETC', name: '기타' },
-    { checked: false, value: 'LIFESTYLE', name: '생활습관' },
-    { checked: false, value: 'ENVIRONMENT_DAY', name: '환경의 날' },
-    { checked: false, value: 'EARTH_DAY', name: '지구의 날' },
-    { checked: false, value: 'PLANT_DAY', name: '식목일' },
-    { checked: false, value: 'WATER_DAY', name: '물의 날' },
-    { checked: false, value: 'SEA_DAY', name: '바다의 날' },
-    { checked: false, value: 'BUY_NOTHING_DAY', name: '아무것도 사지 않는 날' },
-    { checked: false, value: 'VEGAN_DAY', name: '비건의 날' },
-    { checked: false, value: 'ENERGE_DAY', name: '에너지의 날' },
-  ],
-};
-
-const challengePeroidData = [
-  { value: 'ONEWEEK', name: '1주 동안' },
-  { value: 'TWOWEEK', name: '2주 동안' },
-  { value: 'THREEWEEK', name: '3주 동안' },
-  { value: 'FOURWEEK', name: '4주 동안' },
-];
-
-const authFrequencyData: {
-  value: AuthFrequency;
-  name: string;
-  desc: string;
-}[] = [
-  {
-    value: 'EVERYDAY',
-    name: '월~일 매일 인증하기',
-    desc: '인증 요일은 월, 화, 수, 목, 금, 토, 일 입니다.',
-  },
-  {
-    value: 'WEEKDAY',
-    name: '월~금 매일 인증하기',
-    desc: '인증 요일은 월, 화, 수, 목, 금 입니다.',
-  },
-  {
-    value: 'WEEKEND',
-    name: '토~일 매일 인증하기',
-    desc: '인증 요일은 토, 일 입니다.',
-  },
-  {
-    value: 'SIXTHAWEEK',
-    name: '주 6일 인증하기',
-    desc: '월, 화, 수, 목, 금, 토, 일 중에 6일 인증해주세요.',
-  },
-  {
-    value: 'FIFTHAWEEK',
-    name: '주 5일 인증하기',
-    desc: '월, 화, 수, 목, 금, 토, 일 중에 5일 인증해주세요.',
-  },
-  {
-    value: 'FORTHAWEEK',
-    name: '주 4일 인증하기',
-    desc: '월, 화, 수, 목, 금, 토, 일 중에 4일 인증해주세요.',
-  },
-  {
-    value: 'THIRDAWEEK',
-    name: '주 3일 인증하기',
-    desc: '월, 화, 수, 목, 금, 토, 일 중에 3일 인증해주세요.',
-  },
-  {
-    value: 'TWICEAWEEK',
-    name: '주 2일 인증하기',
-    desc: '월, 화, 수, 목, 금, 토, 일 중에 2일 인증해주세요.',
-  },
-  {
-    value: 'ONCEAWEEK',
-    name: '주 1일 인증하기',
-    desc: '월, 화, 수, 목, 금, 토, 일 중에 1일 인증해주세요.',
-  },
-];
 
 export default function CreateChallenge() {
   const navigate = useNavigate();
@@ -181,13 +85,19 @@ export default function CreateChallenge() {
     }));
   };
 
-  const [sMonth, sDate, sDay] = startDate.split('.');
-  const [eYear, eMonth, eDate] = getChallengeEndData(
+  console.log(startDate);
+  const [sYear, sMonth, sDate, sDay] = startDate.split('.');
+  const {
+    year: eYear,
+    month: eMonth,
+    date: eDate,
+    day: eDay,
+  } = getChallengeEndDate(
     authFrequency as AuthFrequency,
-    challengePeroid,
+    challengePeroid as ChallengePeroid,
     startDate
   );
-  const eDay = getToday(getDay(+eYear, +eMonth, +eDate));
+  const eToday = getToday(getDay(+eYear, +eMonth, +eDate));
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -224,11 +134,11 @@ export default function CreateChallenge() {
       authAvailableStartTime: `${sHour}:${sMin}:00`,
       authAvailableEndTime: `${eHour}:${eMin}:00`,
     };
-    console.log('onSubmit data:', data);
-    // createChallengeRequest(currentUser?.accessToken as string, data).then((res) => {
-    //   console.log('createChallengeRequest res', res);
-    //   navigate(`challenge/${res.challengeId}`);
-    // });
+    // console.log('onSubmit data:', data);
+    createChallengeRequest(currentUser?.accessToken as string, data).then((res) => {
+      console.log('createChallengeRequest res', res);
+      navigate(`challenge/${res.challengeId}`);
+    });
   };
 
   const [imgs, setImgs] = useState({
@@ -334,24 +244,6 @@ export default function CreateChallenge() {
           </div>
         </div>
 
-        {/* <div className="w-full mt-4">
-          <label htmlFor="challenge-detail">
-            <h2 className="font-bold">
-              챌린지 상세 설명<span className="text-red-400">*</span>
-            </h2>
-          </label>
-          <input
-            id="challenge-detail"
-            name="challengeDetails"
-            required
-            maxLength={30}
-            onChange={onChange}
-            value={challengeDetails}
-            className="w-full border-b border-gray-4 outline-none p-2 mt-2 placeholder:text-sm"
-            placeholder="예) 분리수거 인증하기"
-          />
-        </div> */}
-
         <div className="w-full mt-6">
           <label>
             <h2 className="font-bold">
@@ -409,19 +301,25 @@ export default function CreateChallenge() {
             </label>
             <div className="flex flex-wrap">
               {/* {JSON.stringify(getChallengeStartDate(authFrequency))} */}
-              {getChallengeStartDate(authFrequency).map(({ month, date, day }, i) => (
-                <button
-                  type="button"
-                  key={i}
-                  onClick={() => handleChangeStartDate(`${month}.${date}.${day}`)}
-                  className={`border border-gray-4 rounded-full px-2 py-1 mt-2 mr-1 text-sm
+              {getChallengeStartDate(authFrequency as AuthFrequency).map(
+                ({ year, month, date, day }, i) => (
+                  <button
+                    type="button"
+                    key={i}
+                    onClick={() =>
+                      handleChangeStartDate(`${year}.${month}.${date}.${day}`)
+                    }
+                    className={`border border-gray-4 rounded-full px-2 py-1 mt-2 mr-1 text-sm
                     ${
-                      `${month}.${date}.${day}` === startDate ? 'bg-black text-white' : ''
+                      `${year}.${month}.${date}.${day}` === startDate
+                        ? 'bg-black text-white'
+                        : ''
                     }`}
-                >
-                  {`${month + 1}. ${date} (${getToday(day)})`}
-                </button>
-              ))}
+                  >
+                    {`${month + 1}. ${date} (${getToday(day)})`}
+                  </button>
+                )
+              )}
             </div>
           </div>
         )}
@@ -429,9 +327,11 @@ export default function CreateChallenge() {
         {authFrequency && challengePeroid && startDate && (
           <div className="flex items-center bg-gray-2 rounded-md py-3 px-4 font-semibold mt-6">
             <BiCalendar className="mr-2" size={22} />
-            {`${+sMonth + 1}. ${sDate} (${getToday(+sDay)}) ~ ${
+            {`${+sYear > 2022 ? `${sYear}.` : ''} ${+sMonth + 1}. ${sDate} (${getToday(
+              +sDay
+            )}) ~ ${+eYear > 2022 ? `${eYear}.` : ''}${
               +eMonth + 1
-            }. ${+eDate} (${eDay})`}
+            }. ${+eDate} (${eToday})`}
           </div>
         )}
 

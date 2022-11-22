@@ -100,11 +100,11 @@ function getNWeekData({ year, month, date, day }: DateData) {
 }
 
 export function getChallengeStartDate(authFrequency: AuthFrequency) {
-  // const { year, month, date, day } = getCurrentDate();
-  const year = 2022;
-  const month = 11;
-  const date = 26;
-  const day = 1;
+  const { year, month, date, day } = getCurrentDate();
+  // const year = 2022;
+  // const month = 11;
+  // const date = 26;
+  // const day = 1;
   switch (authFrequency) {
     case 'EVERYDAY':
       return getEverydayData({ year, month, date, day });
@@ -160,7 +160,7 @@ function getWeekdayEndData({
   day,
   opt = false,
 }: GetEndDataParams): DateData {
-  console.log('getWeekdayEndData :', year, month, date, day);
+  // console.log('getWeekdayEndData :', year, month, date, day);
 
   const lastDate = getLastDate(year, month);
   let [tempYear, tempMonth, tempDate, tempDay] = [year, month, date, day];
@@ -191,7 +191,7 @@ function getWeekendEndDate({
   day,
   opt = false,
 }: GetEndDataParams): DateData {
-  console.log('getWeekendEndDate :', year, month, date, day);
+  // console.log('getWeekendEndDate :', year, month, date, day);
 
   const lastDate = getLastDate(year, month);
   let [tempYear, tempMonth, tempDate, tempDay] = [year, month, date, day];
@@ -243,6 +243,8 @@ export function getChallengeEndDate(
   peroid: ChallengePeroid,
   startDate: string
 ) {
+  // console.log('getChallengeEndDate :', authFrequency, peroid, startDate);
+
   const [y, m, de, dy] = startDate.split('.');
   const [year, month, date, day] = [+y, +m, +de, +dy];
 

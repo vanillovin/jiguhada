@@ -7,44 +7,15 @@ import PageList from '../components/PageList';
 import { getChallengeList } from '../modules/challenge/api';
 import { CahllengeCategory, ChallengeTag } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
-import { authFrequencyNames, challengePeroidNames } from './Challenge';
-import { getChallengeDefaultImgUrl, tagsData } from './CreateChallenge';
-
-export const tagsNameObj = {
-  VEGAN: '비건',
-  VEGANRECIPE: '비건 레시피',
-  VEGANBEAUTY: '비건 뷰티',
-  VEGANFASHION: '비건 패션',
-  PESCOVEGAN: '페스코',
-  FLEXITERIANVEGAN: '플렉시테리언',
-  ZERO_WASTE: '제로 웨이스트',
-  ZEROENERGE: '제로 에너지',
-  PLOGGING: '쓰레기 줍기',
-  TUMBLER: '텀블러 사용',
-  RECYCLING: '재활용',
-  ETC: '기타',
-  LIFESTYLE: '생활습관',
-  ENVIRONMENT_DAY: '환경의 날',
-  EARTH_DAY: '지구의 날',
-  PLANT_DAY: '식목일',
-  WATER_DAY: '물의 날',
-  SEA_DAY: '바다의 날',
-  BUY_NOTHING_DAY: '아무것도 사지 않는 날',
-  VEGAN_DAY: '비건의 날',
-  ENERGE_DAY: '에너지의 날',
-};
-
-const categoryData = [
-  ['', '전체'],
-  ['VEGAN', '비건'],
-  ['ENVIRONMENT', '환경'],
-  ['ETC', '기타'],
-];
-
-const orderData = [
-  ['RECENTLY', '최신순'],
-  ['POPULAR', '인기순'],
-];
+import {
+  challengeAuthFrequencyNames,
+  challengeListCategoryData,
+  challengeListOrderData,
+  challengeListTagsNameObj,
+  challengePeroidNames,
+  getChallengeDefaultImgUrl,
+  tagsData,
+} from '../modules/challenge/data';
 
 function test(sdate: string) {
   const [y, m, d] = sdate.split('T')[0].split('-');
@@ -183,7 +154,7 @@ export default function ChallengeList() {
 
       <div className="flex flex-col md:flex-row mt-5">
         <ul className="flex flex-row md:flex-col items-start mb-5 md:mb-0 md:pt-2 md:px-3 md:mr-5">
-          {categoryData.map(([value, name]) => (
+          {challengeListCategoryData.map(([value, name]) => (
             <li
               key={value}
               onClick={() => handleChangeCategory(value)}
@@ -288,7 +259,7 @@ export default function ChallengeList() {
 
           <div className="w-full flex items-center justify-between mt-2 mb-6">
             <ul className="flex items-center">
-              {orderData.map(([value, name], i) => (
+              {challengeListOrderData.map(([value, name], i) => (
                 <div
                   key={value}
                   className="flex items-center p-1 mr-1 text-sm md:text-base"
@@ -366,7 +337,7 @@ export default function ChallengeList() {
                   </div>
                   <ul className="flex text-sm flex-wrap mt-1">
                     <li className="mr-1 font-medium">
-                      #{authFrequencyNames[c.authFrequency]}
+                      #{challengeAuthFrequencyNames[c.authFrequency]}
                     </li>
                     <li className="mr-1 font-medium">
                       #{challengePeroidNames[c.challengePeroid]}
@@ -374,7 +345,7 @@ export default function ChallengeList() {
                     {/* <li className="mr-1">#{c.authFrequency}</li> */}
                     {c.challengeTagList.map((t: ChallengeTag) => (
                       <li key={t} className="mr-1 font-medium">
-                        #{tagsNameObj[t]}
+                        #{challengeListTagsNameObj[t]}
                       </li>
                     ))}
                   </ul>

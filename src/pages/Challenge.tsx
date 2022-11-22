@@ -6,34 +6,19 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import Error from '../components/Error';
 import { getChallengeRequest, getIsJoinChallengeRequest } from '../modules/challenge/api';
+import {
+  challengeAuthFrequencyNames,
+  challengeListTagsNameObj,
+  challengePeroidNames,
+} from '../modules/challenge/data';
 import { GetChallenge, IsJoinChallenge } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
 import { getBoardCatText, getDateText } from '../utils';
-import { tagsNameObj } from './ChallengeList';
 
 interface ErrorInfo {
   errorCode: string;
   message: string;
 }
-
-export const authFrequencyNames = {
-  EVERYDAY: '매일',
-  WEEKDAY: '평일 매일',
-  WEEKEND: '주말 매일',
-  SIXTHAWEEK: '주 6일',
-  FIFTHAWEEK: '주 5일',
-  FORTHAWEEK: '주 4일',
-  THIRDAWEEK: '주 3일',
-  TWICEAWEEK: '주 2일',
-  ONCEAWEEK: '주 1일',
-};
-
-export const challengePeroidNames = {
-  ONEWEEK: '1주 동안',
-  TWOWEEK: '2주 동안',
-  THREEWEEK: '3주 동안',
-  FOURWEEK: '4주 동안',
-};
 
 export default function Challenge() {
   const location = useLocation();
@@ -83,7 +68,7 @@ export default function Challenge() {
             <ul className="flex flex-wrap items-center">
               {data?.challengeTag?.map((tag) => (
                 <li key={tag} className="mr-1 font-medium text-sm md:text-base">
-                  #{tagsNameObj[tag]}
+                  #{challengeListTagsNameObj[tag]}
                 </li>
               ))}
             </ul>
@@ -137,7 +122,7 @@ export default function Challenge() {
                 {data?.isOfficial ? '공식 챌린지' : '개설 챌린지'}
               </li>
               <li className="bg-gray-200 rounded-md mr-1 mb-1 px-1">
-                {authFrequencyNames[data?.authFrequency]}
+                {challengeAuthFrequencyNames[data?.authFrequency]}
               </li>
               <li className="bg-gray-200 rounded-md mr-1 mb-1 px-1">
                 {challengePeroidNames[data?.challengePeroid]}
