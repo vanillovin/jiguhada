@@ -10,22 +10,7 @@ import { currentUserState } from '../modules/user/atom';
 import Loading from '../components/Loading';
 import { AiOutlineComment, AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
 
-const categoryData = [
-  ['', '전체'],
-  ['VEGAN', '비건'],
-  ['ENVIRONMENT', '환경'],
-  ['QUESTION', 'Q&A'],
-  ['FREE', '자유게시판'],
-];
-
-const orderData = [
-  ['RECENT', '최신순'],
-  ['POPULAR', '인기순'],
-  ['COMMENT_COUNT', '댓글순'],
-  ['VIEW', '조회순'],
-];
-
-function Board() {
+function BoardList() {
   const location = useLocation();
   const navigate = useNavigate();
   const urlSearchParams = new URLSearchParams(location.search);
@@ -286,4 +271,19 @@ function Board() {
   );
 }
 
-export default Board;
+export default BoardList;
+
+const categoryData = [
+  ['', '전체'],
+  ['VEGAN', '비건'],
+  ['ENVIRONMENT', '환경'],
+  ['QUESTION', 'Q&A'],
+  ['FREE', '자유게시판'],
+];
+
+const orderData = [
+  ['RECENT', '최신순'],
+  ['POPULAR', '인기순'],
+  ['COMMENT_COUNT', '댓글순'],
+  ['VIEW', '조회순'],
+];
