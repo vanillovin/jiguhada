@@ -9,6 +9,7 @@ import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 
 import { currentUserState } from '../modules/user/atom';
 import { createPostRequest, uploadImgRequest } from '../modules/board/api';
+import { toast } from 'react-toastify';
 
 interface LocationState {
   data: {
@@ -35,7 +36,7 @@ export default function WritePost() {
       alert('쓰기 권한이 없습니다');
       navigate(-1);
     }
-  }, []);
+  }, [currentUser]);
 
   const onChange = () => {
     const data = editorRef.current?.getInstance().getHTML();
@@ -63,6 +64,9 @@ export default function WritePost() {
 
   const handleCreateBoard = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!currentUser) {
+      return;
+    }
     const formData = new FormData(e.currentTarget);
     // const data = Object.fromEntries(formData);
     const instance = editorRef.current?.getInstance();
@@ -77,10 +81,7 @@ export default function WritePost() {
       alert('제목을 입력해 주세요');
       return;
     }
-    if (
-      content === '<p><br></p>' ||
-      content.split('<p>')[1].trim().length < 8
-    ) {
+    if (content === '<p><br></p>' || content.split('<p>')[1].trim().length < 8) {
       alert('내용은 4자 이상 입력해 주세요');
       return;
     }
@@ -93,22 +94,31 @@ export default function WritePost() {
       content,
       deletedImgList,
     };
-    createPostRequest(currentUser?.accessToken as string, data)
+    createPostRequest(currentUser.accessToken, data)
       .then((res) => {
-        console.log('createBoardRequest res', res);
-        if (!res.errorCode) {
-          navigate(`/board/${res.boardId}`);
-        } else {
-          alert(res.message);
-          resetUser();
-          // 작성중인게시글데이터보관
-          navigate('/register', {
-            state: { path: '/board/new', data },
-          });
-        }
+        toast.success('게시글 작성 완료 👌');
+        navigate(`/board/${res.boardId}`);
       })
       .catch((err) => {
-        console.log('createBoardRequest err', err);
+        const [code, message] = err.message.split('-'); // EXPIRE_ACCESS_TOKEN-만료된 토큰입니다. 다시 로그인해주세
+        if (code === 'EXPIRE_ACCESS_TOKEN') {
+          toast(message, {
+            // closeButton: false,
+            onClose: () => {
+              if (window.confirm('로그인하시겠습니까?')) {
+                resetUser(); // 로그아웃
+                // 작성중인게시글데이터보관
+                navigate('/register', {
+                  state: { path: '/board/new', data },
+                });
+              } else {
+                navigate(-1);
+              }
+            },
+          });
+        } else {
+          toast.error(message);
+        }
       });
   };
 

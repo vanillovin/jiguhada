@@ -60,17 +60,21 @@ export const getBoardList = async (params: BoardListParams): Promise<BoardList> 
 
 export const createPostRequest = async (token: string, data: CreateBoard) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_API_END_POINT}/create`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`게시글을 올리지 못했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_API_END_POINT}/create`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  // console.log('createPostRequest api json :', json);
+  // { errorCode, message } || { error, path, status: 500, timestamp } ||
+  // if (!json)
+  if (json.error || json.errorCode) {
+    // throw json;
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const uploadImgRequest = async (formData: FormData) => {
