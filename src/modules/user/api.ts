@@ -36,9 +36,7 @@ export const checkDuplicateIdRequest = async (id: string): Promise<any> => {
   }
 };
 
-export const checkDuplicateNicknameRequest = async (
-  nickname: string
-): Promise<any> => {
+export const checkDuplicateNicknameRequest = async (nickname: string): Promise<any> => {
   try {
     return await (
       await fetch(`${API_END_POINT}/checkDuplicate?username=${nickname}`, {
@@ -52,13 +50,9 @@ export const checkDuplicateNicknameRequest = async (
 
 export const imageUploadRequest = async (formData: FormData) => {
   const headers: HeadersInit = new Headers();
-  headers.set(
-    'Access-Control-Allow-Origin',
-    `${import.meta.env.VITE_APP_LOCAL}`
-  );
+  headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
   headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
   headers.set('Access-Control-Allow-Credentials', 'true');
-
   try {
     return await (
       await fetch(`${API_END_POINT}/uploadTempImg`, {
@@ -73,26 +67,23 @@ export const imageUploadRequest = async (formData: FormData) => {
 };
 
 export const signupRequest = async (data: SignupData) => {
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/signup`, {
-        method: 'POST',
-        mode: 'cors',
-        // cache: 'no-cache',
-        // credentials: 'same-origin',
-        headers,
-        body: JSON.stringify(data),
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`회원가입에 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${API_END_POINT}/signup`, {
+      method: 'POST',
+      mode: 'cors',
+      // cache: 'no-cache',
+      // credentials: 'same-origin',
+      headers,
+      body: JSON.stringify(data),
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
-export const updateNicknameRequest = async (
-  token: string,
-  nickname: string
-) => {
+export const updateNicknameRequest = async (token: string, nickname: string) => {
   headers.set('Authorization', token);
   try {
     return await (
@@ -109,10 +100,7 @@ export const updateNicknameRequest = async (
 
 export const updateImgRequest = async (token: string, formData: FormData) => {
   const headers: HeadersInit = new Headers();
-  headers.set(
-    'Access-Control-Allow-Origin',
-    `${import.meta.env.VITE_APP_LOCAL}`
-  );
+  headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
   headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   headers.set(
     'Access-Control-Allow-Headers',
@@ -151,10 +139,7 @@ export const updatePasswordRequest = async (
   }
 };
 
-export const getUserInfo = async (
-  token: string,
-  username: string
-): Promise<UserInfo> => {
+export const getUserInfo = async (token: string, username: string): Promise<UserInfo> => {
   headers.set('Authorization', token);
   try {
     return await (

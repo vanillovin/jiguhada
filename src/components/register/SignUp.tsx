@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { useRecoilState } from 'recoil';
 import useInput from '../../hooks/useInput';
 import {
@@ -9,6 +10,18 @@ import {
 } from '../../modules/user/api';
 import { currentUserState } from '../../modules/user/atom';
 import { defaultProfileImage } from '../../pages/Register';
+
+interface SignupInputs {
+  [key: string]: { value: string; error: string };
+}
+
+const signupInputsData = [
+  ['id', 'text', '아이디', '아이디를 입력해주세요.'],
+  ['nickname', 'text', '닉네임', '사용하실 닉네임을 입력해주세요.'],
+  ['pw', 'password', '비밀번호', '비밀번호를 입력해주세요.'],
+  ['pwCheck', 'password', '비밀번호 확인', '비밀번호를 확인합니다.'],
+  ['profileImage', 'text', '프로필 사진', '선택된 파일 없음'],
+];
 
 function SignUp({
   goToHome,
@@ -58,7 +71,9 @@ function SignUp({
       checkDuplicateIdRequest(id.value).then((data) => {
         setDuplicateCheckedId(!data ? id.value : '');
         setSignupInputsValueOrError('error', 'id', '');
-        alert(!data ? '사용 가능한 아이디입니다' : '중복된 아이디입니다');
+        !data
+          ? toast.success('사용 가능한 아이디입니다')
+          : toast.error('중복된 아이디입니다');
       });
     } else {
       if (nickname.value.length < 2) {
@@ -72,7 +87,9 @@ function SignUp({
       checkDuplicateNicknameRequest(nickname.value).then((data) => {
         setDuplicateCheckedNickname(!data ? nickname.value : '');
         setSignupInputsValueOrError('error', 'nickname', '');
-        alert(!data ? '사용 가능한 닉네임입니다' : '중복된 닉네임입니다');
+        !data
+          ? toast.success('사용 가능한 닉네임입니다')
+          : toast.error('중복된 닉네임입니다');
       });
     }
   };
@@ -91,11 +108,11 @@ function SignUp({
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!duplicateCheckedId || duplicateCheckedId !== id.value) {
-      alert('아이디 중복 확인을 해주세요');
+      toast.error('아이디 중복 확인을 해주세요');
       return;
     }
     if (!duplicateCheckedNickname || duplicateCheckedNickname !== nickname.value) {
-      alert('닉네임 중복 확인을 해주세요');
+      toast.error('닉네임 중복 확인을 해주세요');
       return;
     }
     if (!/^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z]{5,16}$/.test(pw.value)) {
@@ -105,7 +122,7 @@ function SignUp({
       setSignupInputsValueOrError('error', 'pw', '');
     }
     if (pw.value !== pwCheck.value) {
-      alert('비밀번호가 일치하지 않습니다');
+      toast.error('비밀번호가 일치하지 않습니다');
       return;
     }
     signupRequest({
@@ -116,15 +133,14 @@ function SignUp({
       socialType: 'GENERAL',
     })
       .then((data) => {
-        if (!data.errorCode) {
-          setCurrentUser(data);
-          goToHome();
-        } else {
-          alert(data.message);
-        }
+        toast.success('회원가입이 완료됐습니다');
+        setCurrentUser(data);
+        goToHome();
       })
       .catch((err) => {
         console.log('signup error', err);
+        const [code, message] = err.message.split('-');
+        toast.error(message);
       });
   };
 
@@ -278,15 +294,3 @@ function SignUp({
 }
 
 export default SignUp;
-
-interface SignupInputs {
-  [key: string]: { value: string; error: string };
-}
-
-const signupInputsData = [
-  ['id', 'text', '아이디', '아이디를 입력해주세요.'],
-  ['nickname', 'text', '닉네임', '사용하실 닉네임을 입력해주세요.'],
-  ['pw', 'password', '비밀번호', '비밀번호를 입력해주세요.'],
-  ['pwCheck', 'password', '비밀번호 확인', '비밀번호를 확인합니다.'],
-  ['profileImage', 'text', '프로필 사진', '선택된 파일 없음'],
-];
