@@ -10,9 +10,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const PageList = ({
   currentPage,
   endPage,
+  color = 'green',
 }: {
   currentPage: number;
   endPage: number;
+  color?: string;
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -20,17 +22,15 @@ const PageList = ({
 
   const pageListState = useMemo(() => {
     const pages = 10;
-    let ret = Array.from(
-      { length: pages },
-      (_, i) => currentPage + i - 2
-    ).filter((x) => x > 0 && x <= endPage);
+    let ret = Array.from({ length: pages }, (_, i) => currentPage + i - 2).filter(
+      (x) => x > 0 && x <= endPage
+    );
     if (ret.length === pages) return ret;
     if (ret[0] === 1)
       return Array.from({ length: Math.min(pages, endPage) }, (_, i) => i + 1);
-    return Array.from(
-      { length: pages },
-      (_, i) => endPage - pages + i + 1
-    ).filter((x) => x > 0);
+    return Array.from({ length: pages }, (_, i) => endPage - pages + i + 1).filter(
+      (x) => x > 0
+    );
   }, [currentPage, endPage]);
 
   const onChangePageSearchParams = (value: string) => {
@@ -81,7 +81,7 @@ const PageList = ({
             key={i}
             className={`pBtn mx-1 md:mx-2 ${
               currentPage === num
-                ? 'bg-jghd-green text-white font-medium hover:text-white'
+                ? `bg-jghd-${color} text-white font-medium hover:text-white`
                 : ''
             }`}
           >

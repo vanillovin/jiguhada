@@ -15,9 +15,9 @@ function NavigationBar() {
     >
       <h1 className="text-xl md:text-2xl font-bold group">
         <Link to="/">
-          <span className="group-hover:text-jghd-blue transition-all">지</span>
+          <span className="group-hover:text-jghd-green transition-all">지</span>
           <span className="group-hover:text-amber-700 transition-all">-</span>
-          <span className="group-hover:text-jghd-green transition-all">구</span>
+          <span className="group-hover:text-jghd-blue transition-all">구</span>
           하다
         </Link>
       </h1>
@@ -47,10 +47,7 @@ function NavigationBar() {
         {currentUser ? (
           <>
             <li className={`flex items-center px-1 ml-2 md:ml-3`}>
-              <Link
-                to={`/user/${currentUser?.username}`}
-                className="flex items-center"
-              >
+              <Link to={`/user/${currentUser?.username}`} className="flex items-center">
                 <div className="w-8 h-8 md:w-10 md:h-10 border border-gray-2 rounded-full mr-1">
                   <img
                     src={currentUser?.userImgUrl || defaultProfileImage}

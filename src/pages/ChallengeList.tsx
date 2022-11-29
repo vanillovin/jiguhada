@@ -153,12 +153,12 @@ export default function ChallengeList() {
       </div>
 
       <div className="flex flex-col md:flex-row mt-5">
-        <ul className="flex flex-row md:flex-col items-start mb-5 md:mb-0 md:pt-2 md:px-3 md:mr-5">
+        <ul className="flex flex-row md:flex-col items-start mb-5 md:mb-0 md:pt-2 md:px-3 md:mr-6">
           {challengeListCategoryData.map(([value, name]) => (
             <li
               key={value}
               onClick={() => handleChangeCategory(value)}
-              className={`md:mb-3 cursor-pointer mx-2 md:mr-0 
+              className={`md:mb-3 cursor-pointer mx-2 md:mx-0 md:mr-0 
                 ${categoryParam === value ? 'font-bold text-jghd-green' : ''}
               `}
             >
@@ -260,21 +260,19 @@ export default function ChallengeList() {
           <div className="w-full flex items-center justify-between mt-2 mb-6">
             <ul className="flex items-center">
               {challengeListOrderData.map(([value, name], i) => (
-                <div
+                <li
                   key={value}
                   className="flex items-center p-1 mr-1 text-sm md:text-base"
                 >
-                  <span
-                    className={`font-extrabold mr-1 ${
-                      orderParam === value ? 'text-jghd-green' : 'text-gray-4'
+                  <div
+                    className={`w-1 h-1 rounded-full mr-1 ${
+                      orderParam === value ? 'bg-jghd-green' : 'bg-gray-3'
                     }`}
-                  >
-                    ·
-                  </span>
-                  <li
+                  ></div>
+                  <p
                     key={value}
-                    className={`cursor-pointer text-gray-4 ${
-                      orderParam === value ? 'font-medium text-black' : ''
+                    className={`cursor-pointer text-gray-3 ${
+                      orderParam === value ? 'font-semibold text-gray-700' : ''
                     }`}
                     onClick={changeSearchParams([
                       ['order', value],
@@ -282,8 +280,8 @@ export default function ChallengeList() {
                     ])}
                   >
                     {name}
-                  </li>
-                </div>
+                  </p>
+                </li>
               ))}
             </ul>
             {currentUser && (
@@ -315,7 +313,7 @@ export default function ChallengeList() {
                         : c.challengeImgUrl
                     }
                   />
-                  <div className="flex items-center absolute top-2 right-2 bg-black bg-opacity-40 p-1 rounded-sm text-white text-xs">
+                  <div className="flex items-center absolute top-2 right-2 bg-black bg-opacity-40 py-1 px-2 rounded-sm text-white text-sm">
                     <BsPersonFill size={14} />
                     {c.currentParticipantsCount}명
                   </div>

@@ -116,12 +116,12 @@ function BoardList() {
       </div>
 
       <div className="flex flex-col md:flex-row mt-5">
-        <ul className="flex flex-row md:flex-col items-start mb-5 md:mb-0 md:pt-2 md:px-3 md:mr-5">
+        <ul className="flex flex-row md:flex-col items-start mb-5 md:mb-0 md:pt-2 md:px-3 md:mr-6">
           {categoryData.map(([value, name]) => (
             <li
               key={value}
               onClick={() => handleChangeCategory(value)}
-              className={`md:mb-3 cursor-pointer mx-2 md:mr-0 ${
+              className={`md:mb-3 cursor-pointer mx-2 md:mx-0 md:mr-0 ${
                 categoryParam === value ? 'font-bold text-jghd-blue' : ''
               }`}
             >
@@ -166,30 +166,28 @@ function BoardList() {
           <div className="w-full flex items-center justify-between mt-2 mb-6">
             <ul className="flex items-center">
               {orderData.map(([value, name], i) => (
-                <div
+                <li
                   key={value}
                   className="flex items-center p-1 mr-1 text-sm md:text-base"
                 >
-                  <span
-                    className={`font-extrabold mr-1 ${
-                      orderParam === value ? 'text-jghd-blue' : 'text-gray-4'
+                  <div
+                    className={`w-1 h-1 rounded-full mr-1 ${
+                      orderParam === value ? 'bg-jghd-blue' : 'bg-gray-3'
                     }`}
-                  >
-                    ·
-                  </span>
-                  <li
+                  ></div>
+                  <p
                     key={value}
                     onClick={changeSearchParams([
                       ['order', value],
                       ['page', '1'],
                     ])}
-                    className={`cursor-pointer text-gray-4 ${
-                      orderParam === value ? 'font-medium text-black' : ''
+                    className={`cursor-pointer text-gray-3 ${
+                      orderParam === value ? 'font-semibold text-gray-700' : ''
                     }`}
                   >
                     {name}
-                  </li>
-                </div>
+                  </p>
+                </li>
               ))}
             </ul>
             {currentUser && (
@@ -270,6 +268,7 @@ function BoardList() {
             <PageList
               currentPage={boardList?.currentPage}
               endPage={boardList?.totalPage}
+              color="blue"
             />
           )}
         </div>
