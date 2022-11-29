@@ -10,18 +10,6 @@ import {
 import { currentUserState } from '../../modules/user/atom';
 import { defaultProfileImage } from '../../pages/Register';
 
-interface SignupInputs {
-  [key: string]: { value: string; error: string };
-}
-
-const signupInputsData = [
-  ['id', 'text', '아이디', '아이디를 입력해주세요.'],
-  ['nickname', 'text', '닉네임', '사용하실 닉네임을 입력해주세요.'],
-  ['pw', 'password', '비밀번호', '비밀번호를 입력해주세요.'],
-  ['pwCheck', 'password', '비밀번호 확인', '비밀번호를 확인합니다.'],
-  ['profileImage', 'text', '프로필 사진', '선택된 파일 없음'],
-];
-
 function SignUp({
   goToHome,
   setIsRegistered,
@@ -38,12 +26,9 @@ function SignUp({
     profileImage: { value: '', error: '' },
   });
   const { id, nickname, pw, pwCheck, profileImage } = signupInputs;
-  const { value: duplicateCheckedId, setValue: setDuplicateCheckedId } =
+  const { value: duplicateCheckedId, setValue: setDuplicateCheckedId } = useInput('');
+  const { value: duplicateCheckedNickname, setValue: setDuplicateCheckedNickname } =
     useInput('');
-  const {
-    value: duplicateCheckedNickname,
-    setValue: setDuplicateCheckedNickname,
-  } = useInput('');
   const { value: fileDataUrl, setValue: setFileDataUrl } = useInput('');
 
   const setSignupInputsValueOrError = (
@@ -109,10 +94,7 @@ function SignUp({
       alert('아이디 중복 확인을 해주세요');
       return;
     }
-    if (
-      !duplicateCheckedNickname ||
-      duplicateCheckedNickname !== nickname.value
-    ) {
+    if (!duplicateCheckedNickname || duplicateCheckedNickname !== nickname.value) {
       alert('닉네임 중복 확인을 해주세요');
       return;
     }
@@ -178,9 +160,7 @@ function SignUp({
         <div key={id} className="flex flex-col items-start">
           {id !== 'pwCheck' && (
             <label htmlFor={id} className="block mt-3 mb-1">
-              {id === 'profileImage' && (
-                <span className="text-red-400 font-bold">*</span>
-              )}
+              {id === 'profileImage' && <span className="text-red-400 font-bold">*</span>}
               {title}
             </label>
           )}
@@ -270,10 +250,7 @@ function SignUp({
           </p>
         </div>
       ))}
-      <button
-        type="submit"
-        className="w-full bg-jghd-blue text-white py-2 mt-4"
-      >
+      <button type="submit" className="w-full bg-jghd-blue text-white py-2 mt-4">
         가입하기
       </button>
       <div className="hr-lines-con">
@@ -301,3 +278,15 @@ function SignUp({
 }
 
 export default SignUp;
+
+interface SignupInputs {
+  [key: string]: { value: string; error: string };
+}
+
+const signupInputsData = [
+  ['id', 'text', '아이디', '아이디를 입력해주세요.'],
+  ['nickname', 'text', '닉네임', '사용하실 닉네임을 입력해주세요.'],
+  ['pw', 'password', '비밀번호', '비밀번호를 입력해주세요.'],
+  ['pwCheck', 'password', '비밀번호 확인', '비밀번호를 확인합니다.'],
+  ['profileImage', 'text', '프로필 사진', '선택된 파일 없음'],
+];

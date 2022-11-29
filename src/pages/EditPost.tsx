@@ -66,7 +66,7 @@ export default function EditPost() {
       alert('수정 권한이 없습니다');
       navigate(-1);
     }
-  }, []);
+  }, [currentUser]);
 
   const onChange = () => {
     const data = editorRef.current?.getInstance().getHTML();
@@ -108,20 +108,13 @@ export default function EditPost() {
       alert('제목을 입력해 주세요');
       return;
     }
-    if (
-      content === '<p><br></p>' ||
-      content.split('<p>')[1].trim().length < 8
-    ) {
+    if (content === '<p><br></p>' || content.split('<p>')[1].trim().length < 8) {
       alert('내용은 4자 이상 입력해 주세요');
       return;
     }
-    const boardImg = tempImgList.filter(({ imgUrl }) =>
-      content?.includes(imgUrl)
-    );
+    const boardImg = tempImgList.filter(({ imgUrl }) => content?.includes(imgUrl));
     const boardImgUrls = boardImg.map(({ imgUrl }) => imgUrl);
-    const deleteImg = tempImgList.filter(
-      ({ imgUrl }) => !boardImgUrls.includes(imgUrl)
-    );
+    const deleteImg = tempImgList.filter(({ imgUrl }) => !boardImgUrls.includes(imgUrl));
     const data = {
       boardCategory,
       title,
@@ -132,7 +125,7 @@ export default function EditPost() {
     };
     updatePostRequest(currentUser?.accessToken as string, data)
       .then((res) => {
-        console.log('updateBoardRequest res', res);
+        console.log('EditPost updateBoardRequest res', res);
         const errorCode = res.errorCode || '';
         if (!errorCode) {
           navigate(`/board/${res.boardId}`);

@@ -20,7 +20,6 @@ function BoardList() {
   const pageParam = urlSearchParams.get('page') || '1';
   const searchTypeParam = urlSearchParams.get('type') || 'TITLE';
   const currentUser = useRecoilValue(currentUserState);
-  // console.log('Board currentUser', currentUser);
 
   const { isLoading, data: boardList } = useQuery(
     [
@@ -38,9 +37,17 @@ function BoardList() {
         order: orderParam as Order,
         category: categoryParam as Category,
         searchType: searchTypeParam as Search,
-      })
+      }),
+    {
+      retry: 2,
+      onSuccess: (res) => {
+        console.log('BoardList onSuccess :', res);
+      },
+      onError: (err) => {
+        console.log('BoardList onError :', err);
+      },
+    }
   );
-  // console.log('Board boardList', boardList);
 
   const clearSearchParams = (name: string | string[]) => () => {
     if (Array.isArray(name)) {

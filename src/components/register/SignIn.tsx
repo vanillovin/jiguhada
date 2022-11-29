@@ -3,24 +3,7 @@ import { useRecoilState } from 'recoil';
 import { loginRequest } from '../../modules/auth/api';
 import { currentUserState } from '../../modules/user/atom';
 
-interface SignInProps {
-  goToPrevOrHome(): void;
-  setIsRegistered(val: boolean): void;
-}
-
-interface SignInInputs {
-  [key: string]: { value: string; error: string };
-}
-
-const signInputsData = [
-  ['id', '아이디', '아이디를 입력해주세요.'],
-  ['pw', '비밀번호', '비밀번호를 입력해주세요.'],
-];
-
-export default function SignIn({
-  goToPrevOrHome,
-  setIsRegistered,
-}: SignInProps) {
+function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
   const [currentUser, setCurrentUser] = useRecoilState(currentUserState);
   // const { value: loading, setValue: setLoading } = useInput<boolean>(false);
   const [signInInputs, setSignInInputs] = useState<SignInInputs>({
@@ -55,14 +38,12 @@ export default function SignIn({
   };
 
   const handleSignIn = async (
-    event:
-      | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement>
+    event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>
   ) => {
     event.preventDefault();
     loginRequest({ username: id.value, password: pw.value })
       .then((data) => {
-        console.log(data);
+        // console.log(data); // { accessToken, accessTokenExpiredDate, nickname, userImgUrl, userid, username }
         const errorCode = data.errorCode;
         const errorMessage = data.message;
         if (errorCode) {
@@ -102,9 +83,7 @@ export default function SignIn({
               className={`w-full border-b mb-1 outline-none px-1 py-2 placeholder-gray-300 placeholder:text-sm bg-transparent
                ${signInInputs[id].error && 'border-b-red-400'} `}
             />
-            <p className="text-sm text-red-400 mt-1">
-              {signInInputs[id].error}
-            </p>
+            <p className="text-sm text-red-400 mt-1">{signInInputs[id].error}</p>
           </div>
         ))}
       </div>
@@ -137,3 +116,19 @@ export default function SignIn({
     </form>
   );
 }
+
+export default SignIn;
+
+interface SignInProps {
+  goToPrevOrHome(): void;
+  setIsRegistered(val: boolean): void;
+}
+
+interface SignInInputs {
+  [key: string]: { value: string; error: string };
+}
+
+const signInputsData = [
+  ['id', '아이디', '아이디를 입력해주세요.'],
+  ['pw', '비밀번호', '비밀번호를 입력해주세요.'],
+];
