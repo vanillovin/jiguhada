@@ -8,18 +8,17 @@ interface LoginData {
 }
 
 export const loginRequest = async (data: LoginData): Promise<any> => {
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/login`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(data),
-      })
-    ).json();
-  } catch (e) {
-    console.log('err', e);
-    throw new Error(`로그인을 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${API_END_POINT}/login`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const loadingRequest = async ({
