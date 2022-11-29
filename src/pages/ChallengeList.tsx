@@ -8,14 +8,11 @@ import { getChallengeList } from '../modules/challenge/api';
 import { CahllengeCategory, ChallengeTag } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
 import {
-  challengeAuthFrequencyNames,
   challengeListCategoryData,
   challengeListOrderData,
-  challengeListTagsNameObj,
-  challengePeroidNames,
-  getChallengeDefaultImgUrl,
   tagsData,
 } from '../modules/challenge/data';
+import ChallengeItem from '../components/challenge/ChallengeItem';
 
 function test(sdate: string) {
   const [y, m, d] = sdate.split('T')[0].split('-');
@@ -297,58 +294,7 @@ export default function ChallengeList() {
           {/* https://tailwindcss.com/docs/grid-template-columns */}
           <ul className="w-full mb-4 grid sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
             {data?.challengeList?.map((c) => (
-              <li
-                key={c.challengeId}
-                onClick={() => navigate(`/challenge/${c.challengeId}`)}
-                className={`border rounded-sm p-2 w-full cursor-pointer ${
-                  c.challengeStatus !== 'BEFORE' ? 'opacity-60' : ''
-                }`}
-              >
-                <div className="relative">
-                  <img
-                    className={`rounded-sm w-full`}
-                    src={
-                      c.challengeImgUrl === 'imgUrl' || c.challengeImgUrl === ''
-                        ? getChallengeDefaultImgUrl('ETC')
-                        : c.challengeImgUrl
-                    }
-                  />
-                  <div className="flex items-center absolute top-2 right-2 bg-black bg-opacity-40 py-1 px-2 rounded-sm text-white text-sm">
-                    <BsPersonFill size={14} />
-                    {c.currentParticipantsCount}명
-                  </div>
-                  {/* {test(c.challengeStartDate) === 1 && (
-                    <div className="w-full bg-black bg-opacity-40 absolute left-0 bottom-0 text-center text-white text-sm py-1">
-                      마감까지 00:00:00
-                    </div>
-                  )} */}
-                </div>
-                <div className="p-1">
-                  <div className="flex items-center justify-between">
-                    <h2 className="font-semibold">{c.challengeTitle}</h2>
-                    <p className="text-sm">
-                      {(c.challengeStatus === 'BEFORE' &&
-                        `D-${test(c.challengeStartDate)}`) ||
-                        (c.challengeStatus === 'INPROGRESS' && '진행중') ||
-                        (c.challengeStatus === 'END' && '종료')}
-                    </p>
-                  </div>
-                  <ul className="flex text-sm flex-wrap mt-1">
-                    <li className="mr-1 font-medium">
-                      #{challengeAuthFrequencyNames[c.authFrequency]}
-                    </li>
-                    <li className="mr-1 font-medium">
-                      #{challengePeroidNames[c.challengePeroid]}
-                    </li>
-                    {/* <li className="mr-1">#{c.authFrequency}</li> */}
-                    {c.challengeTagList.map((t: ChallengeTag) => (
-                      <li key={t} className="mr-1 font-medium">
-                        #{challengeListTagsNameObj[t]}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </li>
+              <ChallengeItem key={c.challengeId} c={c} />
             ))}
           </ul>
 
