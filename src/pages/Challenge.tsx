@@ -99,7 +99,7 @@ export default function Challenge() {
         open={openCalendar}
         close={() => setOpenCalendar((prev) => !prev)}
         mark={mark}
-        className="absolute top-16 md:top-24 right-0 flex flex-col items-end w-72 md:w-96 px-5 md:px-10"
+        className="absolute top-16 right-0 flex flex-col items-end w-80 md:w-full px-5 md:px-10"
       />
       <div className="flex w-full border">
         <img src={data?.challengeImg} className="w-1/4" />

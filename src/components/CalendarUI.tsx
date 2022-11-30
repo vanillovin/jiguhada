@@ -41,7 +41,9 @@ const CalendarUI = ({
             return (
               <div className="flex justify-center items-center absoluteDiv">
                 <div
-                  className={`text-xs md:text-sm font-semibold text-black bg-red-200 rounded-full`}
+                  className={`text-xs md:text-sm font-semibold text-black rounded-full ${
+                    startOrEnd === '시작' ? 'bg-red-200' : 'bg-blue-200'
+                  }`}
                 >
                   {startOrEnd}
                 </div>

@@ -229,8 +229,10 @@ function SignUp({
                 <button
                   type="button"
                   className={`ml-2 w-24 text-sm rounded-lg py-1 text-white ${
-                    duplicateCheckedId === signupInputs[id].value ||
-                    duplicateCheckedNickname === signupInputs[id].value
+                    (duplicateCheckedId &&
+                      duplicateCheckedId === signupInputs[id].value) ||
+                    (duplicateCheckedNickname &&
+                      duplicateCheckedNickname === signupInputs[id].value)
                       ? 'bg-jghd-green'
                       : 'bg-gray-400'
                   }`}
