@@ -1,21 +1,6 @@
+import { SignupData } from './type';
+
 const API_END_POINT = `${import.meta.env.VITE_APP_HOST}/user`;
-
-interface SignupData {
-  username: string;
-  nickname: string;
-  password: string;
-  userImageUrl: string;
-  socialType: 'GENERAL' | 'KAKAO';
-}
-
-interface UserInfo {
-  errorCode?: string;
-  message?: string;
-  username: string;
-  nickname: string;
-  imgUrl: string;
-  socialType: 'GENERAL' | 'KAKAO';
-}
 
 export const headers: HeadersInit = new Headers();
 headers.set('Content-Type', 'application/json');
@@ -24,7 +9,7 @@ headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
 headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
 headers.set('Access-Control-Allow-Credentials', 'true');
 
-export const checkDuplicateIdRequest = async (id: string): Promise<any> => {
+export const checkDuplicateIdRequest = async (id: string) => {
   try {
     return await (
       await fetch(`${API_END_POINT}/checkDuplicate?username=${id}`, {
@@ -36,7 +21,7 @@ export const checkDuplicateIdRequest = async (id: string): Promise<any> => {
   }
 };
 
-export const checkDuplicateNicknameRequest = async (nickname: string): Promise<any> => {
+export const checkDuplicateNicknameRequest = async (nickname: string) => {
   try {
     return await (
       await fetch(`${API_END_POINT}/checkDuplicate?username=${nickname}`, {
@@ -139,18 +124,18 @@ export const updatePasswordRequest = async (
   }
 };
 
-export const getUserInfo = async (token: string, username: string): Promise<UserInfo> => {
+export const getUserInfo = async (token: string = '', username: string) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/info/${username}`, {
-        method: 'GET',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`회원정보 조회를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${API_END_POINT}/info/${username}`, {
+      method: 'GET',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const signOut = async (token: string, data: { password: string }) => {

@@ -3,9 +3,12 @@ import { useRecoilValue, useResetRecoilState } from 'recoil';
 import { useQuery } from 'react-query';
 import { currentUserState } from '../modules/user/atom';
 import { getUserInfo } from '../modules/user/api';
+import { IUserInfo } from '../modules/user/type';
 import Message from '../components/Message';
+import Loading from '../components/Loading';
+import Error from '../components/Error';
 
-export default function User() {
+function UserInfo() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const currentUser = useRecoilValue(currentUserState);
@@ -17,29 +20,36 @@ export default function User() {
   };
   const currentPath = location.pathname;
 
-  const { data: user } = useQuery(['UserInfo', id], () =>
-    getUserInfo(currentUser?.accessToken, id)
+  const {
+    isLoading,
+    data: user,
+    error,
+  } = useQuery<IUserInfo, { message: string }>(
+    ['UserInfo', id],
+    () => getUserInfo(currentUser?.accessToken, id as string),
+    {
+      retry: 1,
+      onSuccess: (res) => {
+        console.log('UserInfo onSuccess res :', res);
+      },
+      onError: (err) => {
+        console.log('UserInfo onError err :', err);
+      },
+    }
   );
 
-  if (user?.errorCode) {
-    return (
-      <Message
-        message={user?.message as string}
-        navigateInfo={{ name: '홈', path: '/' }}
-      />
-    );
+  if (error) {
+    const [code, msg] = error.message.split('-');
+    return <Error message={msg} />;
   }
 
-  return (
+  return !isLoading ? (
     <section className="w-full flex flex-col md:flex-row px-5 md:px-10 pb-10 max-w-5xl">
       <div className="border-r w-full md:w-1/4 p-4 border rounded-tl-sm md:rounded-bl-sm">
         <div>
           <div className="flex md:flex-col items-center md:items-start mb-3 md:mb-6">
             <div className="flex items-center mb-3">
-              <img
-                src={user?.imgUrl}
-                className="rounded-full w-20 h-20 border mr-2"
-              />
+              <img src={user?.imgUrl} className="rounded-full w-20 h-20 border mr-2" />
               <div className="text-start">
                 <h2 className="font-semibold">{user?.nickname}</h2>
                 <p className="text-sm text-gray-4 -mt-1">@{user?.username}</p>
@@ -58,41 +68,32 @@ export default function User() {
           <ul className="flex md:flex-col text-start text-sm md:text-base">
             {id == currentUser?.username && (
               <>
-                <li className="mt-2 text-lg font-bold mb-1 hidden md:block">
-                  회원정보
-                </li>
+                <li className="mt-2 text-lg font-bold mb-1 hidden md:block">회원정보</li>
                 <li
                   className={`ml-2 mb-1 ${
-                    currentPath === `/user/${id}/settings` &&
-                    'text-jghd-blue font-bold'
+                    currentPath === `/user/${id}/settings` && 'text-jghd-blue font-bold'
                   }`}
                 >
                   <Link to={`/user/${id}/settings`}>회원정보 관리</Link>
                 </li>
               </>
             )}
-            <li className="mt-2 text-lg font-bold mb-1 hidden md:block">
-              게시판
-            </li>
+            <li className="mt-2 text-lg font-bold mb-1 hidden md:block">게시판</li>
             <li
               className={`ml-2 mb-1 ${
-                currentPath === `/user/${id}/comments` &&
-                'text-jghd-blue font-bold'
+                currentPath === `/user/${id}/comments` && 'text-jghd-blue font-bold'
               }`}
             >
               <Link to={`/user/${id}/comments`}>작성한 댓글</Link>
             </li>
             <li
               className={`ml-2 mb-1 ${
-                currentPath === `/user/${id}/posts` &&
-                'text-jghd-blue font-bold'
+                currentPath === `/user/${id}/posts` && 'text-jghd-blue font-bold'
               }`}
             >
               <Link to={`/user/${id}/posts`}>작성한 게시글</Link>
             </li>
-            <li className="mt-2 text-lg font-bold mb-1 hidden md:block">
-              챌린지
-            </li>
+            <li className="mt-2 text-lg font-bold mb-1 hidden md:block">챌린지</li>
             <li className={`ml-2 mb-1`}>참여중인 챌린지</li>
             <li className={`ml-2 mb-1`}>운영중인 챌린지</li>
           </ul>
@@ -103,5 +104,9 @@ export default function User() {
         <Outlet />
       </div>
     </section>
+  ) : (
+    <Loading />
   );
 }
+
+export default UserInfo;

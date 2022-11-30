@@ -1,4 +1,3 @@
-import { parse } from 'path';
 import { atom } from 'recoil';
 import { ICurrentUser } from './type';
 
@@ -15,9 +14,7 @@ const localStorageEffect =
 
     if (savedValue != null) {
       const parsedValue = JSON.parse(savedValue);
-      const expiredTime = new Date(
-        parsedValue.accessTokenExpiredDate
-      ).getTime();
+      const expiredTime = new Date(parsedValue.accessTokenExpiredDate).getTime();
       new Date().getTime() < expiredTime
         ? setSelf(JSON.parse(savedValue))
         : localStorage.removeItem('current_user');

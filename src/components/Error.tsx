@@ -8,13 +8,13 @@ const Error = ({ message }: any) => {
       <h1>{message}</h1>
       <div className="mt-2">
         <button
-          className="border rounded-full px-1 bg-amber-100 mr-2"
+          className="border rounded-full px-2 bg-amber-100 mr-2"
           onClick={() => navigate('/')}
         >
           홈으로 이동
         </button>
         <button
-          className="border rounded-full px-1 bg-amber-200"
+          className="border rounded-full px-2 bg-amber-200"
           onClick={() => navigate(-1)}
         >
           이전으로 이동
