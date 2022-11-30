@@ -21,7 +21,13 @@ headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
 headers.set('Access-Control-Allow-Credentials', 'true');
 
 export const getBoardList = async (params: BoardListParams): Promise<BoardList> => {
-  const { query, page, order, category, searchType } = params;
+  const {
+    query = '',
+    page = 1,
+    order = 'RECENT',
+    category = '',
+    searchType = 'TITLE',
+  } = params;
   try {
     if (query) {
       if (category) {
