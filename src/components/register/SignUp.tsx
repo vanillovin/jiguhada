@@ -58,40 +58,40 @@ function SignUp({
     }));
   };
 
-  const handleCheckDuplicateIdOrNickname = (type: 'id' | 'nickname') => {
-    if (type === 'id') {
-      if (!/^[a-z]+[a-z0-9]{3,16}$/g.test(id.value)) {
-        setSignupInputsValueOrError(
-          'error',
-          'id',
-          '영문자로 시작하는 영문자 또는 숫자 4~15자'
-        );
-        return;
-      }
-      checkDuplicateIdRequest(id.value).then((data) => {
-        setDuplicateCheckedId(!data ? id.value : '');
-        setSignupInputsValueOrError('error', 'id', '');
-        !data
-          ? toast.success('사용 가능한 아이디입니다')
-          : toast.error('중복된 아이디입니다');
-      });
-    } else {
-      if (nickname.value.length < 2) {
-        setSignupInputsValueOrError(
-          'error',
-          'nickname',
-          '닉네임은 2자 이상 입력해 주세요'
-        );
-        return;
-      }
-      checkDuplicateNicknameRequest(nickname.value).then((data) => {
-        setDuplicateCheckedNickname(!data ? nickname.value : '');
-        setSignupInputsValueOrError('error', 'nickname', '');
-        !data
-          ? toast.success('사용 가능한 닉네임입니다')
-          : toast.error('중복된 닉네임입니다');
-      });
+  const checkDuplicateId = () => {
+    if (!/^[a-z]+[a-z0-9]{3,16}$/g.test(id.value)) {
+      setSignupInputsValueOrError(
+        'error',
+        'id',
+        '영문자로 시작하는 영문자 또는 숫자 4~15자'
+      );
+      return;
     }
+    checkDuplicateIdRequest(id.value).then((data) => {
+      setDuplicateCheckedId(!data ? id.value : '');
+      setSignupInputsValueOrError('error', 'id', '');
+      !data
+        ? toast.success('사용 가능한 아이디입니다')
+        : toast.error('중복된 아이디입니다');
+    });
+  };
+
+  const checkDuplicateNickname = () => {
+    if (nickname.value.length < 2) {
+      setSignupInputsValueOrError('error', 'nickname', '닉네임은 2자 이상 입력해 주세요');
+      return;
+    }
+    checkDuplicateNicknameRequest(nickname.value).then((data) => {
+      setDuplicateCheckedNickname(!data ? nickname.value : '');
+      setSignupInputsValueOrError('error', 'nickname', '');
+      !data
+        ? toast.success('사용 가능한 닉네임입니다')
+        : toast.error('중복된 닉네임입니다');
+    });
+  };
+
+  const handleCheckDuplicateIdOrNickname = (type: 'id' | 'nickname') => {
+    type === 'id' ? checkDuplicateId() : checkDuplicateNickname();
   };
 
   const onChangeSignupInputs = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,7 +228,12 @@ function SignUp({
               {(id === 'id' || id === 'nickname') && (
                 <button
                   type="button"
-                  className="ml-2 bg-gray-400 w-24 text-sm rounded-lg py-1 text-white"
+                  className={`ml-2 w-24 text-sm rounded-lg py-1 text-white ${
+                    duplicateCheckedId === signupInputs[id].value ||
+                    duplicateCheckedNickname === signupInputs[id].value
+                      ? 'bg-jghd-green'
+                      : 'bg-gray-400'
+                  }`}
                   onClick={() => handleCheckDuplicateIdOrNickname(id)}
                 >
                   중복확인
@@ -257,7 +262,7 @@ function SignUp({
               )}
             </div>
           </div>
-          <p className="text-sm tracking-tighter text-red-400">
+          <p className="text-xs md:text-sm tracking-tighter text-red-400 ml-1">
             {id === 'pwCheck' &&
             pwCheck.value &&
             signupInputs['pw'].value !== signupInputs['pwCheck'].value
