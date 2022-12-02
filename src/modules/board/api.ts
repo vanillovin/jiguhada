@@ -28,40 +28,41 @@ export const getBoardList = async (params: BoardListParams): Promise<BoardList> 
     category = '',
     searchType = 'TITLE',
   } = params;
-  try {
-    if (query) {
-      if (category) {
-        return await (
-          await fetch(
-            `${BOARD_API_END_POINT}/list?query=${query}&page=${page}&order=${order}&category=${category}&searchType=${searchType}`,
-            { headers }
-          )
-        ).json();
-      } else {
-        return await (
-          await fetch(
-            `${BOARD_API_END_POINT}/list?query=${query}&page=${page}&order=${order}&searchType=${searchType}`,
-            { headers }
-          )
-        ).json();
-      }
-    } else if (category) {
-      return await (
+  let json;
+  if (query) {
+    if (category) {
+      json = await (
         await fetch(
-          `${BOARD_API_END_POINT}/list?page=${page}&order=${order}&category=${category}`,
+          `${BOARD_API_END_POINT}/list?query=${query}&page=${page}&order=${order}&category=${category}&searchType=${searchType}`,
           { headers }
         )
       ).json();
     } else {
-      return await (
-        await fetch(`${BOARD_API_END_POINT}/list?page=${page}&order=${order}`, {
-          headers,
-        })
+      json = await (
+        await fetch(
+          `${BOARD_API_END_POINT}/list?query=${query}&page=${page}&order=${order}&searchType=${searchType}`,
+          { headers }
+        )
       ).json();
     }
-  } catch (e) {
-    throw new Error(`게시물 목록을 불러오지 못했습니다. ${e}`);
+  } else if (category) {
+    json = await (
+      await fetch(
+        `${BOARD_API_END_POINT}/list?page=${page}&order=${order}&category=${category}`,
+        { headers }
+      )
+    ).json();
+  } else {
+    json = await (
+      await fetch(`${BOARD_API_END_POINT}/list?page=${page}&order=${order}`, {
+        headers,
+      })
+    ).json();
   }
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
+  }
+  return json;
 };
 
 export const createPostRequest = async (token: string, data: CreateBoard) => {
@@ -88,17 +89,17 @@ export const uploadImgRequest = async (formData: FormData) => {
   headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
   headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
   headers.set('Access-Control-Allow-Credentials', 'true');
-  try {
-    return await (
-      await fetch(`${BOARD_API_END_POINT}/uploadImg`, {
-        method: 'POST',
-        body: formData,
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`이미지 파일 업로드를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_API_END_POINT}/uploadImg`, {
+      method: 'POST',
+      body: formData,
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const getPostRequest = async (id: number): Promise<Post> => {
@@ -114,45 +115,45 @@ export const getPostRequest = async (id: number): Promise<Post> => {
 
 export const deletePostRequest = async (token: string, id: number) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_API_END_POINT}/delete/${id}`, {
-        method: 'DELETE',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`게시글 삭제를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_API_END_POINT}/delete/${id}`, {
+      method: 'DELETE',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const getPrevPostDataRequest = async (token: string, id: number) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_API_END_POINT}/update/${id}`, {
-        method: 'GET',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`게시글 수정 정보 가져오기를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_API_END_POINT}/update/${id}`, {
+      method: 'GET',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const updatePostRequest = async (token: string, data: any) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_API_END_POINT}/update`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`게시글 업데이트를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_API_END_POINT}/update`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 // Board Like
@@ -162,30 +163,30 @@ export const likePostRequest = async (
   userId: number
 ): Promise<Like[] | { errorCode: string }> => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_LIKE_API_END_POINT}/create/${boardId}?userId=${userId}`, {
-        method: 'POST',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`게시글 좋아요를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_LIKE_API_END_POINT}/create/${boardId}?userId=${userId}`, {
+      method: 'POST',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const cancelLikePostRequest = async (token: string, likeId: number) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_LIKE_API_END_POINT}/delete/${likeId}`, {
-        method: 'DELETE',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`게시글 좋아요 취소를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_LIKE_API_END_POINT}/delete/${likeId}`, {
+      method: 'DELETE',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 // Board Comment
@@ -194,17 +195,17 @@ export const updatePostCommentRequest = async (
   data: { commentId: number; content: string }
 ): Promise<Comment[]> => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_COMMENT_API_END_POINT}/update`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`댓글 수정을 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_COMMENT_API_END_POINT}/update`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const createPostCommentRequest = async (
@@ -212,17 +213,17 @@ export const createPostCommentRequest = async (
   data: { boardId: number; content: string }
 ): Promise<Comment[]> => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_COMMENT_API_END_POINT}/create`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`댓글을 작성하지 못했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_COMMENT_API_END_POINT}/create`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const createPostReplyRequest = async (
@@ -230,47 +231,47 @@ export const createPostReplyRequest = async (
   data: { boardId: number; parentCommentId: number; content: string }
 ): Promise<Comment[]> => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_COMMENT_API_END_POINT}/createReply`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`대댓글을 작성하지 못했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_COMMENT_API_END_POINT}/createReply`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const getPostCommentDataRequest = async (token: string, id: number) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_COMMENT_API_END_POINT}/update/${id}`, {
-        method: 'GET',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`댓글 수정 데이터를 가져오지 못했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_COMMENT_API_END_POINT}/update/${id}`, {
+      method: 'GET',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const getCommentsRequest = async (
   boardId: number,
   page: number
 ): Promise<CommentList> => {
-  try {
-    return await (
-      await fetch(`${BOARD_COMMENT_API_END_POINT}/read/${boardId}?page=${page || 1}`, {
-        method: 'GET',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`댓글 데이터를 가져오지 못했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_COMMENT_API_END_POINT}/read/${boardId}?page=${page || 1}`, {
+      method: 'GET',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const deleteCommentRequest = async (
@@ -278,28 +279,28 @@ export const deleteCommentRequest = async (
   id: number
 ): Promise<Comment[]> => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${BOARD_COMMENT_API_END_POINT}/delete/${id}`, {
-        method: 'DELETE',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`댓글 삭제를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_COMMENT_API_END_POINT}/delete/${id}`, {
+      method: 'DELETE',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 // Board Like
 export const getLikesRequest = async (boardId: number, page?: number): Promise<Likes> => {
-  try {
-    return await (
-      await fetch(`${BOARD_LIKE_API_END_POINT}/read/${boardId}?page=${page || 1}`, {
-        method: 'GET',
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`좋아요 데이터를 가져오지 못했습니다. ${e}`);
+  const json = await (
+    await fetch(`${BOARD_LIKE_API_END_POINT}/read/${boardId}?page=${page || 1}`, {
+      method: 'GET',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };

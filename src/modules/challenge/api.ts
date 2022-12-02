@@ -14,55 +14,54 @@ headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
 headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
 headers.set('Access-Control-Allow-Credentials', 'true');
 
-export const getChallengeList = async (params): Promise<ChallengeList> => {
-  const { query, page, order, category, searchType, tagList } = params;
-  console.log('tagList:', tagList);
-  // &tagList=${tagList}
-  try {
-    if (query) {
-      if (category) {
-        return await (
-          await fetch(
-            `${CHALLENGE_API_END_POINT}/list?query=${query}&page=${page}&orderType=${order}&category=${category}&searchType=${searchType}${
-              tagList ? `&tagList=${tagList}` : ''
-            }`,
-            { headers }
-          )
-        ).json();
-      } else {
-        return await (
-          await fetch(
-            `${CHALLENGE_API_END_POINT}/list?query=${query}&page=${page}&orderType=${order}&searchType=${searchType}${
-              tagList ? `&tagList=${tagList}` : ''
-            }`,
-            { headers }
-          )
-        ).json();
-      }
-    } else if (category) {
-      return await (
+export const getChallengeList = async (params: any): Promise<ChallengeList> => {
+  const { query = '', page = 1, order, category, searchType, tagList } = params;
+  let json;
+  if (query) {
+    if (category) {
+      json = await (
         await fetch(
-          `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}&category=${category}${
+          `${CHALLENGE_API_END_POINT}/list?query=${query}&page=${page}&orderType=${order}&category=${category}&searchType=${searchType}${
             tagList ? `&tagList=${tagList}` : ''
           }`,
           { headers }
         )
       ).json();
     } else {
-      return await (
+      json = await (
         await fetch(
-          `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}${
+          `${CHALLENGE_API_END_POINT}/list?query=${query}&page=${page}&orderType=${order}&searchType=${searchType}${
             tagList ? `&tagList=${tagList}` : ''
           }`,
-          {
-            headers,
-          }
+          { headers }
         )
       ).json();
     }
-  } catch (e) {
-    throw new Error(`챌린지 목록을 불러오지 못했습니다. ${e}`);
+  } else if (category) {
+    json = await (
+      await fetch(
+        `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}&category=${category}${
+          tagList ? `&tagList=${tagList}` : ''
+        }`,
+        { headers }
+      )
+    ).json();
+  } else {
+    json = await (
+      await fetch(
+        `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}${
+          tagList ? `&tagList=${tagList}` : ''
+        }`,
+        {
+          headers,
+        }
+      )
+    ).json();
   }
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
+  }
+  return json;
 };
 
 export const getChallengeRequest = async (token: string, id: number | string) => {
@@ -73,8 +72,10 @@ export const getChallengeRequest = async (token: string, id: number | string) =>
       headers,
     })
   ).json();
-  if (json.errorCode) throw json;
-  else return json;
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
+  }
+  return json;
 };
 
 export const imageUploadRequest = async (
@@ -84,17 +85,17 @@ export const imageUploadRequest = async (
   headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
   headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
   headers.set('Access-Control-Allow-Credentials', 'true');
-  try {
-    return await (
-      await fetch(`${CHALLENGE_API_END_POINT}/img/upload`, {
-        method: 'POST',
-        body: formData,
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`챌린지 대표 및 추가 이미지 업로드를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${CHALLENGE_API_END_POINT}/img/upload`, {
+      method: 'POST',
+      body: formData,
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const createChallengeRequest = async (
@@ -102,17 +103,17 @@ export const createChallengeRequest = async (
   data: CreateChallengeReq
 ): Promise<CreateChallengeRes> => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${CHALLENGE_API_END_POINT}/create`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`챌린지를 생성하지 못했습니다. ${e}`);
+  const json = await (
+    await fetch(`${CHALLENGE_API_END_POINT}/create`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const getIsJoinChallengeRequest = async (uid: number, cid: number) => {
@@ -122,8 +123,10 @@ export const getIsJoinChallengeRequest = async (uid: number, cid: number) => {
       headers,
     })
   ).json();
-  if (json.errorCode) throw json;
-  else return json;
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
+  }
+  return json;
 };
 
 export const joinChallengeRequest = async (
@@ -141,6 +144,8 @@ export const joinChallengeRequest = async (
       headers,
     })
   ).json();
-  if (json.errorCode) throw json;
-  else return json;
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
+  }
+  return json;
 };
