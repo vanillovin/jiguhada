@@ -7,7 +7,7 @@ import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import NavigationBar from './components/NavigationBar';
 import UserInfo from './pages/UserInfo';
-import Board from './pages/Board';
+import BoardList from './pages/BoardList';
 import Settings from './components/userinfo/Settings';
 import Post from './pages/Post';
 import EditPost from './pages/EditPost';
@@ -26,7 +26,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/board" element={<Board />} />
+        <Route path="/board" element={<BoardList />} />
         <Route path="/board/:id" element={<Post />}>
           <Route path="likes" element={<LikeList />} />
         </Route>
