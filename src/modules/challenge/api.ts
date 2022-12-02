@@ -15,49 +15,24 @@ headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
 headers.set('Access-Control-Allow-Credentials', 'true');
 
 export const getChallengeList = async (params: any): Promise<ChallengeList> => {
-  const { query = '', page = 1, order, category, searchType, tagList } = params;
-  let json;
-  if (query) {
-    if (category) {
-      json = await (
-        await fetch(
-          `${CHALLENGE_API_END_POINT}/list?query=${query}&page=${page}&orderType=${order}&category=${category}&searchType=${searchType}${
-            tagList ? `&tagList=${tagList}` : ''
-          }`,
-          { headers }
-        )
-      ).json();
-    } else {
-      json = await (
-        await fetch(
-          `${CHALLENGE_API_END_POINT}/list?query=${query}&page=${page}&orderType=${order}&searchType=${searchType}${
-            tagList ? `&tagList=${tagList}` : ''
-          }`,
-          { headers }
-        )
-      ).json();
-    }
-  } else if (category) {
-    json = await (
-      await fetch(
-        `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}&category=${category}${
-          tagList ? `&tagList=${tagList}` : ''
-        }`,
-        { headers }
-      )
-    ).json();
-  } else {
-    json = await (
-      await fetch(
-        `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}${
-          tagList ? `&tagList=${tagList}` : ''
-        }`,
-        {
-          headers,
-        }
-      )
-    ).json();
-  }
+  const {
+    query,
+    page = 1,
+    order = 'RECENTLY',
+    category = '',
+    searchType,
+    status,
+    tagList,
+  } = params;
+  const json = await (
+    await fetch(
+      `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}${
+        status ? `&status=${status}` : ''
+      }${searchType ? `&searchType=${searchType}` : ''}${query ? `&query=${query}` : ''}${
+        category ? `&category=${category}` : ''
+      }${tagList ? `&tagList=${tagList}` : ''}`
+    )
+  ).json();
   if (json.error || json.errorCode) {
     throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }

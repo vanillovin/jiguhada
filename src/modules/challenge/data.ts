@@ -45,18 +45,6 @@ export const challengeListTagsNameObj = {
   ENERGE_DAY: '에너지의 날',
 };
 
-export const challengeListCategoryData = [
-  ['', '전체'],
-  ['VEGAN', '비건'],
-  ['ENVIRONMENT', '환경'],
-  ['ETC', '기타'],
-];
-
-export const challengeListOrderData = [
-  ['RECENTLY', '최신순'],
-  ['POPULAR', '인기순'],
-];
-
 // CreateChallenge
 export const getChallengeDefaultImgUrl = (cat: string) =>
   `https://jiguhada-user-img.s3.ap-northeast-2.amazonaws.com/challenge-profile-img/challenge-${

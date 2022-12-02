@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { BsPersonFill } from 'react-icons/bs';
 import { useQuery } from 'react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
@@ -7,23 +6,10 @@ import PageList from '../components/PageList';
 import { getChallengeList } from '../modules/challenge/api';
 import { CahllengeCategory, ChallengeTag } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
-import {
-  challengeListCategoryData,
-  challengeListOrderData,
-  tagsData,
-} from '../modules/challenge/data';
+import { tagsData } from '../modules/challenge/data';
 import ChallengeItem from '../components/challenge/ChallengeItem';
 
-function test(sdate: string) {
-  const [y, m, d] = sdate.split('T')[0].split('-');
-  let today = new Date().getTime();
-  let dday = new Date(+y, +m - 1, +d).getTime();
-  let gap = dday - today;
-  let result = Math.ceil(gap / (1000 * 60 * 60 * 24));
-  return result;
-}
-
-export default function ChallengeList() {
+function ChallengeList() {
   const location = useLocation();
   const navigate = useNavigate();
   const urlSearchParams = new URLSearchParams(location.search);
@@ -32,6 +18,7 @@ export default function ChallengeList() {
   const orderParam = urlSearchParams.get('order') || 'RECENTLY';
   const pageParam = urlSearchParams.get('page') || '1';
   const searchTypeParam = urlSearchParams.get('type') || 'TITLE';
+  const statusParam = urlSearchParams.get('status') || '';
   const tagListParam = urlSearchParams.get('tagList') || '';
   const tagList = tagListParam ? tagListParam.split(',') : [];
   const currentUser = useRecoilValue(currentUserState);
@@ -45,6 +32,7 @@ export default function ChallengeList() {
       orderParam,
       pageParam,
       searchTypeParam,
+      statusParam,
       tagListParam,
     ],
     () =>
@@ -54,10 +42,18 @@ export default function ChallengeList() {
         order: orderParam,
         category: categoryParam,
         searchType: searchTypeParam,
+        status: statusParam,
         tagList: tagListParam,
       }),
     {
+      retry: 2,
       refetchOnWindowFocus: false,
+      onSuccess: (res) => {
+        console.log('getChallengeList onSuccess res :', res);
+      },
+      onError: (err) => {
+        console.log('getChallengeList onError err :', err);
+      },
     }
   );
 
@@ -254,44 +250,73 @@ export default function ChallengeList() {
               : null}
           </div>
 
-          <div className="w-full flex items-center justify-between mt-2 mb-6">
-            <ul className="flex items-center">
-              {challengeListOrderData.map(([value, name], i) => (
-                <li
-                  key={value}
-                  className="flex items-center p-1 mr-1 text-sm md:text-base"
-                >
-                  <div
-                    className={`w-1 h-1 rounded-full mr-1 ${
-                      orderParam === value ? 'bg-jghd-green' : 'bg-gray-3'
-                    }`}
-                  ></div>
-                  <p
+          <div className="w-full flex justify-between mt-2 mb-6 items-start">
+            <div>
+              <ul className="flex items-center">
+                {challengeListOrderData.map(([value, name], i) => (
+                  <li
                     key={value}
-                    className={`cursor-pointer text-gray-3 ${
-                      orderParam === value ? 'font-semibold text-gray-700' : ''
-                    }`}
-                    onClick={changeSearchParams([
-                      ['order', value],
-                      ['page', '1'],
-                    ])}
+                    className="flex items-center p-1 mr-1 text-sm md:text-base"
                   >
-                    {name}
-                  </p>
-                </li>
-              ))}
-            </ul>
+                    <p
+                      key={value}
+                      className={`cursor-pointer text-gray-3 ${
+                        orderParam === value ? 'font-semibold text-gray-700' : ''
+                      }`}
+                      onClick={changeSearchParams([
+                        ['order', value],
+                        ['page', '1'],
+                      ])}
+                    >
+                      {name}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              <ul className="flex items-center">
+                {challengeListStatusData.map(([value, name], i) => (
+                  <li
+                    key={value}
+                    className="flex items-center p-1 mr-1 text-sm md:text-base"
+                  >
+                    <div
+                      className={`${
+                        statusParam === value ? 'bg-jghd-green' : 'bg-gray-3'
+                      } w-1 h-1 rounded-full mr-1`}
+                    ></div>
+                    <p
+                      key={value}
+                      className={`cursor-pointer text-gray-3 ${
+                        statusParam === value ? 'font-semibold text-gray-700' : ''
+                      }`}
+                      onClick={() => {
+                        if (value === '') {
+                          clearSearchParams('status')()();
+                        } else {
+                          changeSearchParams([
+                            ['status', value],
+                            ['page', '1'],
+                          ])();
+                        }
+                      }}
+                    >
+                      {name}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             {currentUser && (
               <button
                 onClick={() => navigate('/challenge/new')}
-                className="bg-jghd-green text-white px-2 text-sm md:text-base py-1 md:px-4 md:py-2 rounded-md"
+                className="bg-jghd-green text-white px-2 text-sm md:text-base py-1 md:px-4 md:py-2 rounded-md font-medium"
               >
                 개설하기
               </button>
             )}
           </div>
 
-          {/* https://tailwindcss.com/docs/grid-template-columns */}
           <ul className="w-full mb-4 grid sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
             {data?.challengeList?.map((c) => (
               <ChallengeItem key={c.challengeId} c={c} />
@@ -306,3 +331,33 @@ export default function ChallengeList() {
     </section>
   );
 }
+
+export default ChallengeList;
+
+function test(sdate: string) {
+  const [y, m, d] = sdate.split('T')[0].split('-');
+  let today = new Date().getTime();
+  let dday = new Date(+y, +m - 1, +d).getTime();
+  let gap = dday - today;
+  let result = Math.ceil(gap / (1000 * 60 * 60 * 24));
+  return result;
+}
+
+const challengeListCategoryData = [
+  ['', '전체'],
+  ['VEGAN', '비건'],
+  ['ENVIRONMENT', '환경'],
+  ['ETC', '기타'],
+];
+
+const challengeListOrderData = [
+  ['RECENTLY', '최신순'],
+  ['POPULAR', '인기순'],
+];
+
+const challengeListStatusData = [
+  ['', '전체'],
+  ['BEFORE', '시작전'],
+  ['INPROGRESS', '진행'],
+  ['END', '종료'],
+];
