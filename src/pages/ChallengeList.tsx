@@ -44,68 +44,79 @@ function ChallengeList() {
 
   console.log('Challenge data:', data);
 
-  const clearSearchParams = (name: string | string[]) => () => {
+  const onNavigate = () => navigate(`${location.pathname}?${urlSearchParams.toString()}`);
+
+  const clearSearchParams = (name: string | string[]) => {
     if (Array.isArray(name)) {
       name.forEach((n) => urlSearchParams.delete(n));
     } else {
       urlSearchParams.delete(name);
     }
-    navigate(`${location.pathname}?${urlSearchParams.toString()}`);
   };
 
-  const changeSearchParams =
-    (obj: { name: string; value: string } | [string, string][]) => () => {
-      if (Array.isArray(obj)) {
-        obj.forEach(([name, value]) => {
-          urlSearchParams.set(name, value);
-        });
-      } else {
-        urlSearchParams.set(obj.name, obj.value);
-      }
-      navigate(`${location.pathname}?${urlSearchParams.toString()}`);
-    };
+  const changeSearchParams = (
+    obj: { name: string; value: string } | [string, string][]
+  ) => {
+    if (Array.isArray(obj)) {
+      obj.forEach(([name, value]) => {
+        urlSearchParams.set(name, value);
+      });
+    } else {
+      urlSearchParams.set(obj.name, obj.value);
+    }
+  };
+
+  const changePath = (value: { name: string; value: string } | [string, string][]) => {
+    changeSearchParams(value);
+    onNavigate();
+  };
+
+  const clearPath = (value: string | string[]) => {
+    clearSearchParams(value);
+    onNavigate();
+  };
 
   const handleChageTagList = (value: ChallengeTag) => {
     if (!tagList.includes(value) && tagList.length > 2) return;
 
     if (tagList.includes(value)) {
       if (tagList.length === 1) {
-        clearSearchParams('tagList')();
+        clearPath('tagList');
       } else {
-        changeSearchParams({
+        changePath({
           name: 'tagList',
           value: tagList.filter((tag) => tag !== value).join(','),
-        })();
+        });
       }
     } else {
-      changeSearchParams({
+      changePath({
         name: 'tagList',
         value: [...tagList, value].join(','),
-      })();
+      });
     }
   };
 
   const handleChangeCategory = (value: string) => {
     value === ''
       ? navigate('/challenge')
-      : changeSearchParams([
+      : changePath([
           ['cat', value],
           ['page', '1'],
           ['order', 'RECENTLY'],
-        ])();
+        ]);
   };
 
   const handleCancleSearch = () => {
-    changeSearchParams([
+    changePath([
       ['order', 'RECENTLY'],
       ['page', '1'],
-    ])();
-    clearSearchParams(['query', 'type'])();
+    ]);
+    clearPath(['query', 'type']);
     const keywordInput = document.getElementById('keyword') as HTMLInputElement;
     keywordInput.value = '';
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const keyword = formData.get('keyword') as string;
@@ -114,11 +125,29 @@ function ChallengeList() {
       alert('검색어를 입력해 주세요');
       return;
     }
-    changeSearchParams([
+    changePath([
       ['query', keyword],
       ['type', type],
       ['page', '1'],
-    ])();
+    ]);
+  };
+
+  const handleChangeOrder = (value: string) => {
+    changePath([
+      ['order', value],
+      ['page', '1'],
+    ]);
+  };
+
+  const handleChangeStatus = (value: string) => {
+    if (value === '') {
+      clearPath('status');
+    } else {
+      changePath([
+        ['status', value],
+        ['page', '1'],
+      ]);
+    }
   };
 
   return (
@@ -146,7 +175,7 @@ function ChallengeList() {
         </ul>
 
         <div className="flex flex-col flex-1 items-start">
-          <form onSubmit={onSubmit} className="flex w-full mb-4 text-sm md:text-base">
+          <form onSubmit={handleSearch} className="flex w-full mb-4 text-sm md:text-base">
             <select
               name="type"
               defaultValue="title?"
@@ -248,10 +277,7 @@ function ChallengeList() {
                       className={`cursor-pointer text-gray-3 ${
                         orderParam === value ? 'font-semibold text-gray-700' : ''
                       }`}
-                      onClick={changeSearchParams([
-                        ['order', value],
-                        ['page', '1'],
-                      ])}
+                      onClick={() => handleChangeOrder(value)}
                     >
                       {name}
                     </p>
@@ -274,16 +300,7 @@ function ChallengeList() {
                       className={`cursor-pointer text-gray-3 ${
                         statusParam === value ? 'font-semibold text-gray-700' : ''
                       }`}
-                      onClick={() => {
-                        if (value === '') {
-                          clearSearchParams('status')();
-                        } else {
-                          changeSearchParams([
-                            ['status', value],
-                            ['page', '1'],
-                          ])();
-                        }
-                      }}
+                      onClick={() => handleChangeStatus(value)}
                     >
                       {name}
                     </p>
