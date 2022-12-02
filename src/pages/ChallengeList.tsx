@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { useQuery } from 'react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import PageList from '../components/PageList';
-import { getChallengeList } from '../modules/challenge/api';
 import { CahllengeCategory, ChallengeTag } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
 import { tagsData } from '../modules/challenge/data';
 import ChallengeItem from '../components/challenge/ChallengeItem';
+import { useGetChallengeList } from '../hooks/queries/challenge';
 
 function ChallengeList() {
   const location = useLocation();
@@ -24,38 +23,24 @@ function ChallengeList() {
   const currentUser = useRecoilValue(currentUserState);
   const [openTags, setOpenTags] = useState(true);
 
-  const { data } = useQuery(
-    [
-      `ChallengeList`,
-      categoryParam,
-      queryParam,
-      orderParam,
-      pageParam,
-      searchTypeParam,
-      statusParam,
-      tagListParam,
-    ],
-    () =>
-      getChallengeList({
-        query: queryParam,
-        page: Number(pageParam),
-        order: orderParam,
-        category: categoryParam,
-        searchType: searchTypeParam,
-        status: statusParam,
-        tagList: tagListParam,
-      }),
-    {
-      retry: 2,
-      refetchOnWindowFocus: false,
-      onSuccess: (res) => {
-        console.log('getChallengeList onSuccess res :', res);
-      },
-      onError: (err) => {
-        console.log('getChallengeList onError err :', err);
-      },
-    }
-  );
+  const params = {
+    queryParam,
+    pageParam,
+    orderParam,
+    categoryParam,
+    searchTypeParam,
+    statusParam,
+    tagListParam: tagList as ChallengeTag[],
+  };
+
+  const { data } = useGetChallengeList(params, {
+    onSuccess: (res) => {
+      console.log('getChallengeList onSuccess res :', res);
+    },
+    onError: (err) => {
+      console.log('getChallengeList onError err :', err);
+    },
+  });
 
   console.log('Challenge data:', data);
 
@@ -291,7 +276,7 @@ function ChallengeList() {
                       }`}
                       onClick={() => {
                         if (value === '') {
-                          clearSearchParams('status')()();
+                          clearSearchParams('status')();
                         } else {
                           changeSearchParams([
                             ['status', value],

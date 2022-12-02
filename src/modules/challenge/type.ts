@@ -50,7 +50,17 @@ export type CahllengeCategory = 'VEGAN' | 'ENVIRONMENT' | 'ETC';
 
 export type ChallengePeroid = 'ONEWEEK' | 'TWOWEEK' | 'THREEWEEK' | 'FOURWEEK';
 
-type ChallengeStatus = 'BEFORE' | 'INPROGRESS' | 'END';
+export type ChallengeStatus = 'BEFORE' | 'INPROGRESS' | 'END';
+
+export interface GetChallengeListParams {
+  queryParam: string;
+  pageParam: number | string;
+  orderParam: string;
+  categoryParam: string;
+  searchTypeParam: string;
+  statusParam: string;
+  tagListParam: ChallengeTag[];
+}
 
 export interface CreateChallengeRes {
   achievementRate: number;

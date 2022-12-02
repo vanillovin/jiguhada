@@ -1,9 +1,4 @@
-import {
-  GetChallenge,
-  ChallengeList,
-  CreateChallengeReq,
-  CreateChallengeRes,
-} from './type';
+import { CreateChallengeReq, CreateChallengeRes, GetChallengeListParams } from './type';
 
 const CHALLENGE_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/challenge`;
 
@@ -14,23 +9,25 @@ headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
 headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
 headers.set('Access-Control-Allow-Credentials', 'true');
 
-export const getChallengeList = async (params: any): Promise<ChallengeList> => {
+export const getChallengeList = async (params: GetChallengeListParams) => {
   const {
-    query,
-    page = 1,
-    order = 'RECENTLY',
-    category = '',
-    searchType,
-    status,
-    tagList,
+    queryParam,
+    pageParam = 1,
+    orderParam = 'RECENTLY',
+    categoryParam = '',
+    searchTypeParam,
+    statusParam,
+    tagListParam,
   } = params;
   const json = await (
     await fetch(
-      `${CHALLENGE_API_END_POINT}/list?page=${page}&orderType=${order}${
-        status ? `&status=${status}` : ''
-      }${searchType ? `&searchType=${searchType}` : ''}${query ? `&query=${query}` : ''}${
-        category ? `&category=${category}` : ''
-      }${tagList ? `&tagList=${tagList}` : ''}`
+      `${CHALLENGE_API_END_POINT}/list?page=${pageParam}&orderType=${orderParam}${
+        statusParam ? `&status=${statusParam}` : ''
+      }${searchTypeParam ? `&searchType=${searchTypeParam}` : ''}${
+        queryParam ? `&query=${queryParam}` : ''
+      }${categoryParam ? `&category=${categoryParam}` : ''}${
+        tagListParam ? `&tagList=${tagListParam}` : ''
+      }`
     )
   ).json();
   if (json.error || json.errorCode) {
