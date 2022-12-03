@@ -238,11 +238,8 @@ export default function Post() {
         </div>
 
         <div className="w-full md:w-2/5 h-[450px] md:h-full flex flex-col justify-between border-t md:border-t-0">
-          <div className="h-5/6">
-            <CommentList id={id as string} />
-          </div>
-
-          <div className="h-1/6 bg-red-500">
+          <CommentList id={id as string} />
+          <div className="">
             <div className="flex items-center p-3 border-t">
               <div className="flex items-center mr-5 md:mr-7">
                 <button onClick={handleLikeOrCancelLikePost}>
@@ -279,18 +276,18 @@ export default function Post() {
               </button>
             </div>
             <form
-              className="flex items-center border-t bg-blue-200"
+              className="flex items-center border-t flex-1"
               onSubmit={handleCreateComment}
             >
               <input
                 id="comment"
                 name="content"
-                className="outline-none flex-1 h-full bg-amber-200"
+                className="outline-none flex-1 h-full p-3"
               />
               <button
                 type="submit"
                 // disabled
-                className={`py-1 px-3 bg-red-200 h-full ${true ? 'text-jghd-green' : ''}`}
+                className={`py-1 px-3 h-full ${true ? 'text-jghd-green' : ''}`}
               >
                 입력
               </button>

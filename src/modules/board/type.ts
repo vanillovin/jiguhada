@@ -66,7 +66,7 @@ export interface Comment {
   commentUpdateDate: string;
 }
 
-export interface CommentList {
+export interface ICommentList {
   totalCommentCount: number;
   currentPage: number;
   totalPage: number;
