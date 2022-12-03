@@ -7,6 +7,35 @@ import { currentUserState } from '../modules/user/atom';
 import { tagsData } from '../modules/challenge/data';
 import ChallengeItem from '../components/challenge/ChallengeItem';
 import { useGetChallengeList } from '../hooks/queries/challenge';
+import { toast } from 'react-toastify';
+
+interface Tag {
+  checked: boolean;
+  value: ChallengeTag;
+  name: string;
+}
+
+function TagButton({
+  handleChageTagList,
+  tagList,
+  tag,
+}: {
+  handleChageTagList: (value: ChallengeTag) => void;
+  tagList: ChallengeTag[];
+  tag: Tag;
+}) {
+  return (
+    <button
+      onClick={() => handleChageTagList(tag.value)}
+      className={`select-none border border-gray-3 rounded-sm px-2 py-1 text-sm mr-1 mt-1 ${
+        tagList.includes(tag.value) ? 'bg-gray-3 text-white' : 'text-gray-4'
+      }
+    `}
+    >
+      {tag.name}
+    </button>
+  );
+}
 
 function ChallengeList() {
   const location = useLocation();
@@ -39,6 +68,7 @@ function ChallengeList() {
     },
     onError: (err) => {
       console.log('getChallengeList onError err :', err);
+      toast.error(err.message);
     },
   });
 
@@ -226,40 +256,24 @@ function ChallengeList() {
                         </h3>
                         <div className="flex-wrap flex-1">
                           {tagsData[cat as CahllengeCategory].map((tag) => (
-                            <button
+                            <TagButton
                               key={tag.name}
-                              onClick={() =>
-                                handleChageTagList(tag.value as ChallengeTag)
-                              }
-                              className={`select-none border border-gray-3 rounded-sm px-2 py-1 text-sm mr-1 mt-1
-                          ${
-                            tagList.includes(tag.value)
-                              ? 'bg-gray-3 text-white'
-                              : 'text-gray-4'
-                          }
-                        `}
-                            >
-                              {tag.name}
-                            </button>
+                              handleChageTagList={handleChageTagList}
+                              tagList={tagList as ChallengeTag[]}
+                              tag={tag as Tag}
+                            />
                           ))}
                         </div>
                       </div>
                     );
                   })
                 : tagsData[categoryParam as CahllengeCategory].map((tag) => (
-                    <button
+                    <TagButton
                       key={tag.name}
-                      onClick={() => handleChageTagList(tag.value as ChallengeTag)}
-                      className={`select-none border border-gray-3 rounded-sm px-2 py-1 text-sm mr-1 mt-1
-                          ${
-                            tagList.includes(tag.value)
-                              ? 'bg-gray-3 text-white'
-                              : 'text-gray-4'
-                          }
-                        `}
-                    >
-                      {tag.name}
-                    </button>
+                      handleChageTagList={handleChageTagList}
+                      tagList={tagList as ChallengeTag[]}
+                      tag={tag as Tag}
+                    />
                   ))
               : null}
           </div>
@@ -335,15 +349,6 @@ function ChallengeList() {
 }
 
 export default ChallengeList;
-
-function test(sdate: string) {
-  const [y, m, d] = sdate.split('T')[0].split('-');
-  let today = new Date().getTime();
-  let dday = new Date(+y, +m - 1, +d).getTime();
-  let gap = dday - today;
-  let result = Math.ceil(gap / (1000 * 60 * 60 * 24));
-  return result;
-}
 
 const challengeListCategoryData = [
   ['', '전체'],
