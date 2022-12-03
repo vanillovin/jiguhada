@@ -15,20 +15,27 @@ function BoardItem({
   const navigate = useNavigate();
   return (
     <li
-      onClick={() => navigate(`/board/${board.boardId}`, { state: board.boardId })}
       key={board.boardId}
-      className={`w-full cursor-pointer flex items-center py-3 font-light
+      className={`w-full flex items-center py-3 font-light hover:bg-gray-1 transition-all
         ${isLastBoard ? '' : 'border-b'} 
       `}
     >
       <p className="w-1/12 text-center text-gray-4 hidden md:block">{board.boardId}</p>
-      <p className="w-5/12 md:w-4/12 font-normal text-sm md:text-base">
+      <p
+        onClick={() => navigate(`/board/${board.boardId}`, { state: board.boardId })}
+        className="cursor-pointer w-5/12 md:w-4/12 font-normal text-sm md:text-base"
+      >
         <span className="font-medium">
           {!categoryParam ? `[${getBoardCatText(board.category)}]` : ''}{' '}
         </span>
         {board.boardTitle}
       </p>
-      <p className="w-2/12 text-center text-xs md:text-base">{board.writer}</p>
+      <p
+        onClick={() => navigate(`/user/${board.writer}`)}
+        className="cursor-pointer w-2/12 text-center text-xs md:text-base"
+      >
+        {board.writer}
+      </p>
       <p className="w-2/12 text-center tracking-tighter text-gray-4 text-xs md:text-base">
         <span className="hidden md:block">{getDateText(board.createDate)}</span>
         <span className="block md:hidden">
