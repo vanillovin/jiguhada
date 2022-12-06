@@ -1,18 +1,22 @@
 import { toast } from 'react-toastify';
 import { useRecoilValue } from 'recoil';
 import useInput from '../../hooks/useInput';
-import { uploadChallengeAuthImg } from '../../modules/challenge/api';
+import {
+  createChallengeAuthComment,
+  uploadChallengeAuthImg,
+} from '../../modules/challenge/api';
 import { currentUserState } from '../../modules/user/atom';
 
 function ChallengeAuthCommentForm({ id }: { id: string }) {
   const currentUser = useRecoilValue(currentUserState);
-  const { value: content, onChangeValue } = useInput('');
-  // 'https://s3.ap-northeast-2.amazonaws.com/jiguhada-u…image/imgFile8b328aaa-53e8-41c5-8e1e-ad12eb5c3208'
-  const { value: fileDataUrl, setValue: setFileDataUrl } = useInput('');
+  const { value: content, onChangeValue, onClearValue } = useInput('');
+  const {
+    value: authImgUrl,
+    setValue: setAuthImgUrl,
+    onClearValue: onClearAuthImgUrl,
+  } = useInput('');
 
-  const handleUploadChallengeAuthImg = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleUploadChallengeAuthImg = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     let formData = new FormData();
@@ -20,7 +24,7 @@ function ChallengeAuthCommentForm({ id }: { id: string }) {
     uploadChallengeAuthImg(formData)
       .then((data) => {
         console.log('uploadChallengeAuthImg data :', data);
-        setFileDataUrl(data.imgUrl);
+        setAuthImgUrl(data.imgUrl);
       })
       .catch((err) => {
         console.log('uploadChallengeAuthImg err :', err);
@@ -28,8 +32,41 @@ function ChallengeAuthCommentForm({ id }: { id: string }) {
       });
   };
 
+  const onClearFormValue = () => {
+    onClearValue();
+    onClearAuthImgUrl();
+  };
+
+  const handleCreateChallengeAuthComment = (
+    e: React.FormEvent<HTMLFormElement | HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    if (!currentUser) {
+      return;
+    }
+    createChallengeAuthComment(currentUser.accessToken, {
+      challengeId: Number(id),
+      content,
+      authImgUrl,
+    })
+      .then((res) => {
+        console.log('createChallengeAuthComment res :', res);
+        onClearFormValue();
+        // react-query
+      })
+      .catch((err) => {
+        console.log('createChallengeAuthComment err :', err);
+        const [code, msg] = err.message.split('-');
+        toast.error(msg);
+        onClearFormValue();
+      });
+  };
+
   return (
-    <form className="flex items-start border-t" onSubmit={() => {}}>
+    <form
+      className="flex items-start border-t"
+      onSubmit={handleCreateChallengeAuthComment}
+    >
       <div className="flex-1">
         <input
           id="comment"
@@ -38,23 +75,22 @@ function ChallengeAuthCommentForm({ id }: { id: string }) {
           value={content}
           onChange={onChangeValue}
         />
-        {fileDataUrl && (
+        {authImgUrl && (
           <div className="relative m-2">
             <button
-              onClick={() => setFileDataUrl('')}
+              onClick={onClearAuthImgUrl}
               className="absolute top-2 left-2 bg-black bg-opacity-50 w-8 h-8 rounded-full text-white"
             >
               ✕
             </button>
-            <img src={fileDataUrl} className="w-full rounded-sm" />
+            <img src={authImgUrl} className="w-full rounded-sm" />
           </div>
         )}
       </div>
       <label
         htmlFor="attach-file"
-        onClick={() => {}}
         className={`px-2 flex items-center cursor-pointer text-jghd-blue ${
-          !fileDataUrl ? 'h-full' : 'py-3'
+          !authImgUrl ? 'h-full' : 'py-3'
         }`}
       >
         첨부
@@ -69,10 +105,10 @@ function ChallengeAuthCommentForm({ id }: { id: string }) {
       />
       <button
         type="submit"
-        disabled={fileDataUrl && content.length > 2 ? false : true}
-        onClick={() => {}}
-        className={`px-2 ${!fileDataUrl ? 'h-full' : 'py-3'} ${
-          content.length > 2 ? 'text-jghd-green' : 'text-gray-3'
+        disabled={authImgUrl && content.length > 2 ? false : true}
+        onClick={handleCreateChallengeAuthComment}
+        className={`px-2 ${!authImgUrl ? 'h-full' : 'py-3'} ${
+          authImgUrl && content.length > 2 ? 'text-jghd-green' : 'text-gray-3'
         }`}
       >
         입력
