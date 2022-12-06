@@ -55,10 +55,7 @@ function ChallengeAuthCommentList({ id }: { id: string }) {
       <ul>
         {data?.pages.map((page) =>
           page.challengeAuthList.map((auth) => (
-            <li
-              key={auth.challengeAuthId}
-              className="flex items-start px-3 py-2 border border-red-300"
-            >
+            <li key={auth.challengeAuthId} className="flex items-start px-3 py-2">
               <div className="w-8 h-8 mt-1 mr-2">
                 <img
                   src={auth.userProfileImgUrl}
@@ -69,11 +66,9 @@ function ChallengeAuthCommentList({ id }: { id: string }) {
                 <div className="flex items-center justify-between">
                   <div className="w-full flex items-center justify-between">
                     <div className="w-full flex items-center justify-between">
-                      <div className="font-medium text-xs md:text-sm">
-                        {auth.nickname}
-                      </div>
+                      <div className="font-medium text-sm">{auth.nickname}</div>
                       <div
-                        className={`text-xs md:text-sm font-medium ${
+                        className={`text-sm font-medium ${
                           authIsApproveData[auth.authIsApprove][1]
                         }`}
                       >
@@ -85,7 +80,7 @@ function ChallengeAuthCommentList({ id }: { id: string }) {
                     </span>
                   </div>
                 </div>
-                {true ? <p className="text-xs md:text-sm">{auth.authContent}</p> : <></>}
+                {true ? <p className="text-sm">{auth.authContent}</p> : <></>}
                 <img className="mt-1 w-full" src={auth.authImgUrl} />
               </div>
             </li>
