@@ -52,6 +52,8 @@ export type ChallengePeroid = 'ONEWEEK' | 'TWOWEEK' | 'THREEWEEK' | 'FOURWEEK';
 
 export type ChallengeStatus = 'BEFORE' | 'INPROGRESS' | 'END';
 
+export type AuthIsApprove = 'APPROVE' | 'WAIT' | 'REFUSE';
+
 export interface GetChallengeListParams {
   queryParam: string;
   pageParam: number | string;
@@ -182,4 +184,22 @@ export interface GetChallenge {
   authAvailableEndTime: string;
   isOfficial: boolean;
   challengeStatus: ChallengeStatus;
+}
+
+export interface IChallengeAuthCommentList {
+  totalCount: number;
+  totalPage: number;
+  currentPage: number;
+  challengeAuthList: [
+    {
+      challengeAuthId: number;
+      userId: number;
+      username: string;
+      nickname: string;
+      userProfileImgUrl: string;
+      authContent: string;
+      authImgUrl: string;
+      authIsApprove: AuthIsApprove;
+    }
+  ];
 }

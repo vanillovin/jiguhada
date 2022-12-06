@@ -1,6 +1,12 @@
-import { CreateChallengeReq, CreateChallengeRes, GetChallengeListParams } from './type';
+import {
+  CreateChallengeReq,
+  CreateChallengeRes,
+  GetChallengeListParams,
+  IChallengeAuthCommentList,
+} from './type';
 
 const CHALLENGE_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/challenge`;
+const AUTH_CHALLENGE_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/authchallenge`;
 
 const headers: HeadersInit = new Headers();
 headers.set('Content-Type', 'application/json');
@@ -113,6 +119,66 @@ export const joinChallengeRequest = async (
     await fetch(`${CHALLENGE_API_END_POINT}/join`, {
       method: 'POST',
       body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
+  }
+  return json;
+};
+
+export const uploadChallengeAuthImg = async (
+  formData: FormData
+): Promise<{ imgUrl: string }> => {
+  const headers: HeadersInit = new Headers();
+  headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  headers.set('Access-Control-Allow-Credentials', 'true');
+  const json = await (
+    await fetch(`${AUTH_CHALLENGE_API_END_POINT}/uploadAuthImg`, {
+      method: 'POST',
+      body: formData,
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
+  }
+  return json;
+};
+
+export const createChallengeAuthComment = async (
+  token: string,
+  data: {
+    challengeId: number;
+    content: string;
+    authImgUrl: string;
+  }
+) => {
+  headers.set('Authorization', token);
+  const json = await (
+    await fetch(`${AUTH_CHALLENGE_API_END_POINT}/create`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
+  }
+  return json;
+};
+
+export const getChallengeAuthCommentList = async (
+  token: string,
+  id: number,
+  page: number = 1
+): Promise<IChallengeAuthCommentList> => {
+  headers.set('Authorization', token);
+  const json = await (
+    await fetch(`${AUTH_CHALLENGE_API_END_POINT}/list/${id}?page=${page}`, {
+      method: 'GET',
       headers,
     })
   ).json();
