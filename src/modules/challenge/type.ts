@@ -124,7 +124,7 @@ export interface CreateChallengeReq {
   };
 }
 
-export interface Challenge {
+export interface IChallenge {
   authFrequency: AuthFrequency;
   achievementRate: number;
   challengeDetails: string;
@@ -141,7 +141,7 @@ export interface Challenge {
 }
 
 export interface ChallengeList {
-  challengeList: Challenge[];
+  challengeList: IChallenge[];
   currentPage: number;
   totalChallengeCount: number;
   totalPage: number;

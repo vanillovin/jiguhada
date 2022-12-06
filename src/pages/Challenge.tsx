@@ -3,8 +3,10 @@ import { BiCalendar, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { BsPersonFill } from 'react-icons/bs';
 import { useQuery } from 'react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useRecoilValue } from 'recoil';
 import CalendarUI from '../components/CalendarUI';
+import ChallengeAuthCommentList from '../components/challenge/ChallengeAuthCommentList';
 import Error from '../components/Error';
 import useToggle from '../hooks/useToggle';
 import {
@@ -21,11 +23,6 @@ import { GetChallenge, IsJoinChallenge } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
 import { getBoardCatText, getDateText } from '../utils';
 
-interface ErrorInfo {
-  errorCode: string;
-  message: string;
-}
-
 export default function Challenge() {
   const ref = useRef() as React.RefObject<HTMLElement>;
   const { toggle, onToggleChange } = useToggle(ref);
@@ -35,7 +32,8 @@ export default function Challenge() {
   const { id } = useParams<{ id: string }>();
   const [mark, setMark] = useState<string[]>([]);
   const [openCalendar, setOpenCalendar] = useState(false);
-  const { data, error } = useQuery<GetChallenge, ErrorInfo>(
+
+  const { data, error } = useQuery<GetChallenge, { message: string }>(
     ['Challenge', id],
     () => getChallengeRequest(currentUser?.accessToken, Number(id)),
     {
@@ -49,7 +47,9 @@ export default function Challenge() {
       },
     }
   );
+  const [code, msg] = error?.message.split('-') || '';
   const [isJoin, setIsJoin] = useState<IsJoinChallenge | null>();
+
   console.log('Challenge data:', data, '/ error:', error, '/ isJoin:', isJoin);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function Challenge() {
   }, [currentUser]);
 
   useEffect(() => {
-    if (error?.errorCode === 'REQUEST_NOT_INCLUDE_TOKEN') {
+    if (code === 'REQUEST_NOT_INCLUDE_TOKEN') {
       if (confirm('로그인 하시겠습니까?')) {
         navigate('/register', {
           state: { path: location.pathname },
@@ -72,7 +72,7 @@ export default function Challenge() {
     }
   }, [error, navigate]);
 
-  if (error?.errorCode === 'BAD_REQUEST') return <Error message={error.message} />;
+  if (code === 'BAD_REQUEST') return <Error message={msg} />;
 
   const handleJoinChallenge = () => {
     if (!currentUser) {
@@ -84,12 +84,12 @@ export default function Challenge() {
     })
       .then((res) => {
         console.log('joinChallengeRequest res:', res);
+        toast.success('챌린지 참가가 완료됐습니다.');
       })
       .catch((err) => {
         console.log('joinChallengeRequest err:', err);
-        if (err.errorCode) {
-          alert(err.message);
-        }
+        const [code, msg] = err.message.split('-');
+        toast.error(msg);
       });
   };
 
@@ -244,40 +244,37 @@ export default function Challenge() {
 
             <h2 className="font-medium text-lg mt-4">챌린지 인증 방법</h2>
             <p>{data?.authMethodContent}</p>
-            {(data?.authMethodImgUrl || data?.authMethodFailImgUrl) && (
-              <div className="flex">
-                <div className="text-center mr-2">
-                  {data.authMethodImgUrl ? (
-                    <img
-                      className="w-44 h-52 rounded-tl-sm rounded-tr-sm"
-                      src={data?.authMethodImgUrl}
-                    />
-                  ) : (
-                    <div className="text-gray-3 w-44 h-52 rounded-tl-sm rounded-tr-sm border border-b-0 flex items-center justify-center">
-                      사진이 없어요!
-                    </div>
-                  )}
-                  <div className="text-white bg-green-600 rounded-bl-sm rounded-br-sm">
-                    O
+            {/* {(data?.authMethodImgUrl || data?.authMethodFailImgUrl) && ( */}
+            <div className="flex">
+              <div className="text-center mr-2">
+                {data?.authMethodImgUrl && data?.authMethodImgUrl !== 'imgUrl' ? (
+                  <img
+                    className="w-44 h-52 rounded-tl-sm rounded-tr-sm"
+                    src={data?.authMethodImgUrl}
+                  />
+                ) : (
+                  <div className="text-gray-3 w-44 h-52 rounded-tl-sm rounded-tr-sm border border-b-0 flex items-center justify-center">
+                    사진이 없어요!
                   </div>
-                </div>
-                <div className="text-center">
-                  {data.authMethodFailImgUrl ? (
-                    <img
-                      className="w-44 h-52 rounded-tl-sm rounded-tr-sm"
-                      src={data?.authMethodFailImgUrl}
-                    />
-                  ) : (
-                    <div className="text-gray-3 w-44 h-52 rounded-tl-sm rounded-tr-sm border border-b-0 flex items-center justify-center">
-                      사진이 없어요!
-                    </div>
-                  )}
-                  <div className="text-white bg-red-600 rounded-bl-sm rounded-br-sm">
-                    X
-                  </div>
+                )}
+                <div className="text-white bg-green-600 rounded-bl-sm rounded-br-sm">
+                  O
                 </div>
               </div>
-            )}
+              <div className="text-center">
+                {data?.authMethodFailImgUrl && data?.authMethodFailImgUrl !== 'imgUrl' ? (
+                  <img
+                    className="w-44 h-52 rounded-tl-sm rounded-tr-sm"
+                    src={data?.authMethodFailImgUrl}
+                  />
+                ) : (
+                  <div className="text-gray-3 w-44 h-52 rounded-tl-sm rounded-tr-sm border border-b-0 flex items-center justify-center">
+                    사진이 없어요!
+                  </div>
+                )}
+                <div className="text-white bg-red-600 rounded-bl-sm rounded-br-sm">X</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -285,6 +282,7 @@ export default function Challenge() {
           <div className="p-3 overflow-y-auto cmt">
             <p className="mb-2 font-medium text-sm md:text-base">인증수 {0}개</p>
             {/* <CommentList id={id as string} /> */}
+            <ChallengeAuthCommentList id={id as string} />
           </div>
 
           <div>
