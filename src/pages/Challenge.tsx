@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BiCalendar, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { BsPersonFill } from 'react-icons/bs';
 import { useQuery } from 'react-query';
@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useRecoilValue } from 'recoil';
 import CalendarUI from '../components/CalendarUI';
+import ChallengeAuthCommentForm from '../components/challenge/ChallengeAuthCommentForm';
 import ChallengeAuthCommentList from '../components/challenge/ChallengeAuthCommentList';
 import Error from '../components/Error';
 import useToggle from '../hooks/useToggle';
@@ -24,8 +25,8 @@ import { currentUserState } from '../modules/user/atom';
 import { getBoardCatText, getDateText } from '../utils';
 
 export default function Challenge() {
-  const ref = useRef() as React.RefObject<HTMLElement>;
-  const { toggle, onToggleChange } = useToggle(ref);
+  // const ref = useRef() as React.RefObject<HTMLElement>;
+  // const { toggle, onToggleChange } = useToggle(ref);
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = useRecoilValue(currentUserState);
@@ -206,7 +207,7 @@ export default function Challenge() {
       </div>
 
       <div className="md:h-[650px] flex flex-col md:flex-row w-full rounded-sm border">
-        <div className="flex flex-col w-full md:w-3/5 h-[450px] md:h-full md:border-r">
+        <div className="flex flex-col w-full md:w-3/6 h-[450px] md:h-full md:border-r">
           <div className="w-full flex justify-between border-b p-3">
             <div className="flex flex-col md:flex-row">
               <div className="flex items-center mb-1 md:items-start md:flex-col mr-3 md:mb-0">
@@ -278,37 +279,12 @@ export default function Challenge() {
           </div>
         </div>
 
-        <div className="w-full md:w-2/5 h-[450px] md:h-full flex flex-col justify-between border-t md:border-t-0">
-          <div className="p-3 overflow-y-auto cmt">
+        <div className="w-full md:w-3/6 h-[450px] md:h-full flex flex-col justify-between border-t md:border-t-0">
+          {/* <div className="p-3 overflow-y-auto cmt">
             <p className="mb-2 font-medium text-sm md:text-base">인증수 {0}개</p>
-            {/* <CommentList id={id as string} /> */}
-            <ChallengeAuthCommentList id={id as string} />
-          </div>
-
-          <div>
-            <form className="flex items-center border-t" onSubmit={() => {}}>
-              <input
-                id="comment"
-                name="content"
-                className="outline-none flex-1 py-2 px-3"
-              />
-              {/* <button
-                type="button"
-                onClick={() => {}}
-                className={`py-1 px-3 ${true ? 'text-jghd-blue' : ''}`}
-              >
-                첨부
-              </button> */}
-              <button
-                type="submit"
-                // disabled
-                onClick={() => {}}
-                className={`py-1 px-3 ${true ? 'text-jghd-green' : ''}`}
-              >
-                입력
-              </button>
-            </form>
-          </div>
+          </div> */}
+          <ChallengeAuthCommentList id={id as string} />
+          <ChallengeAuthCommentForm />
         </div>
       </div>
     </section>
