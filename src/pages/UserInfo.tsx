@@ -28,7 +28,7 @@ function UserInfo() {
     ['UserInfo', id],
     () => getUserInfo(currentUser?.accessToken, id as string),
     {
-      retry: 1,
+      retry: 2,
       onSuccess: (res) => {
         console.log('UserInfo onSuccess res :', res);
       },
@@ -101,7 +101,7 @@ function UserInfo() {
       </div>
 
       <div className="flex flex-col items-start w-full md:w-3/4 p-4 border md:border-l-0 border-t-0 md:border-t md:rounded-tr-sm rounded-br-sm">
-        <Outlet />
+        <Outlet context={{ user }} />
       </div>
     </section>
   ) : (

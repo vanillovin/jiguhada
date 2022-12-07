@@ -12,7 +12,10 @@ headers.set('Access-Control-Allow-Credentials', 'true');
 export const updateUserInfoPublicRequest = async (
   token: string,
   isPublic: 'PUBLIC' | 'PRIVATE'
-) => {
+): Promise<{
+  code: number;
+  message: string;
+}> => {
   headers.set('Authorization', token);
   const json = await (
     await fetch(`${API_END_POINT}/updateUserInfoPublic?isPublic=${isPublic}`, {

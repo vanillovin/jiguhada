@@ -1,16 +1,19 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { AiOutlineCamera } from 'react-icons/ai';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useQueryClient } from 'react-query';
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useRecoilState, useResetRecoilState } from 'recoil';
 import {
   checkDuplicateNicknameRequest,
-  imageUploadRequest,
   signOut,
   updateImgRequest,
   updateNicknameRequest,
   updatePasswordRequest,
+  updateUserInfoPublicRequest,
 } from '../../modules/user/api';
 import { currentUserState } from '../../modules/user/atom';
+import { IUserInfo } from '../../modules/user/type';
 
 const initialPasswords = {
   nowpassword: '',
@@ -19,18 +22,24 @@ const initialPasswords = {
   prevpassword: '',
 } as const;
 
+interface ChildProps {
+  user: IUserInfo;
+}
+
 export default function Settings() {
+  const { user } = useOutletContext<ChildProps>();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const nicknameInputRef = useRef() as React.MutableRefObject<HTMLInputElement>;
-  const [duplicateCheckedNickname, setDuplicateCheckedNickname] =
-    useState(false);
+  const [duplicateCheckedNickname, setDuplicateCheckedNickname] = useState(false);
   const resetUser = useResetRecoilState(currentUserState);
   const [currentUser, setCurrentUser] = useRecoilState(currentUserState);
   const [fileData, setFileData] = useState<Blob>();
   const [fileDataUrl, setFileDataUrl] = useState(currentUser?.userImgUrl);
   const [passwords, setPasswords] = useState(initialPasswords);
   const { nowpassword, newpassword, checkpassword, prevpassword } = passwords;
+
+  const queryClient = useQueryClient();
 
   const onChangePasswords = (e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log([e.target.name], ':', e.target.value);
@@ -85,7 +94,7 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    if (id != currentUser?.username) navigate(-1);
+    if (id !== currentUser?.username) navigate(-1);
   }, [id]);
 
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,6 +182,24 @@ export default function Settings() {
     setPasswords((prev) => ({ ...prev, prevpassword: '' }));
   };
 
+  const updateUserInfoPublic = () => {
+    if (!currentUser) {
+      return;
+    }
+    const isPublic = user.userInfoPublic === 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
+    updateUserInfoPublicRequest(currentUser.accessToken, isPublic)
+      .then((res) => {
+        console.log('updateUserInfoPublicRequest res :', res);
+        // {code: 200, message: '업데이트 성공'}
+        queryClient.fetchQuery({ queryKey: ['UserInfo', id] });
+        toast.success(res.message);
+      })
+      .catch((err) => {
+        console.log('updateUserInfoPublicRequest err :', err);
+        toast.error(err.message);
+      });
+  };
+
   return (
     <>
       <h1 className="font-semibold text-2xl mb-2">회원정보관리</h1>
@@ -206,6 +233,26 @@ export default function Settings() {
             변경하기
           </button>
         </div>
+
+        <h2 className="text-gray-5 mt-4 font-semibold">내 정보 공개</h2>
+        <label className="inline-flex relative items-center cursor-pointer mt-1">
+          <input
+            type="checkbox"
+            value=""
+            className="sr-only peer"
+            defaultChecked={user.userInfoPublic === 'PUBLIC'}
+            onChange={updateUserInfoPublic}
+          />
+          <div
+            className={`w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full transition-all
+              peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+              after:border after:bg-white after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500`}
+          ></div>
+          <span className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+            {user.userInfoPublic === 'PUBLIC' ? '공개' : '비공개'}
+          </span>
+        </label>
+
         <hr className="my-4 w-full border-t border-gray-200" />
         <h2 className="text-gray-5 mb-2 font-semibold">닉네임</h2>
         <div className="w-full flex flex-col md:flex-row items-start md:items-center">
@@ -231,9 +278,7 @@ export default function Settings() {
           </div>
         </div>
         <hr className="my-4 w-full border-t border-gray-200" />
-        <h2 className="text-gray-5 text-gra2-5 mb-1 font-semibold">
-          비밀번호 변경
-        </h2>
+        <h2 className="text-gray-5 text-gra2-5 mb-1 font-semibold">비밀번호 변경</h2>
         <h3 className="mt-1 mb-2 text-gray-4">현재 비밀번호</h3>
         <input
           name="nowpassword"
