@@ -1,15 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BiCalendar, BiDotsHorizontalRounded } from 'react-icons/bi';
 import { BsPersonFill } from 'react-icons/bs';
 import { useQuery } from 'react-query';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useRecoilValue } from 'recoil';
+
 import CalendarUI from '../components/CalendarUI';
 import ChallengeAuthCommentForm from '../components/challenge/ChallengeAuthCommentForm';
 import ChallengeAuthCommentList from '../components/challenge/ChallengeAuthCommentList';
 import Error from '../components/Error';
-import useToggle from '../hooks/useToggle';
 import {
   getChallengeRequest,
   getIsJoinChallengeRequest,
@@ -161,15 +161,21 @@ export default function Challenge() {
           <h4 className="font-medium">평균 달성률</h4>
           <div className="text-sm text-gray-4 mt-1">
             <div className="w-full h-8 border border-amber-300">
-              <div style={{ width: `${80}%` }} className="h-full bg-amber-100" />
+              <div
+                style={{ width: `${data?.achievementRate}%` }}
+                className="h-full bg-amber-100"
+              />
             </div>
             <div className="w-full flex">
-              {/* {data?.achievementRate > 0 && ( */}
-              <div>0</div>
-              {/* )} */}
-              <div style={{ width: `${80 - 2}%` }} className=""></div>
-              <div>80</div>
-              {data?.achievementRate < 100 && <div className="flex-1 text-end">100</div>}
+              {(data?.achievementRate || 100) > 0 && <div>0</div>}
+              <div
+                style={{ width: `${(data?.achievementRate || 100) - 2}%` }}
+                className=""
+              ></div>
+              <div>{data?.achievementRate}</div>
+              {(data?.achievementRate || 0) < 100 && (
+                <div className="flex-1 text-end">100</div>
+              )}
             </div>
           </div>
         </div>
@@ -284,7 +290,7 @@ export default function Challenge() {
             <p className="mb-2 font-medium text-sm md:text-base">인증수 {0}개</p>
           </div> */}
           <ChallengeAuthCommentList id={id as string} />
-          <ChallengeAuthCommentForm />
+          <ChallengeAuthCommentForm id={id as string} />
         </div>
       </div>
     </section>

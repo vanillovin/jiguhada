@@ -54,37 +54,44 @@ function ChallengeAuthCommentList({ id }: { id: string }) {
       </div>
       <ul>
         {data?.pages.map((page) =>
-          page.challengeAuthList.map((auth) => (
-            <li key={auth.challengeAuthId} className="flex items-start px-3 py-2">
-              <div className="w-8 h-8 mt-1 mr-2">
-                <img
-                  src={auth.userProfileImgUrl}
-                  className="w-full h-full rounded-full"
-                />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div className="w-full flex items-center justify-between">
-                    <div className="w-full flex items-center justify-between">
-                      <div className="font-medium text-sm">{auth.nickname}</div>
-                      <div
-                        className={`text-sm font-medium ${
-                          authIsApproveData[auth.authIsApprove][1]
-                        }`}
-                      >
-                        {authIsApproveData[auth.authIsApprove][0]}
+          page.challengeAuthList.map((auth) => {
+            // 서버수정전 - 승인대기나거절은안보여주는데, 본인일때만보여야함
+            if (auth.authIsApprove === 'APPROVE' || auth.userId === currentUser?.userid) {
+              return (
+                <li key={auth.challengeAuthId} className="flex items-start px-3 py-2">
+                  <div className="w-8 h-8 mt-1 mr-2">
+                    <img
+                      src={auth.userProfileImgUrl}
+                      className="w-full h-full rounded-full"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="w-full flex items-center justify-between">
+                        <div className="w-full flex items-center justify-between">
+                          <div className="font-medium text-sm">{auth.nickname}</div>
+                          {currentUser?.userid === auth.userId && (
+                            <div
+                              className={`text-sm font-medium ${
+                                authIsApproveData[auth.authIsApprove][1]
+                              }`}
+                            >
+                              {authIsApproveData[auth.authIsApprove][0]}
+                            </div>
+                          )}
+                        </div>
+                        <span className="ml-1 text-gray-4 text-2xs md:text-xs">
+                          {/* {getDateText(auth.date)} */}
+                        </span>
                       </div>
                     </div>
-                    <span className="ml-1 text-gray-4 text-2xs md:text-xs">
-                      {/* {getDateText(auth.date)} */}
-                    </span>
+                    {true ? <p className="text-sm">{auth.authContent}</p> : <></>}
+                    <img className="mt-1 w-full" src={auth.authImgUrl} />
                   </div>
-                </div>
-                {true ? <p className="text-sm">{auth.authContent}</p> : <></>}
-                <img className="mt-1 w-full" src={auth.authImgUrl} />
-              </div>
-            </li>
-          ))
+                </li>
+              );
+            }
+          })
         )}
       </ul>
       {/* {hasNextPage ? (
