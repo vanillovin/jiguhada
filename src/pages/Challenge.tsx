@@ -36,7 +36,7 @@ export default function Challenge() {
 
   const { data, error } = useQuery<GetChallenge, { message: string }>(
     ['Challenge', id],
-    () => getChallengeRequest(currentUser?.accessToken, Number(id)),
+    () => getChallengeRequest(currentUser?.accessToken || '', Number(id)),
     {
       retry: 1,
       refetchOnWindowFocus: false,
@@ -89,8 +89,7 @@ export default function Challenge() {
       })
       .catch((err) => {
         console.log('joinChallengeRequest err:', err);
-        const [code, msg] = err.message.split('-');
-        toast.error(msg);
+        toast.error(err.message.split('-')[1]);
       });
   };
 
@@ -213,7 +212,11 @@ export default function Challenge() {
       </div>
 
       <div className="md:h-[650px] flex flex-col md:flex-row w-full rounded-sm border">
-        <div className="flex flex-col w-full md:w-3/6 h-[450px] md:h-full md:border-r">
+        <div
+          className={`flex flex-col ${
+            isJoin?.joinStatus === 'JOIN' ? 'w-full md:w-3/6' : 'w-full'
+          } h-[450px] md:h-full md:border-r`}
+        >
           <div className="w-full flex justify-between border-b p-3">
             <div className="flex flex-col md:flex-row">
               <div className="flex items-center mb-1 md:items-start md:flex-col mr-3 md:mb-0">
@@ -236,10 +239,7 @@ export default function Challenge() {
               </button>
             </div>
           </div>
-          <div
-            className="w-full h-full px-3 pt-4 pb-7 scroll-smooth overflow-auto bg-gray-1 
-                      text-sm md:text-base leading-6 md:leading-7"
-          >
+          <div className="w-full h-full px-3 pt-4 pb-7 scroll-smooth overflow-auto bg-gray-1 text-sm md:text-base leading-6 md:leading-7">
             <h2 className="font-medium text-lg">챌린지 소개</h2>
             <p>{data?.challengeAddDetails}</p>
 
@@ -285,13 +285,12 @@ export default function Challenge() {
           </div>
         </div>
 
-        <div className="w-full md:w-3/6 h-[450px] md:h-full flex flex-col justify-between border-t md:border-t-0">
-          {/* <div className="p-3 overflow-y-auto cmt">
-            <p className="mb-2 font-medium text-sm md:text-base">인증수 {0}개</p>
-          </div> */}
-          <ChallengeAuthCommentList id={id as string} />
-          <ChallengeAuthCommentForm id={id as string} />
-        </div>
+        {isJoin?.joinStatus === 'JOIN' && (
+          <div className="w-full md:w-3/6 h-[450px] md:h-full flex flex-col justify-between border-t md:border-t-0">
+            <ChallengeAuthCommentList id={id as string} />
+            <ChallengeAuthCommentForm id={id as string} />
+          </div>
+        )}
       </div>
     </section>
   );
