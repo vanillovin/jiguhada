@@ -9,11 +9,32 @@ import { useRecoilValue } from 'recoil';
 import { currentUserState } from '../modules/user/atom';
 import Loading from '../components/Loading';
 import { AiOutlineComment, AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
+import {
+  changeSearchParams,
+  ChangeSearchParamsParam,
+  clearSearchParams,
+  ClearSearchParamsParam,
+} from '../utils/url';
+
+const categoryData = [
+  ['', '전체'],
+  ['VEGAN', '비건'],
+  ['ENVIRONMENT', '환경'],
+  ['QUESTION', 'Q&A'],
+  ['FREE', '자유게시판'],
+];
+
+const orderData = [
+  ['RECENT', '최신순'],
+  ['POPULAR', '인기순'],
+  ['COMMENT_COUNT', '댓글순'],
+  ['VIEW', '조회순'],
+];
 
 function BoardList() {
   const location = useLocation();
   const navigate = useNavigate();
-  const urlSearchParams = new URLSearchParams(location.search);
+  let urlSearchParams = new URLSearchParams(location.search);
   const categoryParam = urlSearchParams.get('cat') || '';
   const queryParam = urlSearchParams.get('query') || '';
   const orderParam = urlSearchParams.get('order') || 'RECENT';
@@ -41,7 +62,7 @@ function BoardList() {
     {
       retry: 2,
       onSuccess: (res) => {
-        console.log('BoardList onSuccess :', res);
+        console.log('BoardList onSuccess :', res, urlSearchParams.toString());
       },
       onError: (err) => {
         console.log('BoardList onError :', err);
@@ -49,43 +70,34 @@ function BoardList() {
     }
   );
 
-  const clearSearchParams = (name: string | string[]) => () => {
-    if (Array.isArray(name)) {
-      name.forEach((n) => urlSearchParams.delete(n));
-    } else {
-      urlSearchParams.delete(name);
-    }
-    navigate(`${location.pathname}?${urlSearchParams.toString()}`);
+  const onNavigate = () => navigate(`${location.pathname}?${urlSearchParams.toString()}`);
+
+  const changePath = (value: ChangeSearchParamsParam) => {
+    urlSearchParams = changeSearchParams(urlSearchParams, value);
+    onNavigate();
   };
 
-  const changeSearchParams =
-    (obj: { name: string; value: string } | [string, string][]) => () => {
-      if (Array.isArray(obj)) {
-        obj.forEach(([name, value]) => {
-          urlSearchParams.set(name, value);
-        });
-      } else {
-        urlSearchParams.set(obj.name, obj.value);
-      }
-      navigate(`${location.pathname}?${urlSearchParams.toString()}`);
-    };
+  const clearPath = (value: ClearSearchParamsParam) => {
+    urlSearchParams = clearSearchParams(urlSearchParams, value);
+    onNavigate();
+  };
 
   const handleChangeCategory = (value: string) => {
     value === ''
       ? navigate('/board')
-      : changeSearchParams([
+      : changePath([
           ['cat', value],
           ['page', '1'],
           ['order', 'RECENT'],
-        ])();
+        ]);
   };
 
   const handleCancleSearch = () => {
-    changeSearchParams([
+    changePath([
       ['order', 'RECENT'],
       ['page', '1'],
-    ])();
-    clearSearchParams(['query', 'type'])();
+    ]);
+    clearPath(['query', 'type']);
     const keywordInput = document.getElementById('keyword') as HTMLInputElement;
     keywordInput.value = '';
   };
@@ -99,12 +111,33 @@ function BoardList() {
       alert('검색어를 입력해 주세요');
       return;
     }
-    changeSearchParams([
+    changePath([
       ['query', keyword],
       ['type', type],
       ['page', '1'],
-    ])();
+    ]);
   };
+
+  const handleChangeOrder = (value: string) => {
+    changePath([
+      ['order', value],
+      ['page', '1'],
+    ]);
+  };
+
+  // 글쓰기로이동
+  const goToWritingPage = () =>
+    navigate('/board/new', {
+      state: {
+        data: {
+          category: '',
+          title: '',
+          content: '',
+          contentImgList: [],
+          tempImgList: [],
+        },
+      },
+    });
 
   return (
     <section className="w-full max-w-6xl px-5 md:px-10">
@@ -177,10 +210,7 @@ function BoardList() {
                   ></div>
                   <p
                     key={value}
-                    onClick={changeSearchParams([
-                      ['order', value],
-                      ['page', '1'],
-                    ])}
+                    onClick={() => handleChangeOrder(value)}
                     className={`cursor-pointer text-gray-3 ${
                       orderParam === value ? 'font-semibold text-gray-700' : ''
                     }`}
@@ -192,19 +222,7 @@ function BoardList() {
             </ul>
             {currentUser && (
               <button
-                onClick={() =>
-                  navigate('/board/new', {
-                    state: {
-                      data: {
-                        category: '',
-                        title: '',
-                        content: '',
-                        contentImgList: [],
-                        tempImgList: [],
-                      },
-                    },
-                  })
-                }
+                onClick={goToWritingPage}
                 className="bg-jghd-blue text-white px-2 text-sm md:text-base py-1 md:px-4 md:py-2 rounded-md"
               >
                 글쓰기
@@ -278,18 +296,3 @@ function BoardList() {
 }
 
 export default BoardList;
-
-const categoryData = [
-  ['', '전체'],
-  ['VEGAN', '비건'],
-  ['ENVIRONMENT', '환경'],
-  ['QUESTION', 'Q&A'],
-  ['FREE', '자유게시판'],
-];
-
-const orderData = [
-  ['RECENT', '최신순'],
-  ['POPULAR', '인기순'],
-  ['COMMENT_COUNT', '댓글순'],
-  ['VIEW', '조회순'],
-];

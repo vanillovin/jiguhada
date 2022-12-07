@@ -8,12 +8,37 @@ import { tagsData } from '../modules/challenge/data';
 import ChallengeItem from '../components/challenge/ChallengeItem';
 import { useGetChallengeList } from '../hooks/queries/challenge';
 import { toast } from 'react-toastify';
+import {
+  changeSearchParams,
+  ChangeSearchParamsParam,
+  clearSearchParams,
+  ClearSearchParamsParam,
+} from '../utils/url';
 
 interface Tag {
   checked: boolean;
   value: ChallengeTag;
   name: string;
 }
+
+const challengeListCategoryData = [
+  ['', '전체'],
+  ['VEGAN', '비건'],
+  ['ENVIRONMENT', '환경'],
+  ['ETC', '기타'],
+];
+
+const challengeListOrderData = [
+  ['RECENTLY', '최신순'],
+  ['POPULAR', '인기순'],
+];
+
+const challengeListStatusData = [
+  ['', '전체'],
+  ['BEFORE', '시작전'],
+  ['INPROGRESS', '진행'],
+  ['END', '종료'],
+];
 
 function TagButton({
   handleChageTagList,
@@ -40,7 +65,7 @@ function TagButton({
 function ChallengeList() {
   const location = useLocation();
   const navigate = useNavigate();
-  const urlSearchParams = new URLSearchParams(location.search);
+  let urlSearchParams = new URLSearchParams(location.search);
   const categoryParam = urlSearchParams.get('cat') || '';
   const queryParam = urlSearchParams.get('query') || '';
   const orderParam = urlSearchParams.get('order') || 'RECENTLY';
@@ -72,37 +97,17 @@ function ChallengeList() {
     },
   });
 
-  console.log('Challenge data:', data);
+  console.log('ChallengeList data:', data, urlSearchParams.toString());
 
   const onNavigate = () => navigate(`${location.pathname}?${urlSearchParams.toString()}`);
 
-  const clearSearchParams = (name: string | string[]) => {
-    if (Array.isArray(name)) {
-      name.forEach((n) => urlSearchParams.delete(n));
-    } else {
-      urlSearchParams.delete(name);
-    }
-  };
-
-  const changeSearchParams = (
-    obj: { name: string; value: string } | [string, string][]
-  ) => {
-    if (Array.isArray(obj)) {
-      obj.forEach(([name, value]) => {
-        urlSearchParams.set(name, value);
-      });
-    } else {
-      urlSearchParams.set(obj.name, obj.value);
-    }
-  };
-
-  const changePath = (value: { name: string; value: string } | [string, string][]) => {
-    changeSearchParams(value);
+  const changePath = (value: ChangeSearchParamsParam) => {
+    urlSearchParams = changeSearchParams(urlSearchParams, value);
     onNavigate();
   };
 
-  const clearPath = (value: string | string[]) => {
-    clearSearchParams(value);
+  const clearPath = (value: ClearSearchParamsParam) => {
+    urlSearchParams = clearSearchParams(urlSearchParams, value);
     onNavigate();
   };
 
@@ -349,22 +354,3 @@ function ChallengeList() {
 }
 
 export default ChallengeList;
-
-const challengeListCategoryData = [
-  ['', '전체'],
-  ['VEGAN', '비건'],
-  ['ENVIRONMENT', '환경'],
-  ['ETC', '기타'],
-];
-
-const challengeListOrderData = [
-  ['RECENTLY', '최신순'],
-  ['POPULAR', '인기순'],
-];
-
-const challengeListStatusData = [
-  ['', '전체'],
-  ['BEFORE', '시작전'],
-  ['INPROGRESS', '진행'],
-  ['END', '종료'],
-];
