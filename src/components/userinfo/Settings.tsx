@@ -191,8 +191,8 @@ export default function Settings() {
       .then((res) => {
         console.log('updateUserInfoPublicRequest res :', res);
         // {code: 200, message: '업데이트 성공'}
-        queryClient.fetchQuery({ queryKey: ['UserInfo', id] });
-        toast.success(res.message);
+        queryClient.invalidateQueries({ queryKey: ['UserInfo', id] });
+        toast.success(`프로필 공개 범위 ${res.message}`);
       })
       .catch((err) => {
         console.log('updateUserInfoPublicRequest err :', err);
@@ -202,7 +202,28 @@ export default function Settings() {
 
   return (
     <>
-      <h1 className="font-semibold text-2xl mb-2">회원정보관리</h1>
+      <div className="w-full flex items-center justify-between">
+        <h1 className="font-semibold text-2xl mb-2">회원정보관리</h1>
+        <div>
+          <label className="inline-flex relative items-center cursor-pointer mt-1">
+            <input
+              type="checkbox"
+              value=""
+              className="sr-only peer"
+              defaultChecked={user.userInfoPublic === 'PUBLIC'}
+              onChange={updateUserInfoPublic}
+            />
+            <div
+              className={`w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full transition-all
+              peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+              after:border after:bg-white after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500`}
+            ></div>
+            <span className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+              {user.userInfoPublic === 'PUBLIC' ? '공개' : '비공개'}
+            </span>
+          </label>
+        </div>
+      </div>
       <div className="w-full flex flex-col items-start p-2">
         <h2 className="text-gray-5 mb-2 font-semibold">프로필 사진</h2>
         <div className="w-full flex items-center">
@@ -233,25 +254,6 @@ export default function Settings() {
             변경하기
           </button>
         </div>
-
-        <h2 className="text-gray-5 mt-4 font-semibold">내 정보 공개</h2>
-        <label className="inline-flex relative items-center cursor-pointer mt-1">
-          <input
-            type="checkbox"
-            value=""
-            className="sr-only peer"
-            defaultChecked={user.userInfoPublic === 'PUBLIC'}
-            onChange={updateUserInfoPublic}
-          />
-          <div
-            className={`w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full transition-all
-              peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
-              after:border after:bg-white after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500`}
-          ></div>
-          <span className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-            {user.userInfoPublic === 'PUBLIC' ? '공개' : '비공개'}
-          </span>
-        </label>
 
         <hr className="my-4 w-full border-t border-gray-200" />
         <h2 className="text-gray-5 mb-2 font-semibold">닉네임</h2>
