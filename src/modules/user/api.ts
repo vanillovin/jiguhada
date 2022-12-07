@@ -9,28 +9,45 @@ headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
 headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
 headers.set('Access-Control-Allow-Credentials', 'true');
 
-export const checkDuplicateIdRequest = async (id: string) => {
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/checkDuplicate?username=${id}`, {
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`아이디 중복 확인을 실패했습니다. ${e}`);
+export const updateUserInfoPublicRequest = async (
+  token: string,
+  isPublic: 'PUBLIC' | 'PRIVATE'
+) => {
+  headers.set('Authorization', token);
+  const json = await (
+    await fetch(`${API_END_POINT}/updateUserInfoPublic?isPublic=${isPublic}`, {
+      method: 'PUT',
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
+};
+
+export const checkDuplicateIdRequest = async (id: string) => {
+  const json = await (
+    await fetch(`${API_END_POINT}/checkDuplicate?username=${id}`, {
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
+  }
+  return json;
 };
 
 export const checkDuplicateNicknameRequest = async (nickname: string) => {
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/checkDuplicate?username=${nickname}`, {
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`닉네임 중복 확인을 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${API_END_POINT}/checkDuplicate?username=${nickname}`, {
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const imageUploadRequest = async (formData: FormData) => {
@@ -38,17 +55,18 @@ export const imageUploadRequest = async (formData: FormData) => {
   headers.set('Access-Control-Allow-Origin', `${import.meta.env.VITE_APP_LOCAL}`);
   headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept');
   headers.set('Access-Control-Allow-Credentials', 'true');
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/uploadTempImg`, {
-        method: 'POST',
-        body: formData,
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`이미지 파일 업로드를 실패했습니다. ${e}`);
+
+  const json = await (
+    await fetch(`${API_END_POINT}/uploadTempImg`, {
+      method: 'POST',
+      body: formData,
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const signupRequest = async (data: SignupData) => {
@@ -70,17 +88,17 @@ export const signupRequest = async (data: SignupData) => {
 
 export const updateNicknameRequest = async (token: string, nickname: string) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/updateNickname`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ nickname }),
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`닉네임 수정을 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${API_END_POINT}/updateNickname`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ nickname }),
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const updateImgRequest = async (token: string, formData: FormData) => {
@@ -93,17 +111,18 @@ export const updateImgRequest = async (token: string, formData: FormData) => {
   );
   headers.set('Access-Control-Allow-Credentials', 'true');
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/updateImg`, {
-        method: 'POST',
-        body: formData,
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`이미지 파일 수정을 실패했습니다. ${e}`);
+
+  const json = await (
+    await fetch(`${API_END_POINT}/updateImg`, {
+      method: 'POST',
+      body: formData,
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const updatePasswordRequest = async (
@@ -111,17 +130,17 @@ export const updatePasswordRequest = async (
   data: { nowpassword: string; newpassword: string }
 ) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/updatePassword`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`비밀번호 변경을 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${API_END_POINT}/updatePassword`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
 
 export const getUserInfo = async (token: string = '', username: string) => {
@@ -140,15 +159,15 @@ export const getUserInfo = async (token: string = '', username: string) => {
 
 export const signOut = async (token: string, data: { password: string }) => {
   headers.set('Authorization', token);
-  try {
-    return await (
-      await fetch(`${API_END_POINT}/signOut`, {
-        method: 'DELETE',
-        body: JSON.stringify(data),
-        headers,
-      })
-    ).json();
-  } catch (e) {
-    throw new Error(`회원 탈퇴를 실패했습니다. ${e}`);
+  const json = await (
+    await fetch(`${API_END_POINT}/signOut`, {
+      method: 'DELETE',
+      body: JSON.stringify(data),
+      headers,
+    })
+  ).json();
+  if (json.error || json.errorCode) {
+    throw new Error(`${json.status || json.errorCode}-${json.error || json.message}`);
   }
+  return json;
 };
