@@ -14,7 +14,7 @@ import {
   getPostRequest,
   likePostRequest,
 } from '../modules/board/api';
-import { getBoardCatText, getDateText } from '../utils';
+import { getBoardCatText, getDateText } from '../utils/date';
 import { Category } from '../modules/board/type';
 import { marked } from 'marked';
 import { useRecoilValue } from 'recoil';

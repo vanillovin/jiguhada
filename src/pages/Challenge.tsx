@@ -22,7 +22,7 @@ import {
 } from '../modules/challenge/data';
 import { GetChallenge, IsJoinChallenge } from '../modules/challenge/type';
 import { currentUserState } from '../modules/user/atom';
-import { getBoardCatText, getDateText } from '../utils';
+import { getBoardCatText, getDateText } from '../utils/date';
 
 export default function Challenge() {
   // const ref = useRef() as React.RefObject<HTMLElement>;

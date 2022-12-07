@@ -1,4 +1,4 @@
-import { Category } from './modules/board/type';
+import { Category } from '../modules/board/type';
 
 export interface DateData {
   year: number;
@@ -8,6 +8,7 @@ export interface DateData {
 }
 
 export function getBoardCatText(name: Category) {
+  if (!name) return '';
   if (name === 'VEGAN') return '비건';
   if (name === 'FREE') return '자유게시판';
   if (name === 'ENVIRONMENT') return '환경';

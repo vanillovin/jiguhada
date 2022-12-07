@@ -2,7 +2,7 @@ import { useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { getBoardList } from '../../modules/board/api';
 import { Order } from '../../modules/board/type';
-import { displayedAt, getBoardCatText } from '../../utils';
+import { displayedAt, getBoardCatText } from '../../utils/date';
 
 function HomeBoardList({ order }: { order: Order }): JSX.Element {
   const navigate = useNavigate();

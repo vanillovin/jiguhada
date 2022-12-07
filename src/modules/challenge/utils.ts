@@ -1,11 +1,11 @@
-import { DateData, getEmptyStringArr, getSunday } from './../../utils';
+import { DateData, getEmptyStringArr, getSunday } from '../../utils/date';
 import {
   getCurrentDate,
   getDay,
   getLastDate,
   getNearMonday,
   getNearSaturday,
-} from '../../utils';
+} from '../../utils/date';
 import { AuthFrequency, ChallengePeroid, GetEndDataParams } from './type';
 
 function removeWeekendData(

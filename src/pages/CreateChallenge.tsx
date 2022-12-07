@@ -17,7 +17,7 @@ import {
 } from '../modules/challenge/type';
 import { getChallengeEndDate, getChallengeStartDate } from '../modules/challenge/utils';
 import { currentUserState } from '../modules/user/atom';
-import { getDay, getToday } from '../utils';
+import { getDay, getToday } from '../utils/date';
 
 export default function CreateChallenge() {
   const navigate = useNavigate();
@@ -85,7 +85,6 @@ export default function CreateChallenge() {
     }));
   };
 
-  console.log(startDate);
   const [sYear, sMonth, sDate, sDay] = startDate.split('.');
   const {
     year: eYear,
@@ -125,9 +124,9 @@ export default function CreateChallenge() {
       authMethodContent,
       authMethodImg,
       authMethodFailImg,
-      challengeStartDate: `${eYear}-${+sMonth + 1}-${sDate}`,
+      challengeStartDate: `${2022}-${12}-${6}`,
       challengePeroid,
-      challengeEndDate: `${eYear}-${+eMonth + 1}-${eDate}`,
+      challengeEndDate: `${2023}-${1}-${8}`,
       authFrequency,
       authCountPerDay: 1,
       authAvailableTimeType: 'ALLDAY',
@@ -327,9 +326,9 @@ export default function CreateChallenge() {
         {authFrequency && challengePeroid && startDate && (
           <div className="flex items-center bg-gray-2 rounded-md py-3 px-4 font-semibold mt-6">
             <BiCalendar className="mr-2" size={22} />
-            {`${+sYear > 2022 ? `${sYear}.` : ''} ${+sMonth + 1}. ${sDate} (${getToday(
-              +sDay
-            )}) ~ ${+eYear > 2022 ? `${eYear}.` : ''}${
+            {`${+sYear || +eYear > 2022 ? `${sYear}. ` : ''} ${
+              +sMonth + 1
+            }. ${sDate} (${getToday(+sDay)}) ~ ${+eYear > 2022 ? `${eYear}. ` : ''}${
               +eMonth + 1
             }. ${+eDate} (${eToday})`}
           </div>

@@ -1,7 +1,7 @@
 import { AiOutlineComment, AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 import { BoardItem as BItem } from '../../modules/board/type';
-import { displayedAt, getBoardCatText, getDateText } from '../../utils';
+import { displayedAt, getBoardCatText, getDateText } from '../../utils/date';
 
 function BoardItem({
   board,

@@ -10,9 +10,9 @@ import {
 import useInput from '../../hooks/useInput';
 import useToggle from '../../hooks/useToggle';
 import { deleteCommentRequest, updatePostCommentRequest } from '../../modules/board/api';
-import { Comment, CommentList } from '../../modules/board/type';
+import { Comment, ICommentList } from '../../modules/board/type';
 import { ICurrentUser } from '../../modules/user/type';
-import { getDateText } from '../../utils';
+import { getDateText } from '../../utils/date';
 
 interface CommentProps {
   comment: Comment;
@@ -20,7 +20,7 @@ interface CommentProps {
   // refetchPage: (page: TData, index: number, allPages: TData[]) => boolean;
   refetch: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
-  ) => Promise<QueryObserverResult<InfiniteData<CommentList>, unknown>>;
+  ) => Promise<QueryObserverResult<InfiniteData<ICommentList>, unknown>>;
 }
 
 export default function CommentItem({ comment, currentUser, refetch }: CommentProps) {
