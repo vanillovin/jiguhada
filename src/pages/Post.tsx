@@ -5,48 +5,40 @@ import { FiBookmark } from 'react-icons/fi';
 import { BsBookmarkFill } from 'react-icons/bs';
 import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import {
-  cancelLikePostRequest,
-  createPostCommentRequest,
-  deletePostRequest,
-  getLikesRequest,
-  getPostRequest,
-  likePostRequest,
-} from '../modules/board/api';
-import { getBoardCatText, getDateText } from '../utils/date';
-import { Category } from '../modules/board/type';
 import { marked } from 'marked';
 import { useRecoilValue } from 'recoil';
+
+import { getBoardCatText, getDateText } from '../utils/date';
+import { Category } from '../modules/board/type';
 import { currentUserState } from '../modules/user/atom';
 import useToggle from '../hooks/useToggle';
 import CommentList from '../components/post/CommentList';
 import Error from '../components/Error';
+import {
+  useCancelLikePost,
+  useDeletePost,
+  useGetPostLikeInfo,
+  useGetPost,
+  useLikePost,
+  useCreatePostComment,
+} from '../hooks/queries/post';
 
 export default function Post() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { data: post, error } = useQuery(['Post', id], () => getPostRequest(Number(id)), {
-    retry: 1,
-    refetchOnWindowFocus: false,
-    // staleTime: 5000,
-    // useErrorBoundary: (error) => error.response.status >= 500,
-    // onSuccess: (res) => {
-    //   console.log('onSuccess:', res);
-    // },
-    // onError: (err) => {
-    //   console.log('onError:', err);
-    // },
-  });
-
-  const { data: likes } = useQuery(['Like', id], () => getLikesRequest(Number(id)));
-
+  const postId = Number(id);
+  const { data: post, error: postError } = useGetPost(Number(id));
+  const { mutate: deletePost } = useDeletePost();
+  const { mutate: likePost } = useLikePost();
+  const { mutate: cancelLikePost } = useCancelLikePost();
+  const { mutate: createPostComment } = useCreatePostComment();
+  const { data: like } = useGetPostLikeInfo(Number(id));
+  const contentInputRef = useRef() as React.RefObject<HTMLInputElement>;
   const toggleRef = useRef() as React.RefObject<HTMLDivElement>;
   const { toggle, onToggleChange } = useToggle(toggleRef);
   const currentUser = useRecoilValue(currentUserState);
-  const queryClient = useQueryClient();
 
-  const handleEditBoard = () => {
+  const goToEditPost = () => {
     navigate(`/board/${post?.boardId}/edit`, {
       state: {
         data: {
@@ -60,61 +52,20 @@ export default function Post() {
   };
 
   const handleDeleteBoard = () => {
-    if (!confirm('게시글을 삭제하시겠습니까?')) return;
-    if (!currentUser?.accessToken) {
-      alert('토큰을 읽을 수 없습니다. 다시 로그인해 주세요!');
-      navigate('/register');
+    if (!currentUser) {
+      if (confirm('로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?!')) {
+        navigate('/register', { state: { path: `/board/${id}` } });
+        return;
+      }
       return;
     }
-    deletePostRequest(currentUser?.accessToken, Number(id))
-      .then((res) => {
-        console.log('handleDeleteBoard res', res);
-        if (res.code === 200) {
-          navigate('/board');
-        } else {
-        }
-      })
-      .catch((err) => {
-        console.log('handleDeleteBoard err', err);
-      });
+    if (!confirm('게시글을 삭제하시겠습니까?')) return;
+    deletePost({
+      token: currentUser.accessToken,
+      id: Number(id),
+      goToBoardPage: () => navigate('/board'),
+    });
   };
-
-  const { mutate: likePost } = useMutation(
-    () =>
-      likePostRequest(
-        currentUser?.accessToken as string,
-        Number(id),
-        currentUser?.userid as number
-      ),
-    {
-      onSuccess: (data, variables, context) => {
-        console.log('likePost success!', data, variables, context);
-        queryClient.setQueryData(['Post', id], (old: any) => ({
-          ...old,
-          likeList: data,
-        }));
-      },
-      onError: (err, variables, context) => {
-        console.log('likePost error', err, variables, context);
-      },
-    }
-  );
-
-  const { mutate: cancleLikePost } = useMutation(
-    (likeId: number) => cancelLikePostRequest(currentUser?.accessToken as string, likeId),
-    {
-      onSuccess: (data, variables, context) => {
-        console.log('cancleLikePost success!', data, variables, context);
-        queryClient.setQueryData(['Post', id], (old: any) => ({
-          ...old,
-          likeList: data,
-        }));
-      },
-      onError: (err, variables, context) => {
-        console.log('cancleLikePost error', err, variables, context);
-      },
-    }
-  );
 
   const handleLikeOrCancelLikePost = () => {
     if (!currentUser) {
@@ -124,42 +75,18 @@ export default function Post() {
       }
       return;
     }
-    const liked = likes?.likeList.find(({ userId }) => userId === currentUser.userid);
-    liked ? cancleLikePost(Number(liked.likeId)) : likePost();
+    const token = currentUser.accessToken;
+    const liked = like?.likeList.find(({ userId }) => userId === currentUser.userid);
+    if (liked) {
+      cancelLikePost({ token, postId, likeId: liked.likeId as number });
+    } else {
+      likePost({ token, postId, userId: currentUser.userid });
+    }
   };
 
-  const { mutate: createComment } = useMutation(
-    (data: { boardId: number; content: string }) =>
-      createPostCommentRequest(currentUser?.accessToken as string, data),
-    {
-      onSuccess: (data, variables, context) => {
-        // resData, {boardId, content}, undefined
-        const errorCode = data.errorCode || '';
-        if (errorCode) {
-          if (errorCode === 'EXPIRE_ACCESS_TOKEN') {
-            alert(data.message);
-            navigate('/register', { state: { path: `/board/${id}` } });
-          }
-          return;
-        }
-
-        console.log('createComment success!', data, variables, context);
-        queryClient.setQueryData(['Post', id], (old: any) => ({
-          ...old,
-          commentCount: old.commentCount + 1,
-        }));
-        queryClient.invalidateQueries(['CommentList', id]);
-        const commentInput = document.getElementById('comment') as HTMLInputElement;
-        commentInput.value = '';
-        // variables.clearContent();
-      },
-      onError: (err, variables, context) => {
-        console.log('createComment error', err, variables, context);
-      },
-    }
-  );
-
-  const handleCreateComment = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateComment = (
+    e: React.FormEvent<HTMLFormElement | HTMLButtonElement>
+  ) => {
     e.preventDefault();
     if (!currentUser) {
       if (confirm('로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?!')) {
@@ -168,17 +95,18 @@ export default function Post() {
       }
       return;
     }
-    const formData = new FormData(e.currentTarget);
-    const content = formData.get('content') as string;
+    const content = contentInputRef.current?.value || '';
     if (content.trim().length < 2) {
       alert('댓글은 2자 이상 입력해 주세요!');
       return;
     }
-    // formData.set('content', '');
-    createComment({ boardId: Number(id), content });
+    createPostComment({
+      token: currentUser.accessToken,
+      data: { boardId: postId, content },
+    });
   };
 
-  if (error) return <Error message={error} />;
+  if (postError) return <Error message={postError} />;
 
   return (
     <section className="w-full max-h-screen max-w-6xl px-5 md:px-10">
@@ -210,7 +138,7 @@ export default function Post() {
                 {toggle && (
                   <div className="absolute w-32 top-8 right-0 border rounded-lg shadow-md bg-white">
                     <button
-                      onClick={handleEditBoard}
+                      onClick={goToEditPost}
                       className="w-full flex items-center cursor-pointer py-1 px-3"
                     >
                       <HiOutlinePencilAlt className="mr-2" />
@@ -243,7 +171,7 @@ export default function Post() {
             <div className="flex items-center p-3 border-t">
               <div className="flex items-center mr-5 md:mr-7">
                 <button onClick={handleLikeOrCancelLikePost}>
-                  {new Set(likes?.likeList.map(({ userId }) => userId)).has(
+                  {new Set(like?.likeList.map(({ userId }) => userId)).has(
                     currentUser?.userid
                   ) ? (
                     <AiFillHeart size={22} color="#ed4956" />
@@ -280,6 +208,7 @@ export default function Post() {
               onSubmit={handleCreateComment}
             >
               <input
+                ref={contentInputRef}
                 id="comment"
                 name="content"
                 className="outline-none flex-1 h-full p-3"
@@ -287,6 +216,7 @@ export default function Post() {
               <button
                 type="submit"
                 // disabled
+                onClick={handleCreateComment}
                 className={`py-1 px-3 h-full ${true ? 'text-jghd-green' : ''}`}
               >
                 입력

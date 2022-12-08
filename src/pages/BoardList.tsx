@@ -43,14 +43,7 @@ function BoardList() {
   const currentUser = useRecoilValue(currentUserState);
 
   const { isLoading, data: boardList } = useQuery(
-    [
-      `${categoryParam}Board/${orderParam}/${pageParam}/${queryParam}/${searchTypeParam}`,
-      categoryParam,
-      queryParam,
-      orderParam,
-      pageParam,
-      searchTypeParam,
-    ],
+    ['BoardList', categoryParam, queryParam, orderParam, pageParam, searchTypeParam],
     () =>
       getBoardList({
         query: queryParam,

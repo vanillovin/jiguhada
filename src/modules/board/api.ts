@@ -1,13 +1,4 @@
-import {
-  BoardList,
-  BoardListParams,
-  CreateBoard,
-  Post,
-  Like,
-  Comment,
-  Likes,
-  CommentList,
-} from './type';
+import { BoardList, BoardListParams, CreateBoard, Post, Comment } from './type';
 
 const BOARD_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/board`;
 const BOARD_LIKE_API_END_POINT = `${import.meta.env.VITE_APP_HOST}/boardLike`;
@@ -156,12 +147,7 @@ export const updatePostRequest = async (token: string, data: any) => {
   return json;
 };
 
-// Board Like
-export const likePostRequest = async (
-  token: string,
-  boardId: number,
-  userId: number
-): Promise<Like[] | { errorCode: string }> => {
+export const likePostRequest = async (token: string, boardId: number, userId: number) => {
   headers.set('Authorization', token);
   const json = await (
     await fetch(`${BOARD_LIKE_API_END_POINT}/create/${boardId}?userId=${userId}`, {
@@ -189,7 +175,6 @@ export const cancelLikePostRequest = async (token: string, likeId: number) => {
   return json;
 };
 
-// Board Comment
 export const updatePostCommentRequest = async (
   token: string,
   data: { commentId: number; content: string }
@@ -211,7 +196,7 @@ export const updatePostCommentRequest = async (
 export const createPostCommentRequest = async (
   token: string,
   data: { boardId: number; content: string }
-): Promise<Comment[]> => {
+) => {
   headers.set('Authorization', token);
   const json = await (
     await fetch(`${BOARD_COMMENT_API_END_POINT}/create`, {
@@ -258,12 +243,15 @@ export const getPostCommentDataRequest = async (token: string, id: number) => {
   return json;
 };
 
-export const getCommentsRequest = async (
-  boardId: number,
-  page: number
-): Promise<CommentList> => {
+export const getPostCommentList = async ({
+  postId,
+  page,
+}: {
+  postId: number;
+  page: number;
+}) => {
   const json = await (
-    await fetch(`${BOARD_COMMENT_API_END_POINT}/read/${boardId}?page=${page || 1}`, {
+    await fetch(`${BOARD_COMMENT_API_END_POINT}/read/${postId}?page=${page || 1}`, {
       method: 'GET',
       headers,
     })
@@ -291,8 +279,7 @@ export const deleteCommentRequest = async (
   return json;
 };
 
-// Board Like
-export const getLikesRequest = async (boardId: number, page?: number): Promise<Likes> => {
+export const getPostLikeInfoRequest = async (boardId: number, page?: number) => {
   const json = await (
     await fetch(`${BOARD_LIKE_API_END_POINT}/read/${boardId}?page=${page || 1}`, {
       method: 'GET',

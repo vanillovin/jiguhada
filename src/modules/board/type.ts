@@ -79,9 +79,10 @@ export interface Like {
   username?: string;
   nickname?: string;
   userImgUrl?: string;
+  userInfoPublic: 'PUBLIC' | 'PRIVATE';
 }
 
-export interface Likes {
+export interface LikeInfo {
   currentPage: number;
   totalLikeCount: number;
   totalPage: number;

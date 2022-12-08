@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from 'react-query';
 import { useRecoilValue } from 'recoil';
-import { getCommentsRequest } from '../../modules/board/api';
+import { getPostCommentList } from '../../modules/board/api';
 import { ICommentList } from '../../modules/board/type';
 import { currentUserState } from '../../modules/user/atom';
 import Error from '../Error';
@@ -9,7 +9,8 @@ import CommentItem from './CommentItem';
 
 export default function CommentList({ id }: { id: string }) {
   const currentUser = useRecoilValue(currentUserState);
-  const fetchComments = (page: number) => getCommentsRequest(+id, page);
+  const fetchPostCommentList = (page: number) =>
+    getPostCommentList({ postId: Number(id), page });
 
   const {
     data,
@@ -21,8 +22,8 @@ export default function CommentList({ id }: { id: string }) {
     status,
     error,
   } = useInfiniteQuery<ICommentList, { message: string }>(
-    ['CommentList', id],
-    ({ pageParam = 1 }) => fetchComments(pageParam),
+    ['PostCommentList', id],
+    ({ pageParam = 1 }) => fetchPostCommentList(pageParam),
     {
       refetchOnWindowFocus: false,
       // keepPreviousData: true,

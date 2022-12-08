@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getLikesRequest } from '../../modules/board/api';
+import { getPostLikeInfoRequest } from '../../modules/board/api';
 import { useInView } from 'react-intersection-observer';
 
 export default function LikeList() {
@@ -11,12 +11,12 @@ export default function LikeList() {
     threshold: 0,
   });
 
-  const fetchLikes = (page: number) => getLikesRequest(+id, page);
+  const fetchPostLikeInfo = (page: number) => getPostLikeInfoRequest(Number(id), page);
 
   const { data, fetchNextPage, isFetching, isFetchingNextPage, hasNextPage } =
     useInfiniteQuery(
-      ['Likes', { id }],
-      ({ pageParam = 0 }) => fetchLikes(pageParam),
+      ['PostLike', id],
+      ({ pageParam = 0 }) => fetchPostLikeInfo(pageParam),
       {
         getNextPageParam: (lastPage, allPages) => {
           return lastPage.currentPage < lastPage.totalPage
@@ -73,10 +73,7 @@ export default function LikeList() {
                 className="cursor-pointer flex items-center px-4 py-3 hover:bg-gray-100 transition-colors"
               >
                 <div className="w-12 h-12 mr-2">
-                  <img
-                    src={like.userImgUrl}
-                    className="w-full h-full rounded-full"
-                  />
+                  <img src={like.userImgUrl} className="w-full h-full rounded-full" />
                 </div>
                 <div>
                   <p>{like.nickname}</p>
@@ -86,9 +83,7 @@ export default function LikeList() {
             ))
           )}
           <div ref={ref} className="m-1">
-            {isFetching && isFetchingNextPage && hasNextPage
-              ? '불러오는 중...'
-              : null}
+            {isFetching && isFetchingNextPage && hasNextPage ? '불러오는 중...' : null}
           </div>
         </ul>
       </div>
