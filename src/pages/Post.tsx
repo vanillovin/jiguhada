@@ -20,8 +20,8 @@ import {
   useGetPostLikeInfo,
   useGetPost,
   useLikePost,
-  useCreatePostComment,
 } from '../hooks/queries/post';
+import CommentForm from '../components/post/CommentForm';
 
 export default function Post() {
   const navigate = useNavigate();
@@ -31,9 +31,7 @@ export default function Post() {
   const { mutate: deletePost } = useDeletePost();
   const { mutate: likePost } = useLikePost();
   const { mutate: cancelLikePost } = useCancelLikePost();
-  const { mutate: createPostComment } = useCreatePostComment();
   const { data: like } = useGetPostLikeInfo(Number(id));
-  const contentInputRef = useRef() as React.RefObject<HTMLInputElement>;
   const toggleRef = useRef() as React.RefObject<HTMLDivElement>;
   const { toggle, onToggleChange } = useToggle(toggleRef);
   const currentUser = useRecoilValue(currentUserState);
@@ -82,25 +80,6 @@ export default function Post() {
     } else {
       likePost({ token, postId, userId: currentUser.userid });
     }
-  };
-
-  const handleCreateComment = (
-    e: React.FormEvent<HTMLFormElement | HTMLButtonElement>
-  ) => {
-    e.preventDefault();
-    if (!currentUser) {
-      goToLogin();
-      return;
-    }
-    const content = contentInputRef.current?.value || '';
-    if (content.trim().length < 2) {
-      alert('댓글은 2자 이상 입력해 주세요!');
-      return;
-    }
-    createPostComment({
-      token: currentUser.accessToken,
-      data: { boardId: postId, content },
-    });
   };
 
   if (postError) return <Error message={postError} />;
@@ -163,7 +142,7 @@ export default function Post() {
         </div>
 
         <div className="w-full md:w-2/5 h-[450px] md:h-full flex flex-col justify-between border-t md:border-t-0">
-          <CommentList id={id as string} />
+          <CommentList postId={postId} />
           <div className="">
             <div className="flex items-center p-3 border-t">
               <div className="flex items-center mr-5 md:mr-7">
@@ -183,13 +162,6 @@ export default function Post() {
                   className="cursor-pointer ml-1 text-sm md:text-base"
                 >
                   {post?.likeCount}
-                  {/* <ul className="likes absolute bottom-10 left-0 border shadow-sm bg-white w-28 max-h-40 overflow-y-auto">
-                    {likes?.likeList.map((like) => (
-                      <li key={like.likeId} className="border-b py-1 px-2">
-                        {like.nickname}
-                      </li>
-                    ))}
-                  </ul> */}
                 </span>
               </div>
               <div className="flex items-center mr-5 md:mr-7">
@@ -200,25 +172,7 @@ export default function Post() {
                 {true ? <FiBookmark size={22} /> : <BsBookmarkFill />}
               </button>
             </div>
-            <form
-              className="flex items-center border-t flex-1"
-              onSubmit={handleCreateComment}
-            >
-              <input
-                ref={contentInputRef}
-                id="comment"
-                name="content"
-                className="outline-none flex-1 h-full p-3"
-              />
-              <button
-                type="submit"
-                // disabled
-                onClick={handleCreateComment}
-                className={`py-1 px-3 h-full ${true ? 'text-jghd-green' : ''}`}
-              >
-                입력
-              </button>
-            </form>
+            <CommentForm boardId={postId} goToLogin={goToLogin} />
           </div>
         </div>
       </div>

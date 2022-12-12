@@ -7,10 +7,9 @@ import Error from '../Error';
 import Loading from '../Loading';
 import CommentItem from './CommentItem';
 
-export default function CommentList({ id }: { id: string }) {
+export default function CommentList({ postId }: { postId: number }) {
   const currentUser = useRecoilValue(currentUserState);
-  const fetchPostCommentList = (page: number) =>
-    getPostCommentList({ postId: Number(id), page });
+  const fetchPostCommentList = (page: number) => getPostCommentList({ postId, page });
 
   const {
     data,
@@ -22,7 +21,7 @@ export default function CommentList({ id }: { id: string }) {
     status,
     error,
   } = useInfiniteQuery<ICommentList, { message: string }>(
-    ['PostCommentList', id],
+    ['PostCommentList', postId],
     ({ pageParam = 1 }) => fetchPostCommentList(pageParam),
     {
       refetchOnWindowFocus: false,
