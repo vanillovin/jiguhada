@@ -51,12 +51,15 @@ export default function Post() {
     });
   };
 
-  const handleDeleteBoard = () => {
+  const goToLogin = () => {
+    if (confirm('로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?!')) {
+      navigate('/register', { state: { path: `/board/${id}` } });
+    }
+  };
+
+  const handleDeletePost = () => {
     if (!currentUser) {
-      if (confirm('로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?!')) {
-        navigate('/register', { state: { path: `/board/${id}` } });
-        return;
-      }
+      goToLogin();
       return;
     }
     if (!confirm('게시글을 삭제하시겠습니까?')) return;
@@ -69,10 +72,7 @@ export default function Post() {
 
   const handleLikeOrCancelLikePost = () => {
     if (!currentUser) {
-      if (confirm('로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?!')) {
-        navigate('/register', { state: { path: `/board/${id}` } });
-        return;
-      }
+      goToLogin();
       return;
     }
     const token = currentUser.accessToken;
@@ -89,10 +89,7 @@ export default function Post() {
   ) => {
     e.preventDefault();
     if (!currentUser) {
-      if (confirm('로그인이 필요한 서비스 입니다. 로그인 하시겠습니까?!')) {
-        navigate('/register', { state: { path: `/board/${id}` } });
-        return;
-      }
+      goToLogin();
       return;
     }
     const content = contentInputRef.current?.value || '';
@@ -145,7 +142,7 @@ export default function Post() {
                       수정하기
                     </button>
                     <button
-                      onClick={handleDeleteBoard}
+                      onClick={handleDeletePost}
                       className="w-full flex items-center cursor-pointer py-1 px-3"
                     >
                       <HiOutlineTrash className="mr-2" />
@@ -157,7 +154,7 @@ export default function Post() {
             )}
           </div>
           <div
-            className="bd-content w-full h-full px-3 pt-4 pb-7 scroll-smooth overflow-auto bg-gray-1 
+            className="bd-content w-full h-full px-3 pt-4 pb-7 scroll-smooth overflow-auto bg-gray-1
                       text-sm md:text-base leading-6 md:leading-7"
             dangerouslySetInnerHTML={{
               __html: marked(post?.content || ''),
