@@ -31,7 +31,7 @@ const orderData = [
   ['VIEW', '조회순'],
 ];
 
-function BoardList() {
+function Board() {
   const location = useLocation();
   const navigate = useNavigate();
   let urlSearchParams = new URLSearchParams(location.search);
@@ -288,4 +288,4 @@ function BoardList() {
   );
 }
 
-export default BoardList;
+export default Board;
