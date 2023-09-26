@@ -1,16 +1,14 @@
-import { DateData, getEmptyStringArr, getSunday } from '../../utils/date';
+import { DateData, getEmptyStringArr, getSunday } from '../../utils/dateUtils';
 import {
   getCurrentDate,
   getDay,
   getLastDate,
   getNearMonday,
   getNearSaturday,
-} from '../../utils/date';
+} from '../../utils/dateUtils';
 import { AuthFrequency, ChallengePeroid, GetEndDataParams } from './type';
 
-function removeWeekendData(
-  dates: { year: number; month: number; date: number; day: number }[]
-) {
+function removeWeekendData(dates: { year: number; month: number; date: number; day: number }[]) {
   return dates.filter(({ day }) => day > 0 && day < 6);
 }
 
@@ -121,13 +119,7 @@ function endDateHelper(eDate: DateData, func: (param: GetEndDataParams) => DateD
   return func({ ...eDate, opt: true });
 }
 
-function getEverydayEndData({
-  year,
-  month,
-  date,
-  day,
-  opt = false,
-}: GetEndDataParams): DateData {
+function getEverydayEndData({ year, month, date, day, opt = false }: GetEndDataParams): DateData {
   // console.log('getEverydayEndData :', year, month, date, day);
 
   const lastDate = getLastDate(year, month);
@@ -153,13 +145,7 @@ function getEverydayEndData({
   return { year: tempYear, month: tempMonth, date: tempDate, day: 0 };
 }
 
-function getWeekdayEndData({
-  year,
-  month,
-  date,
-  day,
-  opt = false,
-}: GetEndDataParams): DateData {
+function getWeekdayEndData({ year, month, date, day, opt = false }: GetEndDataParams): DateData {
   // console.log('getWeekdayEndData :', year, month, date, day);
 
   const lastDate = getLastDate(year, month);
@@ -184,13 +170,7 @@ function getWeekdayEndData({
   return { year: tempYear, month: tempMonth, date: tempDate, day: 5 };
 }
 
-function getWeekendEndDate({
-  year,
-  month,
-  date,
-  day,
-  opt = false,
-}: GetEndDataParams): DateData {
+function getWeekendEndDate({ year, month, date, day, opt = false }: GetEndDataParams): DateData {
   // console.log('getWeekendEndDate :', year, month, date, day);
 
   const lastDate = getLastDate(year, month);
@@ -250,36 +230,21 @@ export function getChallengeEndDate(
 
   // 매일
   const oneweekEverydayEndDate = getEverydayEndData({ year, month, date, day });
-  const twoweekEverydayEndDate = endDateHelper(
-    oneweekEverydayEndDate,
-    getEverydayEndData
-  );
-  const threeweekEverydayEndData = endDateHelper(
-    twoweekEverydayEndDate,
-    getEverydayEndData
-  );
-  const fourweekEverydayEndData = endDateHelper(
-    threeweekEverydayEndData,
-    getEverydayEndData
-  );
+  const twoweekEverydayEndDate = endDateHelper(oneweekEverydayEndDate, getEverydayEndData);
+  const threeweekEverydayEndData = endDateHelper(twoweekEverydayEndDate, getEverydayEndData);
+  const fourweekEverydayEndData = endDateHelper(threeweekEverydayEndData, getEverydayEndData);
 
   // 평일 매일
   const oneweekWeekdayEndDate = getWeekdayEndData({ year, month, date, day });
   const twoweekWeekdayEndDate = endDateHelper(oneweekWeekdayEndDate, getWeekdayEndData);
   const threeweekWeekdayEndDate = endDateHelper(twoweekWeekdayEndDate, getWeekdayEndData);
-  const fourweekWeekdayEndDate = endDateHelper(
-    threeweekWeekdayEndDate,
-    getWeekdayEndData
-  );
+  const fourweekWeekdayEndDate = endDateHelper(threeweekWeekdayEndDate, getWeekdayEndData);
 
   // 주말 매일
   const oneweekWeekendEndDate = getWeekendEndDate({ year, month, date, day });
   const twoweekWeekendEndDate = endDateHelper(oneweekWeekendEndDate, getWeekendEndDate);
   const threeweekWeekendEndDate = endDateHelper(twoweekWeekendEndDate, getWeekendEndDate);
-  const fourweekWeekendEndDate = endDateHelper(
-    threeweekWeekendEndDate,
-    getWeekendEndDate
-  );
+  const fourweekWeekendEndDate = endDateHelper(threeweekWeekendEndDate, getWeekendEndDate);
 
   // 주 n일
   const n1weekWeekendEndDate = getNTimesAWeekEndData({ year, month, date, day });

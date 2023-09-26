@@ -1,30 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
-import { BiCalendar, BiDotsHorizontalRounded } from 'react-icons/bi';
-import { BsPersonFill } from 'react-icons/bs';
 import { useQuery } from 'react-query';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useRecoilValue } from 'recoil';
+import { useEffect, useState } from 'react';
+import { BsPersonFill } from 'react-icons/bs';
+import { BiCalendar, BiDotsHorizontalRounded } from 'react-icons/bi';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import CalendarUI from '../components/CalendarUI';
-import ChallengeAuthCommentForm from '../components/challenge/ChallengeAuthCommentForm';
-import ChallengeAuthCommentList from '../components/challenge/ChallengeAuthCommentList';
-import Error from '../components/Error';
+import Error from '../../components/Error';
+import CalendarUI from '../../components/CalendarUI';
+import ChallengeAuthCommentForm from '../../components/challenge/ChallengeAuthCommentForm';
+import ChallengeAuthCommentList from '../../components/challenge/ChallengeAuthCommentList';
 import {
   getChallengeRequest,
   getIsJoinChallengeRequest,
   joinChallengeRequest,
-} from '../modules/challenge/api';
+} from '../../modules/challenge/api';
 import {
   challengeAuthFrequencyNames,
   challengeListTagsNameObj,
   challengePeroidNames,
-} from '../modules/challenge/data';
-import { GetChallenge, IsJoinChallenge } from '../modules/challenge/type';
-import { currentUserState } from '../modules/user/atom';
-import { getBoardCatText, getDateText } from '../utils/date';
+} from '../../modules/challenge/data';
+import { currentUserState } from '../../modules/user/atom';
+import { GetChallenge, IsJoinChallenge } from '../../modules/challenge/type';
+import { getBoardCatText, getDateText } from '../../utils/dateUtils';
 
-export default function Challenge() {
+export default function ChallengeDetailPage() {
   // const ref = useRef() as React.RefObject<HTMLElement>;
   // const { toggle, onToggleChange } = useToggle(ref);
   const location = useLocation();
@@ -41,10 +41,7 @@ export default function Challenge() {
       retry: 1,
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
-        setMark([
-          data.challengeStartDate.split('T')[0],
-          data.challengeEndDate.split('T')[0],
-        ]);
+        setMark([data.challengeStartDate.split('T')[0], data.challengeEndDate.split('T')[0]]);
       },
     }
   );
@@ -147,34 +144,24 @@ export default function Challenge() {
                   참가하기
                 </button>
               )}
-            {currentUser &&
-              isJoin?.joinStatus === 'JOIN' &&
-              data?.challengeStatus !== 'END' && (
-                <div className="select-none border border-jghd-red bg-jghd-red md:py-1 px-1 md:px-2 text-white rounded-sm text-sm md:text-base">
-                  현재 참가 중인 챌린지입니다
-                </div>
-              )}
+            {currentUser && isJoin?.joinStatus === 'JOIN' && data?.challengeStatus !== 'END' && (
+              <div className="select-none border border-jghd-red bg-jghd-red md:py-1 px-1 md:px-2 text-white rounded-sm text-sm md:text-base">
+                현재 참가 중인 챌린지입니다
+              </div>
+            )}
           </div>
         </div>
         <div className="border-b p-2">
           <h4 className="font-medium">평균 달성률</h4>
           <div className="text-sm text-gray-4 mt-1">
             <div className="w-full h-8 border border-amber-300">
-              <div
-                style={{ width: `${data?.achievementRate}%` }}
-                className="h-full bg-amber-100"
-              />
+              <div style={{ width: `${data?.achievementRate}%` }} className="h-full bg-amber-100" />
             </div>
             <div className="w-full flex">
               {(data?.achievementRate || 100) > 0 && <div>0</div>}
-              <div
-                style={{ width: `${(data?.achievementRate || 100) - 2}%` }}
-                className=""
-              ></div>
+              <div style={{ width: `${(data?.achievementRate || 100) - 2}%` }} className=""></div>
               <div>{data?.achievementRate}</div>
-              {(data?.achievementRate || 0) < 100 && (
-                <div className="flex-1 text-end">100</div>
-              )}
+              {(data?.achievementRate || 0) < 100 && <div className="flex-1 text-end">100</div>}
             </div>
           </div>
         </div>
@@ -201,10 +188,7 @@ export default function Challenge() {
           <div className="w-1/2">
             <h3 className="font-medium mb-2">챌린지 호스트</h3>
             <div className="flex items-center">
-              <img
-                className="w-10 h-10 rounded-full mr-1"
-                src={data?.challengeManagerImgUrl}
-              />
+              <img className="w-10 h-10 rounded-full mr-1" src={data?.challengeManagerImgUrl} />
               <h4>{data?.challengeManagerName}</h4>
             </div>
           </div>
@@ -245,8 +229,7 @@ export default function Challenge() {
 
             <h2 className="font-medium text-lg mt-4">챌린지 기간</h2>
             <p>
-              {getDateText(data?.challengeStartDate)} -{' '}
-              {getDateText(data?.challengeEndDate)}
+              {getDateText(data?.challengeStartDate)} - {getDateText(data?.challengeEndDate)}
             </p>
 
             <h2 className="font-medium text-lg mt-4">챌린지 인증 방법</h2>
@@ -264,9 +247,7 @@ export default function Challenge() {
                     사진이 없어요!
                   </div>
                 )}
-                <div className="text-white bg-green-600 rounded-bl-sm rounded-br-sm">
-                  O
-                </div>
+                <div className="text-white bg-green-600 rounded-bl-sm rounded-br-sm">O</div>
               </div>
               <div className="text-center">
                 {data?.authMethodFailImgUrl && data?.authMethodFailImgUrl !== 'imgUrl' ? (

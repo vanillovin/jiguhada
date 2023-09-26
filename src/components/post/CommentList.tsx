@@ -1,11 +1,12 @@
-import { useInfiniteQuery } from 'react-query';
 import { useRecoilValue } from 'recoil';
-import { getPostCommentList } from '../../modules/board/api';
-import { ICommentList } from '../../modules/board/type';
-import { currentUserState } from '../../modules/user/atom';
+import { useInfiniteQuery } from 'react-query';
+
 import Error from '../Error';
 import Loading from '../Loading';
 import CommentItem from './CommentItem';
+import { ICommentList } from '../../modules/board/type';
+import { getPostCommentList } from '../../modules/board/api';
+import { currentUserState } from '../../modules/user/atom';
 
 export default function CommentList({ postId }: { postId: number }) {
   const currentUser = useRecoilValue(currentUserState);
@@ -56,12 +57,13 @@ export default function CommentList({ postId }: { postId: number }) {
       </ul>
       {hasNextPage ? (
         <button
-          onClick={fetchNextPage}
+          onClick={() => fetchNextPage()}
           className="font-medium my-1 mx-3 text-sm md:text-base"
         >
           댓글 더 보기
         </button>
       ) : (
+        data?.pageParams &&
         data?.pageParams.length > 1 && (
           <p className="font-medium text-gray-4 my-1 mx-3 text-sm md:text-base">
             마지막 댓글입니다

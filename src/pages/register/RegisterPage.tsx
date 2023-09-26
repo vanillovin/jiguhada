@@ -1,12 +1,13 @@
-import SignIn from '../components/register/SignIn';
-import useInput from '../hooks/useInput';
-import SignUp from '../components/register/SignUp';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import useInput from '../../hooks/useInput';
+import SignIn from '../../components/register/SignIn';
+import SignUp from '../../components/register/SignUp';
 
 export const defaultProfileImage =
   'https://jiguhada-user-img.s3.ap-northeast-2.amazonaws.com/profile-img/earth_default.png';
 
-export default function Register() {
+export default function RegisterPage() {
   const location = useLocation();
   const locationState = location.state as { path: string; data: any };
   const navigate = useNavigate();
@@ -30,10 +31,7 @@ export default function Register() {
       {!isRegistered ? (
         <SignUp goToHome={goToHome} setIsRegistered={setIsRegistered} />
       ) : (
-        <SignIn
-          goToPrevOrHome={goToPrevOrHome}
-          setIsRegistered={setIsRegistered}
-        />
+        <SignIn goToPrevOrHome={goToPrevOrHome} setIsRegistered={setIsRegistered} />
       )}
     </div>
   );

@@ -1,9 +1,10 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { AiOutlineCamera } from 'react-icons/ai';
-import { useQueryClient } from 'react-query';
-import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useQueryClient } from 'react-query';
+import { AiOutlineCamera } from 'react-icons/ai';
+import React, { useRef, useEffect, useState } from 'react';
 import { useRecoilState, useResetRecoilState } from 'recoil';
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
+
 import {
   checkDuplicateNicknameRequest,
   signOut,
@@ -12,8 +13,8 @@ import {
   updatePasswordRequest,
   updateUserInfoPublicRequest,
 } from '../../modules/user/api';
-import { currentUserState } from '../../modules/user/atom';
 import { IUserInfo } from '../../modules/user/type';
+import { currentUserState } from '../../modules/user/atom';
 
 const initialPasswords = {
   nowpassword: '',
@@ -70,10 +71,7 @@ export default function Settings() {
       alert('닉네임 중복 확인을 해주세요');
       return;
     }
-    updateNicknameRequest(
-      currentUser?.accessToken as string,
-      nicknameInputRef.current.value
-    )
+    updateNicknameRequest(currentUser?.accessToken as string, nicknameInputRef.current.value)
       .then((res) => {
         alert(res.message);
         if (res.code === 200) {
@@ -89,7 +87,7 @@ export default function Settings() {
         }
       })
       .catch((err) => {
-        console.log('updateNicknameRequest error', err);
+        console.error('updateNicknameRequest error', err);
       });
   };
 
@@ -99,7 +97,6 @@ export default function Settings() {
 
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log(file);
     if (!file) return;
     setFileData(file);
     const fileReader = new FileReader();
@@ -118,7 +115,7 @@ export default function Settings() {
     formData.append('imgFile', fileData);
     updateImgRequest(currentUser?.accessToken as string, formData)
       .then((data) => {
-        console.log('updateImgRequest data', data);
+        // console.log('updateImgRequest data', data);
         if (!data.error) {
           setCurrentUser((prev: any) => ({
             ...prev,
@@ -128,14 +125,12 @@ export default function Settings() {
         }
       })
       .catch((e) => {
-        alert(`프로필 사진 변경에 실패했습니다. ${e}`);
+        toast.error(`프로필 사진 변경에 실패했습니다. ${e}`);
       });
   };
 
   const onCheckPassword = () => {
-    return checkpassword && newpassword !== checkpassword
-      ? '비밀번호가 일치하지 않습니다.'
-      : '';
+    return checkpassword && newpassword !== checkpassword ? '비밀번호가 일치하지 않습니다.' : '';
   };
 
   const handleUpdatePassword = () => {
@@ -148,7 +143,7 @@ export default function Settings() {
       newpassword,
     })
       .then((data) => {
-        console.log('updatePasswordRequest data', data);
+        // console.log('updatePasswordRequest data', data);
         if (data.code === 200) {
           alert(data.message);
           setPasswords(initialPasswords);
@@ -157,7 +152,7 @@ export default function Settings() {
         }
       })
       .catch((err) => {
-        console.log('updatePasswordRequest error', err);
+        // console.error('updatePasswordRequest error', err);
       });
   };
 
@@ -169,7 +164,7 @@ export default function Settings() {
     }
     signOut(currentUser?.accessToken, { password: prevpassword })
       .then((res) => {
-        console.log('handleSignOut res', res);
+        // console.log('handleSignOut res', res);
         if (res.code === 200) {
           alert(res.message);
           resetUser();
@@ -177,7 +172,7 @@ export default function Settings() {
         }
       })
       .catch((err) => {
-        console.log('handleSignOut err', err);
+        // console.log('handleSignOut err', err);
       });
     setPasswords((prev) => ({ ...prev, prevpassword: '' }));
   };
@@ -189,13 +184,11 @@ export default function Settings() {
     const isPublic = user.userInfoPublic === 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
     updateUserInfoPublicRequest(currentUser.accessToken, isPublic)
       .then((res) => {
-        console.log('updateUserInfoPublicRequest res :', res);
-        // {code: 200, message: '업데이트 성공'}
+        // console.log('updateUserInfoPublicRequest res :', res);
         queryClient.invalidateQueries({ queryKey: ['UserInfo', id] });
         toast.success(`프로필 공개 범위 ${res.message}`);
       })
       .catch((err) => {
-        console.log('updateUserInfoPublicRequest err :', err);
         toast.error(err.message);
       });
   };

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function Message({
   message,
@@ -7,17 +7,15 @@ export default function Message({
   message: string;
   navigateInfo: { name: string; path: string };
 }) {
-  const navigate = useNavigate();
-
   return (
     <div className="mt-28 text-center">
       <p className="text-lg">{message}</p>
-      <button
-        onClick={() => navigate(path)}
+      <Link
+        to={path}
         className="py-1 px-2 mt-2 border rounded-full hover:bg-jghd-blue hover:text-white"
       >
         {name}으로 이동하기
-      </button>
+      </Link>
     </div>
   );
 }

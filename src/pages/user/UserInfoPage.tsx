@@ -1,14 +1,14 @@
-import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
-import { useRecoilValue, useResetRecoilState } from 'recoil';
 import { useQuery } from 'react-query';
-import { currentUserState } from '../modules/user/atom';
-import { getUserInfo } from '../modules/user/api';
-import { IUserInfo } from '../modules/user/type';
-import Message from '../components/Message';
-import Loading from '../components/Loading';
-import Error from '../components/Error';
+import { useRecoilValue, useResetRecoilState } from 'recoil';
+import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 
-function UserInfo() {
+import Error from '../../components/Error';
+import Loading from '../../components/Loading';
+import { getUserInfo } from '../../modules/user/api';
+import { IUserInfo } from '../../modules/user/type';
+import { currentUserState } from '../../modules/user/atom';
+
+export default function UserInfoPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const currentUser = useRecoilValue(currentUserState);
@@ -39,7 +39,7 @@ function UserInfo() {
   );
 
   if (error) {
-    const [code, msg] = error.message.split('-');
+    const [_, msg] = error.message.split('-');
     return <Error message={msg} />;
   }
 
@@ -108,5 +108,3 @@ function UserInfo() {
     <Loading />
   );
 }
-
-export default UserInfo;

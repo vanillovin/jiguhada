@@ -1,17 +1,16 @@
 import React from 'react';
 import { useRecoilValue } from 'recoil';
-import { useCreatePostComment } from '../../hooks/queries/post';
+
 import useInput from '../../hooks/useInput';
 import { currentUserState } from '../../modules/user/atom';
+import { useCreatePostComment } from '../../hooks/queries/post';
 
 function CommentForm({ boardId, goToLogin }: { boardId: number; goToLogin: () => void }) {
   const currentUser = useRecoilValue(currentUserState);
   const { mutate: createPostComment } = useCreatePostComment();
   const { value: content, onChangeValue } = useInput('');
 
-  const handleCreateComment = (
-    e: React.FormEvent<HTMLFormElement | HTMLButtonElement>
-  ) => {
+  const handleCreateComment = (e: React.FormEvent<HTMLFormElement | HTMLButtonElement>) => {
     e.preventDefault();
     if (!currentUser) {
       goToLogin();

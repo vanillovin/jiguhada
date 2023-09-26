@@ -1,10 +1,7 @@
 import { toast } from 'react-toastify';
 import { useRecoilValue } from 'recoil';
 import useInput from '../../hooks/useInput';
-import {
-  createChallengeAuthComment,
-  uploadChallengeAuthImg,
-} from '../../modules/challenge/api';
+import { createChallengeAuthComment, uploadChallengeAuthImg } from '../../modules/challenge/api';
 import { currentUserState } from '../../modules/user/atom';
 
 function ChallengeAuthCommentForm({ id }: { id: string }) {
@@ -23,11 +20,11 @@ function ChallengeAuthCommentForm({ id }: { id: string }) {
     formData.append('imgFile', file);
     uploadChallengeAuthImg(formData)
       .then((data) => {
-        console.log('uploadChallengeAuthImg data :', data);
+        // console.log('uploadChallengeAuthImg data :', data);
         setAuthImgUrl(data.imgUrl);
       })
       .catch((err) => {
-        console.log('uploadChallengeAuthImg err :', err);
+        // console.log('uploadChallengeAuthImg err :', err);
         toast.error(err.message.split('-')[1]);
       });
   };
@@ -50,12 +47,11 @@ function ChallengeAuthCommentForm({ id }: { id: string }) {
       authImgUrl,
     })
       .then((res) => {
-        console.log('createChallengeAuthComment res :', res);
+        // console.log('createChallengeAuthComment res :', res);
         onClearFormValue();
-        // react-query
       })
       .catch((err) => {
-        console.log('createChallengeAuthComment err :', err);
+        // console.log('createChallengeAuthComment err :', err);
         const [code, msg] = err.message.split('-');
         toast.error(msg);
         onClearFormValue();
@@ -63,10 +59,7 @@ function ChallengeAuthCommentForm({ id }: { id: string }) {
   };
 
   return (
-    <form
-      className="flex items-start border-t"
-      onSubmit={handleCreateChallengeAuthComment}
-    >
+    <form className="flex items-start border-t" onSubmit={handleCreateChallengeAuthComment}>
       <div className="flex-1">
         <input
           id="comment"

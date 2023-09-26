@@ -1,19 +1,20 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import PageList from '../components/PageList';
-import { CahllengeCategory, ChallengeTag } from '../modules/challenge/type';
-import { currentUserState } from '../modules/user/atom';
-import { tagsData } from '../modules/challenge/data';
-import ChallengeItem from '../components/challenge/ChallengeItem';
-import { useGetChallengeList } from '../hooks/queries/challenge';
 import { toast } from 'react-toastify';
+import { useRecoilValue } from 'recoil';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import PageList from '../../components/PageList';
+import { CahllengeCategory, ChallengeTag } from '../../modules/challenge/type';
+import { currentUserState } from '../../modules/user/atom';
+import { tagsData } from '../../modules/challenge/data';
+import ChallengeItem from '../../components/challenge/ChallengeItem';
+import { useGetChallengeList } from '../../hooks/queries/challenge';
 import {
   changeSearchParams,
   ChangeSearchParamsParam,
   clearSearchParams,
   ClearSearchParamsParam,
-} from '../utils/url';
+} from '../../utils/urlUtils';
 
 interface Tag {
   checked: boolean;
@@ -21,48 +22,7 @@ interface Tag {
   name: string;
 }
 
-const challengeListCategoryData = [
-  ['', '전체'],
-  ['VEGAN', '비건'],
-  ['ENVIRONMENT', '환경'],
-  ['ETC', '기타'],
-];
-
-const challengeListOrderData = [
-  ['RECENTLY', '최신순'],
-  ['POPULAR', '인기순'],
-];
-
-const challengeListStatusData = [
-  ['', '전체'],
-  ['BEFORE', '시작전'],
-  ['INPROGRESS', '진행'],
-  ['END', '종료'],
-];
-
-function TagButton({
-  handleChageTagList,
-  tagList,
-  tag,
-}: {
-  handleChageTagList: (value: ChallengeTag) => void;
-  tagList: ChallengeTag[];
-  tag: Tag;
-}) {
-  return (
-    <button
-      onClick={() => handleChageTagList(tag.value)}
-      className={`select-none border border-gray-3 rounded-sm px-2 py-1 text-sm mr-1 mt-1 ${
-        tagList.includes(tag.value) ? 'bg-gray-3 text-white' : 'text-gray-4'
-      }
-    `}
-    >
-      {tag.name}
-    </button>
-  );
-}
-
-function ChallengeList() {
+export default function ChallengePage() {
   const location = useLocation();
   const navigate = useNavigate();
   let urlSearchParams = new URLSearchParams(location.search);
@@ -189,9 +149,7 @@ function ChallengeList() {
     <section className="w-full max-w-6xl px-5 md:px-10">
       <div className="bg-gray-2 text-start p-3 md:p-6">
         <h1 className="font-bold text-xl md:text-2xl">챌린지</h1>
-        <p className="text-sm md:text-base">
-          지구를 지키는 다양한 챌린지 활동에 참여해봐요{':>'}
-        </p>
+        <p className="text-sm md:text-base">지구를 지키는 다양한 챌린지 활동에 참여해봐요{':>'}</p>
       </div>
 
       <div className="flex flex-col md:flex-row mt-5">
@@ -228,11 +186,7 @@ function ChallengeList() {
               maxLength={20}
             />
             {queryParam && (
-              <button
-                type="button"
-                onClick={handleCancleSearch}
-                className="bg-red-200 w-24 mr-2"
-              >
+              <button type="button" onClick={handleCancleSearch} className="bg-red-200 w-24 mr-2">
                 취소
               </button>
             )}
@@ -246,8 +200,7 @@ function ChallengeList() {
               className="flex items-center mb-2 cursor-pointer font-medium"
               onClick={() => setOpenTags((prev) => !prev)}
             >
-              태그로 찾기{' '}
-              <span className="ml-1 text-sm select-none">{!openTags ? '▶' : '▼'}</span>
+              태그로 찾기 <span className="ml-1 text-sm select-none">{!openTags ? '▶' : '▼'}</span>
             </button>
             {openTags
               ? categoryParam === ''
@@ -255,9 +208,7 @@ function ChallengeList() {
                     return (
                       <div key={cat} className={`flex itmes-center my-1 ml-1`}>
                         <h3 className="pt-2 w-10">
-                          {(cat === 'VEGAN' && '비건') ||
-                            (cat === 'ETC' && '기타') ||
-                            '환경'}
+                          {(cat === 'VEGAN' && '비건') || (cat === 'ETC' && '기타') || '환경'}
                         </h3>
                         <div className="flex-wrap flex-1">
                           {tagsData[cat as CahllengeCategory].map((tag) => (
@@ -287,10 +238,7 @@ function ChallengeList() {
             <div>
               <ul className="flex items-center">
                 {challengeListOrderData.map(([value, name], i) => (
-                  <li
-                    key={value}
-                    className="flex items-center p-1 mr-1 text-sm md:text-base"
-                  >
+                  <li key={value} className="flex items-center p-1 mr-1 text-sm md:text-base">
                     <p
                       key={value}
                       className={`cursor-pointer text-gray-3 ${
@@ -305,10 +253,7 @@ function ChallengeList() {
               </ul>
               <ul className="flex items-center">
                 {challengeListStatusData.map(([value, name], i) => (
-                  <li
-                    key={value}
-                    className="flex items-center p-1 mr-1 text-sm md:text-base"
-                  >
+                  <li key={value} className="flex items-center p-1 mr-1 text-sm md:text-base">
                     <div
                       className={`${
                         statusParam === value ? 'bg-jghd-green' : 'bg-gray-3'
@@ -353,4 +298,43 @@ function ChallengeList() {
   );
 }
 
-export default ChallengeList;
+const challengeListCategoryData = [
+  ['', '전체'],
+  ['VEGAN', '비건'],
+  ['ENVIRONMENT', '환경'],
+  ['ETC', '기타'],
+];
+
+const challengeListOrderData = [
+  ['RECENTLY', '최신순'],
+  ['POPULAR', '인기순'],
+];
+
+const challengeListStatusData = [
+  ['', '전체'],
+  ['BEFORE', '시작전'],
+  ['INPROGRESS', '진행'],
+  ['END', '종료'],
+];
+
+function TagButton({
+  handleChageTagList,
+  tagList,
+  tag,
+}: {
+  handleChageTagList: (value: ChallengeTag) => void;
+  tagList: ChallengeTag[];
+  tag: Tag;
+}) {
+  return (
+    <button
+      onClick={() => handleChageTagList(tag.value)}
+      className={`select-none border border-gray-3 rounded-sm px-2 py-1 text-sm mr-1 mt-1 ${
+        tagList.includes(tag.value) ? 'bg-gray-3 text-white' : 'text-gray-4'
+      }
+    `}
+    >
+      {tag.name}
+    </button>
+  );
+}

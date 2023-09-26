@@ -17,10 +17,7 @@ const CalendarUI = ({
 
   return open ? (
     <div className={className}>
-      <button
-        className="bg-white border border-b-0 border-gray-400 px-1 font-bold"
-        onClick={close}
-      >
+      <button className="bg-white border border-b-0 border-gray-400 px-1 font-bold" onClick={close}>
         ✕
       </button>
       <Calendar

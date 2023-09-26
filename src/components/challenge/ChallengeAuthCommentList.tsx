@@ -1,14 +1,9 @@
-import { useInfiniteQuery } from 'react-query';
 import { useRecoilValue } from 'recoil';
-import { getChallengeAuthCommentList } from '../../modules/challenge/api';
-import { currentUserState } from '../../modules/user/atom';
-import Loading from '../Loading';
+import { useInfiniteQuery } from 'react-query';
 
-const authIsApproveData = {
-  APPROVE: ['승인 완료', 'text-jghd-green'],
-  WAIT: ['승인 대기 중', 'text-jghd-blue'],
-  REFUSE: ['승인 거절', 'text-jghd-red'],
-};
+import Loading from '../Loading';
+import { currentUserState } from '../../modules/user/atom';
+import { getChallengeAuthCommentList } from '../../modules/challenge/api';
 
 function ChallengeAuthCommentList({ id }: { id: string }) {
   const currentUser = useRecoilValue(currentUserState);
@@ -16,24 +11,13 @@ function ChallengeAuthCommentList({ id }: { id: string }) {
   const fetchComments = (page: number) =>
     getChallengeAuthCommentList(currentUser?.accessToken as string, +id, page);
 
-  const {
-    isLoading,
-    data,
-    isFetching,
-    isFetchingNextPage,
-    // error,
-    // fetchNextPage,
-    // hasNextPage,
-    // refetch,
-    // status,
-  } = useInfiniteQuery(
+  const { isLoading, data, isFetching, isFetchingNextPage } = useInfiniteQuery(
     ['ChallengeAuthCommentList', id],
     ({ pageParam = 1 }) => fetchComments(pageParam),
     {
       retry: 2,
       refetchOnWindowFocus: false,
       enabled: Boolean(currentUser),
-      // keepPreviousData: true,
       getNextPageParam: (lastPage, allPages) => {
         const nextPage = allPages.length + 1;
         return lastPage.currentPage < lastPage.totalPage ? nextPage : undefined;
@@ -60,10 +44,7 @@ function ChallengeAuthCommentList({ id }: { id: string }) {
               return (
                 <li key={auth.challengeAuthId} className="flex items-start px-3 py-2">
                   <div className="w-8 h-8 mt-1 mr-2">
-                    <img
-                      src={auth.userProfileImgUrl}
-                      className="w-full h-full rounded-full"
-                    />
+                    <img src={auth.userProfileImgUrl} className="w-full h-full rounded-full" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
@@ -113,3 +94,9 @@ function ChallengeAuthCommentList({ id }: { id: string }) {
 }
 
 export default ChallengeAuthCommentList;
+
+const authIsApproveData = {
+  APPROVE: ['승인 완료', 'text-jghd-green'],
+  WAIT: ['승인 대기 중', 'text-jghd-blue'],
+  REFUSE: ['승인 거절', 'text-jghd-red'],
+};

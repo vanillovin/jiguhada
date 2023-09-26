@@ -3,6 +3,8 @@
 //   length: L;
 // }
 
+import { Category } from '../board/type';
+
 export type AuthFrequency =
   | 'EVERYDAY'
   | 'WEEKDAY'
@@ -127,6 +129,7 @@ export interface CreateChallengeReq {
 }
 
 export interface IChallenge {
+  catecory: CahllengeCategory;
   authFrequency: AuthFrequency;
   achievementRate: number;
   challengeDetails: string;
@@ -157,33 +160,33 @@ export interface IsJoinChallenge {
 }
 
 export interface GetChallenge {
-  achievementRate: number;
-  challengeCategory: string;
-  challengeId: number;
-  challengeTag: ChallengeTag[];
-  challengeTitle: string;
+  achievementRate: number; // 달성률
+  challengeCategory: string; // 카테고리
+  challengeId: number; // 아이디
+  challengeTag: ChallengeTag[]; // 태그
+  challengeTitle: string; // 제목
   // challengeDetails: string;
-  challengeImg: string;
-  challengeAddDetails: string;
-  challengeAddImgs: string;
-  challengeManagerId: number;
+  challengeImg: string; // 이미지
+  challengeAddDetails: string; // 세부사항 추가
+  challengeAddImgs: string; //
+  challengeManagerId: number; //
   challengeManagerName: string;
   challengeManagerImgUrl: string;
-  participantsCount: number;
-  currrentParticipantsCount: number;
-  authMethodContent: string;
-  authMethodImgUrl: string;
-  authMethodFailImgUrl: string;
-  challengeStartDate: string;
-  challengePeroid: string;
-  challengeEndDate: string;
-  authFrequency: string;
-  authCountPerDay: 1;
-  authAvailableTimeType: string;
-  authAvailableStartTime: string;
-  authAvailableEndTime: string;
-  isOfficial: boolean;
-  challengeStatus: ChallengeStatus;
+  participantsCount: number; // 참가자 수
+  currrentParticipantsCount: number; // 현재 참가자 수
+  authMethodContent: string; // 인증 내용
+  authMethodImgUrl: string; // 인증 이미지
+  authMethodFailImgUrl: string; // 인증 실패 이미지
+  challengeStartDate: string; // 챌린지 시작 날짜
+  challengePeroid: string; // 기간
+  challengeEndDate: string; // 종료 날짜
+  authFrequency: AuthFrequency; // 인증 빈도
+  authCountPerDay: 1; // 일별 인증 횟수
+  authAvailableTimeType: string; // 인증 가능 시간 유형
+  authAvailableStartTime: string; // 인증 사용 가능 시작 시간
+  authAvailableEndTime: string; // 인증 가능한 종료 시간
+  isOfficial: boolean; // 공식?
+  challengeStatus: ChallengeStatus; // 상태 "BEFORE" | "INPROGRESS" | "END"
 }
 
 export interface IChallengeAuthCommentList {

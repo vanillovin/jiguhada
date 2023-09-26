@@ -1,29 +1,29 @@
 import { useRef } from 'react';
-import { AiFillHeart, AiOutlineComment, AiOutlineHeart } from 'react-icons/ai';
-import { BiDotsHorizontalRounded } from 'react-icons/bi';
-import { FiBookmark } from 'react-icons/fi';
-import { BsBookmarkFill } from 'react-icons/bs';
-import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { marked } from 'marked';
 import { useRecoilValue } from 'recoil';
+import { FiBookmark } from 'react-icons/fi';
+import { BsBookmarkFill } from 'react-icons/bs';
+import { BiDotsHorizontalRounded } from 'react-icons/bi';
+import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
+import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { AiFillHeart, AiOutlineComment, AiOutlineHeart } from 'react-icons/ai';
 
-import { getBoardCatText, getDateText } from '../utils/date';
-import { Category } from '../modules/board/type';
-import { currentUserState } from '../modules/user/atom';
-import useToggle from '../hooks/useToggle';
-import CommentList from '../components/post/CommentList';
-import Error from '../components/Error';
+import useToggle from '../../hooks/useToggle';
+import { Category } from '../../modules/board/type';
+import { getBoardCatText, getDateText } from '../../utils/dateUtils';
+import { currentUserState } from '../../modules/user/atom';
+import Error from '../../components/Error';
+import CommentList from '../../components/post/CommentList';
+import CommentForm from '../../components/post/CommentForm';
 import {
   useCancelLikePost,
   useDeletePost,
   useGetPostLikeInfo,
   useGetPost,
   useLikePost,
-} from '../hooks/queries/post';
-import CommentForm from '../components/post/CommentForm';
+} from '../../hooks/queries/post';
 
-export default function Post() {
+export default function PostPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const postId = Number(id);
@@ -147,9 +147,7 @@ export default function Post() {
             <div className="flex items-center p-3 border-t">
               <div className="flex items-center mr-5 md:mr-7">
                 <button onClick={handleLikeOrCancelLikePost}>
-                  {new Set(like?.likeList.map(({ userId }) => userId)).has(
-                    currentUser?.userid
-                  ) ? (
+                  {new Set(like?.likeList.map(({ userId }) => userId)).has(currentUser?.userid) ? (
                     <AiFillHeart size={22} color="#ed4956" />
                   ) : (
                     <AiOutlineHeart size={22} />
@@ -168,9 +166,7 @@ export default function Post() {
                 <AiOutlineComment size={22} />{' '}
                 <span className="ml-1 text-sm md:text-base">{post?.commentCount}</span>
               </div>
-              <button className="">
-                {true ? <FiBookmark size={22} /> : <BsBookmarkFill />}
-              </button>
+              <button className="">{true ? <FiBookmark size={22} /> : <BsBookmarkFill />}</button>
             </div>
             <CommentForm boardId={postId} goToLogin={goToLogin} />
           </div>

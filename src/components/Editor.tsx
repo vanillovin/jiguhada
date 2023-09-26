@@ -8,7 +8,7 @@ import '@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-sy
 import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 
 import { currentUserState } from '../modules/user/atom';
-import { createBoardRequest, uploadImgRequest } from '../modules/board/api';
+import { createPostRequest, uploadImgRequest } from '../modules/board/api';
 
 export default function Editor() {
   let imgList: string[] = []; // 에디터
@@ -32,13 +32,12 @@ export default function Editor() {
     formData.append('imgFile', blob);
     uploadImgRequest(formData)
       .then((data) => {
-        console.log('onUploadImage data', data);
         imgList.push(data.imgUrl);
         tempImgList.push(data.imgUrl);
         callback(data.imgUrl);
       })
       .catch((err) => {
-        console.log('uploadImgRequest err', err);
+        // console.error(err);
       });
   };
 
@@ -56,10 +55,7 @@ export default function Editor() {
       alert('제목을 입력해 주세요');
       return;
     }
-    if (
-      content === '<p><br></p>' ||
-      content.split('<p>')[1].trim().length < 8
-    ) {
+    if (content === '<p><br></p>' || content.split('<p>')[1].trim().length < 8) {
       alert('내용은 4자 이상 입력해 주세요');
       return;
     }
@@ -71,9 +67,8 @@ export default function Editor() {
       content,
       deletedImgList,
     };
-    createBoardRequest(currentUser?.accessToken as string, newData)
+    createPostRequest(currentUser?.accessToken as string, newData)
       .then((res) => {
-        console.log('createBoardRequest res', res);
         if (!res.errorCode) {
           navigate(`/board/${res.boardId}`);
         } else {

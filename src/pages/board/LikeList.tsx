@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { useNavigate, useParams } from 'react-router-dom';
-import { getPostLikeInfoRequest } from '../../modules/board/api';
 import { useInView } from 'react-intersection-observer';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { LikeInfo } from '../../modules/board/type';
+import { getPostLikeInfoRequest } from '../../modules/board/api';
 
 export default function LikeList() {
   const navigate = useNavigate();
@@ -11,20 +13,19 @@ export default function LikeList() {
     threshold: 0,
   });
 
-  const fetchPostLikeInfo = (page: number) => getPostLikeInfoRequest(Number(id), page);
+  const fetchPostLikeInfo = (page: number): Promise<LikeInfo> => {
+    return getPostLikeInfoRequest(Number(id), page);
+  };
 
-  const { data, fetchNextPage, isFetching, isFetchingNextPage, hasNextPage } =
-    useInfiniteQuery(
-      ['PostLike', id],
-      ({ pageParam = 0 }) => fetchPostLikeInfo(pageParam),
-      {
-        getNextPageParam: (lastPage, allPages) => {
-          return lastPage.currentPage < lastPage.totalPage
-            ? allPages.length + 1
-            : undefined;
-        },
-      }
-    );
+  const { data, fetchNextPage, isFetching, isFetchingNextPage, hasNextPage } = useInfiniteQuery(
+    ['PostLike', id],
+    ({ pageParam = 0 }) => fetchPostLikeInfo(pageParam),
+    {
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.currentPage < lastPage.totalPage ? allPages.length + 1 : undefined;
+      },
+    }
+  );
 
   useEffect(() => {
     document.body.style.cssText = `

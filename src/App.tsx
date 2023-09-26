@@ -1,46 +1,46 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
-import Register from './pages/Register';
-import Home from './pages/Home';
-import NotFound from './pages/NotFound';
 import NavigationBar from './components/NavigationBar';
-import UserInfo from './pages/UserInfo';
-import Board from './pages/Board';
-import Settings from './components/userinfo/Settings';
-import Post from './pages/Post';
-import EditPost from './pages/EditPost';
-import WritePost from './pages/WritePost';
-import Comments from './components/userinfo/Comments';
-import Posts from './components/userinfo/Posts';
-import LikeList from './components/post/LikeList';
-import ChallengeList from './pages/ChallengeList';
-import CreateChallenge from './pages/CreateChallenge';
-import Challenge from './pages/Challenge';
+import HomePage from './pages/home/HomePage';
+import RegisterPage from './pages/register/RegisterPage';
+import BoardPage from './pages/board/BoardPage';
+import PostPage from './pages/board/PostPage';
+import LikeList from './pages/board/LikeList';
+import EditPostPage from './pages/board/EditPostPage';
+import WritePostPage from './pages/board/WritePostPage';
+import UserInfoPage from './pages/user/UserInfoPage';
+import Settings from './pages/user/Settings';
+import ChallengePage from './pages/challenge/ChallengePage';
+import ChallengeDetailPage from './pages/challenge/ChallengeDetailPage';
+import CreateChallengePage from './pages/challenge/CreateChallengePage';
+import NotFoundPage from './pages/NotFoundPage';
+import CreatedPosts from './pages/user/CreatedPosts';
+import CreatedComments from './pages/user/CreatedComments';
 
 function App() {
   return (
     <BrowserRouter>
       <NavigationBar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/board" element={<Board />} />
-        <Route path="/board/:id" element={<Post />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/board" element={<BoardPage />} />
+        <Route path="/board/:id" element={<PostPage />}>
           <Route path="likes" element={<LikeList />} />
         </Route>
-        <Route path="/board/:id/edit" element={<EditPost />} />
-        <Route path="/board/new" element={<WritePost />} />
-        <Route path="/user/:id" element={<UserInfo />}>
+        <Route path="/board/:id/edit" element={<EditPostPage />} />
+        <Route path="/board/new" element={<WritePostPage />} />
+        <Route path="/user/:id" element={<UserInfoPage />}>
           <Route path="settings" element={<Settings />} />
-          <Route path="comments" element={<Comments />} />
-          <Route path="posts" element={<Posts />} />
+          <Route path="comments" element={<CreatedComments />} />
+          <Route path="posts" element={<CreatedPosts />} />
         </Route>
-        <Route path="/challenge" element={<ChallengeList />} />
-        <Route path="/challenge/:id" element={<Challenge />} />
-        <Route path="/challenge/new" element={<CreateChallenge />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="/challenge" element={<ChallengePage />} />
+        <Route path="/challenge/:id" element={<ChallengeDetailPage />} />
+        <Route path="/challenge/new" element={<CreateChallengePage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <ToastContainer

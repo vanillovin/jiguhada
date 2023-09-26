@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useRecoilState } from 'recoil';
+
 import useInput from '../../hooks/useInput';
 import {
   checkDuplicateIdRequest,
@@ -9,7 +10,7 @@ import {
   signupRequest,
 } from '../../modules/user/api';
 import { currentUserState } from '../../modules/user/atom';
-import { defaultProfileImage } from '../../pages/Register';
+import { defaultProfileImage } from '../../pages/register/RegisterPage';
 
 interface SignupInputs {
   [key: string]: { value: string; error: string };
@@ -40,15 +41,10 @@ function SignUp({
   });
   const { id, nickname, pw, pwCheck, profileImage } = signupInputs;
   const { value: duplicateCheckedId, setValue: setDuplicateCheckedId } = useInput('');
-  const { value: duplicateCheckedNickname, setValue: setDuplicateCheckedNickname } =
-    useInput('');
+  const { value: duplicateCheckedNickname, setValue: setDuplicateCheckedNickname } = useInput('');
   const { value: fileDataUrl, setValue: setFileDataUrl } = useInput('');
 
-  const setSignupInputsValueOrError = (
-    type: 'value' | 'error',
-    id: string,
-    text: string
-  ) => {
+  const setSignupInputsValueOrError = (type: 'value' | 'error', id: string, text: string) => {
     setSignupInputs((prev) => ({
       ...prev,
       [id]: {
@@ -60,19 +56,13 @@ function SignUp({
 
   const checkDuplicateId = () => {
     if (!/^[a-z]+[a-z0-9]{3,16}$/g.test(id.value)) {
-      setSignupInputsValueOrError(
-        'error',
-        'id',
-        '영문자로 시작하는 영문자 또는 숫자 4~15자'
-      );
+      setSignupInputsValueOrError('error', 'id', '영문자로 시작하는 영문자 또는 숫자 4~15자');
       return;
     }
     checkDuplicateIdRequest(id.value).then((data) => {
       setDuplicateCheckedId(!data ? id.value : '');
       setSignupInputsValueOrError('error', 'id', '');
-      !data
-        ? toast.success('사용 가능한 아이디입니다')
-        : toast.error('중복된 아이디입니다');
+      !data ? toast.success('사용 가능한 아이디입니다') : toast.error('중복된 아이디입니다');
     });
   };
 
@@ -84,9 +74,7 @@ function SignUp({
     checkDuplicateNicknameRequest(nickname.value).then((data) => {
       setDuplicateCheckedNickname(!data ? nickname.value : '');
       setSignupInputsValueOrError('error', 'nickname', '');
-      !data
-        ? toast.success('사용 가능한 닉네임입니다')
-        : toast.error('중복된 닉네임입니다');
+      !data ? toast.success('사용 가능한 닉네임입니다') : toast.error('중복된 닉네임입니다');
     });
   };
 
@@ -138,7 +126,6 @@ function SignUp({
         goToHome();
       })
       .catch((err) => {
-        console.log('signup error', err);
         const [code, message] = err.message.split('-');
         toast.error(message);
       });
@@ -156,11 +143,7 @@ function SignUp({
       })
       .catch((e) => {
         console.log('imageUpload error', e);
-        setSignupInputsValueOrError(
-          'error',
-          'profileImage',
-          '프로필 사진 업로드를 실패했습니다'
-        );
+        setSignupInputsValueOrError('error', 'profileImage', '프로필 사진 업로드를 실패했습니다');
       });
 
     const fileReader = new FileReader();
@@ -171,7 +154,7 @@ function SignUp({
   };
 
   return (
-    <form onSubmit={handleSignUp}>
+    <form onSubmit={handleSignUp} className="">
       {signupInputsData.map(([id, type, title, placeholder]) => (
         <div key={id} className="flex flex-col items-start">
           {id !== 'pwCheck' && (
@@ -182,10 +165,7 @@ function SignUp({
           )}
           {id === 'profileImage' && fileDataUrl && (
             <div className="flex items-center">
-              <img
-                className="border border-gray-2 w-20 h-20 rounded-full"
-                src={fileDataUrl}
-              />
+              <img className="border border-gray-2 w-20 h-20 rounded-full" src={fileDataUrl} />
               {fileDataUrl && (
                 <button
                   className="ml-2"
@@ -229,8 +209,7 @@ function SignUp({
                 <button
                   type="button"
                   className={`ml-2 w-24 text-sm rounded-lg py-1 text-white ${
-                    (duplicateCheckedId &&
-                      duplicateCheckedId === signupInputs[id].value) ||
+                    (duplicateCheckedId && duplicateCheckedId === signupInputs[id].value) ||
                     (duplicateCheckedNickname &&
                       duplicateCheckedNickname === signupInputs[id].value)
                       ? 'bg-jghd-green'
@@ -279,11 +258,7 @@ function SignUp({
       <div className="hr-lines-con">
         <span className="hr-lines">또는</span>
       </div>
-      <button
-        type="submit"
-        onClick={() => {}}
-        className="w-full bg-yellow-300 text-white py-2"
-      >
+      <button type="submit" onClick={() => {}} className="w-full bg-yellow-300 text-white py-2">
         카카오로 가입하기
       </button>
       <div className="mt-6 text-center">

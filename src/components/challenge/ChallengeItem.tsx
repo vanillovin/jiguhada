@@ -1,13 +1,14 @@
+import { Link } from 'react-router-dom';
 import { BsPersonFill } from 'react-icons/bs';
-import { useNavigate } from 'react-router-dom';
+
 import {
   challengeAuthFrequencyNames,
   challengeListTagsNameObj,
   challengePeroidNames,
   getChallengeDefaultImgUrl,
 } from '../../modules/challenge/data';
-import { Challenge, ChallengeTag } from '../../modules/challenge/type';
 import ChallengeDdayCount from './ChallengeDdayCount';
+import { IChallenge, ChallengeTag } from '../../modules/challenge/type';
 
 function test(sdate: string) {
   const [y, m, d] = sdate.split('T')[0].split('-');
@@ -18,15 +19,12 @@ function test(sdate: string) {
   return result;
 }
 
-function ChallengeItem({ c }: { c: Challenge }) {
-  const navigate = useNavigate();
-
+function ChallengeItem({ challenge }: { challenge: IChallenge }) {
   return (
-    <li
-      key={c.challengeId}
-      onClick={() => navigate(`/challenge/${c.challengeId}`)}
+    <Link
+      to={`/challenge/${challenge.challengeId}`}
       className={`border rounded-sm p-4 sm:p-3 md:p-2 w-full cursor-pointer ${
-        c.challengeStatus !== 'BEFORE' || test(c.challengeStartDate) < 0
+        challenge.challengeStatus !== 'BEFORE' || test(challenge.challengeStartDate) < 0
           ? 'opacity-60'
           : ''
       }`}
@@ -35,9 +33,9 @@ function ChallengeItem({ c }: { c: Challenge }) {
         <img
           className={`rounded-sm w-full sm:h-48 md:max-h-44`}
           src={
-            c.challengeImgUrl === 'imgUrl' || c.challengeImgUrl === ''
+            challenge.challengeImgUrl === 'imgUrl' || challenge.challengeImgUrl === ''
               ? getChallengeDefaultImgUrl('ETC')
-              : c.challengeImgUrl
+              : challenge.challengeImgUrl
           }
         />
         <div
@@ -45,39 +43,39 @@ function ChallengeItem({ c }: { c: Challenge }) {
           py-1 px-2 rounded-sm text-white text-sm"
         >
           <BsPersonFill size={14} />
-          {c.currentParticipantsCount}명
+          {challenge.currentParticipantsCount}명
         </div>
-        {test(c.challengeStartDate) === 1 && (
-          <ChallengeDdayCount challengeStartDate={c.challengeStartDate} />
+        {test(challenge.challengeStartDate) === 1 && (
+          <ChallengeDdayCount challengeStartDate={challenge.challengeStartDate} />
         )}
       </div>
       <div className="p-1 mt-1">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold">{c.challengeTitle}</h2>
+          <h2 className="font-semibold">{challenge.challengeTitle}</h2>
           <p className="text-sm">
             {
-              // (test(c.challengeStartDate) > 0
-              //   ? `D-${test(c.challengeStartDate)}`
+              // (test(challenge.challengeStartDate) > 0
+              //   ? `D-${test(challenge.challengeStartDate)}`
               // : '진행 중') ||
-              (c.challengeStatus === 'BEFORE' && '시작 전') ||
-                (c.challengeStatus === 'INPROGRESS' && '진행 중') ||
-                (c.challengeStatus === 'END' && '종료')
+              (challenge.challengeStatus === 'BEFORE' && '시작 전') ||
+                (challenge.challengeStatus === 'INPROGRESS' && '진행 중') ||
+                (challenge.challengeStatus === 'END' && '종료')
             }
           </p>
         </div>
         <ul className="flex text-sm flex-wrap mt-1">
           <li className="mr-1 font-medium">
-            #{challengeAuthFrequencyNames[c.authFrequency]}
+            #{challengeAuthFrequencyNames[challenge.authFrequency]}
           </li>
-          <li className="mr-1 font-medium">#{challengePeroidNames[c.challengePeroid]}</li>
-          {c.challengeTagList.map((t: ChallengeTag) => (
+          <li className="mr-1 font-medium">#{challengePeroidNames[challenge.challengePeroid]}</li>
+          {challenge.challengeTagList.map((t: ChallengeTag) => (
             <li key={t} className="mr-1 font-medium">
               #{challengeListTagsNameObj[t]}
             </li>
           ))}
         </ul>
       </div>
-    </li>
+    </Link>
   );
 }
 

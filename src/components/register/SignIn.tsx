@@ -16,7 +16,6 @@ const signInputsData = [
 
 function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
   const [currentUser, setCurrentUser] = useRecoilState(currentUserState);
-  // const { value: loading, setValue: setLoading } = useInput<boolean>(false);
   const [signInInputs, setSignInInputs] = useState({
     id: '',
     pw: '',
@@ -37,15 +36,11 @@ function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
     event.preventDefault();
     loginRequest({ username: id, password: pw })
       .then((data) => {
-        // console.log(data); // { accessToken, accessTokenExpiredDate, nickname, userImgUrl, userid, username }
         toast.success('로그인이 완료됐습니다');
         setCurrentUser(data);
         goToPrevOrHome();
       })
       .catch((err) => {
-        // console.log('login err', err);
-        // if (errorCode === 'NOT_EXITS_ID') { }
-        // if (errorCode === 'ID_PASSWORD_NOTMATCH') { }
         const [code, message] = err.message.split('-');
         toast.error(message);
       });
@@ -53,7 +48,7 @@ function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
 
   return (
     <form onSubmit={handleSignIn}>
-      <div className="flex flex-col items-start w-full">
+      <div className="flex flex-col items-start w-full shadow-sm">
         {signInputsData.map(([id, title, placeholder]) => (
           <div key={id} className="flex flex-col items-start w-full">
             <label htmlFor={id} className="block mt-3 mb-1">
@@ -67,7 +62,7 @@ function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
               onChange={onChangeSignInInputs}
               placeholder={placeholder}
               disabled={id === 'profileImage'}
-              className={`w-full border-b mb-1 outline-none px-1 py-2 placeholder-gray-300 placeholder:text-sm bg-transparent`}
+              className={`focus:border-black w-full border-b mb-1 outline-none px-1 py-2 placeholder-gray-300 placeholder:text-sm bg-transparent`}
             />
           </div>
         ))}
@@ -82,17 +77,13 @@ function SignIn({ goToPrevOrHome, setIsRegistered }: SignInProps) {
       <div className="hr-lines-con">
         <span className="hr-lines">또는</span>
       </div>
-      <button
-        type="submit"
-        onClick={() => {}}
-        className="w-full bg-yellow-300 text-white py-2"
-      >
+      <button type="submit" onClick={() => {}} className="w-full bg-yellow-300 text-white py-2">
         카카오로 로그인
       </button>
       <div className="mt-6 text-center">
         아직 회원이 아니신가요?{' '}
         <button
-          className="text-jghd-green font-bold"
+          className="hover:underline text-jghd-green font-bold"
           onClick={() => setIsRegistered(false)}
         >
           회원가입

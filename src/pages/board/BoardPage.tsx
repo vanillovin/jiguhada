@@ -1,37 +1,23 @@
-import { useQuery } from 'react-query';
-import { getBoardList } from '../modules/board/api';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Category, Order, Search } from '../modules/board/type';
-import BoardItem from '../components/board/BoardItem';
-import PageList from '../components/PageList';
 import React from 'react';
 import { useRecoilValue } from 'recoil';
-import { currentUserState } from '../modules/user/atom';
-import Loading from '../components/Loading';
+import { useQuery } from 'react-query';
 import { AiOutlineComment, AiOutlineEye, AiOutlineLike } from 'react-icons/ai';
+
 import {
   changeSearchParams,
   ChangeSearchParamsParam,
   clearSearchParams,
   ClearSearchParamsParam,
-} from '../utils/url';
+} from '../../utils/urlUtils';
+import Loading from '../../components/Loading';
+import PageList from '../../components/PageList';
+import { getBoardList } from '../../modules/board/api';
+import BoardItem from '../../components/board/BoardItem';
+import { currentUserState } from '../../modules/user/atom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Category, Order, Search } from '../../modules/board/type';
 
-const categoryData = [
-  ['', '전체'],
-  ['VEGAN', '비건'],
-  ['ENVIRONMENT', '환경'],
-  ['QUESTION', 'Q&A'],
-  ['FREE', '자유게시판'],
-];
-
-const orderData = [
-  ['RECENT', '최신순'],
-  ['POPULAR', '인기순'],
-  ['COMMENT_COUNT', '댓글순'],
-  ['VIEW', '조회순'],
-];
-
-function Board() {
+export default function BoardPage() {
   const location = useLocation();
   const navigate = useNavigate();
   let urlSearchParams = new URLSearchParams(location.search);
@@ -136,9 +122,7 @@ function Board() {
     <section className="w-full max-w-6xl px-5 md:px-10">
       <div className="bg-gray-2 text-start p-3 md:p-6">
         <h1 className="font-bold text-xl md:text-2xl">이야기를 나눠요</h1>
-        <p className="text-sm md:text-base">
-          카테고리의 성격에 맞는 게시글을 작성해주세요 {':>'}
-        </p>
+        <p className="text-sm md:text-base">카테고리의 성격에 맞는 게시글을 작성해주세요 {':>'}</p>
       </div>
 
       <div className="flex flex-col md:flex-row mt-5">
@@ -176,11 +160,7 @@ function Board() {
               maxLength={20}
             />
             {queryParam && (
-              <button
-                type="button"
-                onClick={handleCancleSearch}
-                className="bg-red-200 w-24 mr-2"
-              >
+              <button type="button" onClick={handleCancleSearch} className="bg-red-200 w-24 mr-2">
                 취소
               </button>
             )}
@@ -192,10 +172,7 @@ function Board() {
           <div className="w-full flex items-center justify-between mt-2 mb-6">
             <ul className="flex items-center">
               {orderData.map(([value, name], i) => (
-                <li
-                  key={value}
-                  className="flex items-center p-1 mr-1 text-sm md:text-base"
-                >
+                <li key={value} className="flex items-center p-1 mr-1 text-sm md:text-base">
                   <div
                     className={`w-1 h-1 rounded-full mr-1 ${
                       orderParam === value ? 'bg-jghd-blue' : 'bg-gray-3'
@@ -231,27 +208,15 @@ function Board() {
               <p className="w-2/12 text-center">작성일</p>
               <p className="w-1/12 text-center">
                 <span className="hidden md:block">댓글수</span>
-                <AiOutlineComment
-                  className="w-full block md:hidden"
-                  color="#6BCB77"
-                  size={15}
-                />
+                <AiOutlineComment className="w-full block md:hidden" color="#6BCB77" size={15} />
               </p>
               <p className="w-1/12 text-center">
                 <span className="hidden md:block">조회수</span>
-                <AiOutlineEye
-                  className="w-full block md:hidden"
-                  color="#ff8787"
-                  size={15}
-                />
+                <AiOutlineEye className="w-full block md:hidden" color="#ff8787" size={15} />
               </p>
               <p className="w-1/12 text-center">
                 <span className="hidden md:block">좋아요</span>
-                <AiOutlineLike
-                  className="w-full block md:hidden"
-                  color="#4D96FF"
-                  size={15}
-                />
+                <AiOutlineLike className="w-full block md:hidden" color="#4D96FF" size={15} />
               </p>
             </li>
             {!isLoading ? (
@@ -262,8 +227,7 @@ function Board() {
                     board={board}
                     categoryParam={categoryParam}
                     isLastBoard={
-                      board ===
-                      boardList.boardItemList[boardList.boardItemList.length - 1]
+                      board === boardList.boardItemList[boardList.boardItemList.length - 1]
                     }
                   />
                 ))
@@ -288,4 +252,17 @@ function Board() {
   );
 }
 
-export default Board;
+const categoryData = [
+  ['', '전체'],
+  ['VEGAN', '비건'],
+  ['ENVIRONMENT', '환경'],
+  ['QUESTION', 'Q&A'],
+  ['FREE', '자유게시판'],
+];
+
+const orderData = [
+  ['RECENT', '최신순'],
+  ['POPULAR', '인기순'],
+  ['COMMENT_COUNT', '댓글순'],
+  ['VIEW', '조회순'],
+];

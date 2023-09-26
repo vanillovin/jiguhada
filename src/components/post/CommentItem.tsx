@@ -7,12 +7,13 @@ import {
   RefetchOptions,
   RefetchQueryFilters,
 } from 'react-query';
+
 import useInput from '../../hooks/useInput';
 import useToggle from '../../hooks/useToggle';
-import { deleteCommentRequest, updatePostCommentRequest } from '../../modules/board/api';
-import { Comment, ICommentList } from '../../modules/board/type';
+import { getDateText } from '../../utils/dateUtils';
 import { ICurrentUser } from '../../modules/user/type';
-import { getDateText } from '../../utils/date';
+import { Comment, ICommentList } from '../../modules/board/type';
+import { deleteCommentRequest, updatePostCommentRequest } from '../../modules/board/api';
 
 interface CommentProps {
   comment: Comment;
@@ -24,14 +25,10 @@ interface CommentProps {
 }
 
 export default function CommentItem({ comment, currentUser, refetch }: CommentProps) {
-  const toggleRef = useRef() as React.RefObject<HTMLDivElement>;
-  const { toggle, onToggleChange } = useToggle(toggleRef);
   const [edit, setEdit] = useState(false);
-  const {
-    value: content,
-    onChangeValue,
-    onClearValue,
-  } = useInput(comment.commentContent);
+  const { toggle, onToggleChange } = useToggle(toggleRef);
+  const toggleRef = useRef() as React.RefObject<HTMLDivElement>;
+  const { value: content, onChangeValue } = useInput(comment.commentContent);
 
   const handleDeleteComment = () => {
     if (!currentUser) {

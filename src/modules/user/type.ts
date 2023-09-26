@@ -4,7 +4,7 @@ export interface ICurrentUser {
   nickname: string;
   userImgUrl: string;
   userid: number;
-  username: number;
+  username: string;
 }
 
 export interface SignupData {

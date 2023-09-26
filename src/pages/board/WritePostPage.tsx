@@ -1,76 +1,46 @@
+import { toast } from 'react-toastify';
+import React, { useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue, useResetRecoilState } from 'recoil';
-import React, { useEffect, useRef, useState } from 'react';
 import '@toast-ui/editor/dist/i18n/ko-kr';
-import { Editor as ToastEditor } from '@toast-ui/react-editor';
 import 'tui-color-picker/dist/tui-color-picker.css';
-import '@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-syntax.css';
+import { Editor as ToastEditor } from '@toast-ui/react-editor';
 import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
+import '@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-syntax.css';
 
-import { currentUserState } from '../modules/user/atom';
-import {
-  getPrevPostDataRequest,
-  updatePostRequest,
-  uploadImgRequest,
-} from '../modules/board/api';
-import { Img } from '../modules/board/type';
+import { currentUserState } from '../../modules/user/atom';
+import { createPostRequest, uploadImgRequest } from '../../modules/board/api';
 
 interface LocationState {
   data: {
-    boardId: number;
+    category: string;
     title: string;
-    boardCategory: string;
     content: string;
-    contentImgList: Img[];
-    tempImgList: Img[];
+    contentImgList: string[];
+    tempImgList: string[];
   };
 }
 
-export default function EditPost() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const locationState = location.state as LocationState;
-  const boardId = Number(location.pathname.split('/')[2]);
-
-  let tempImgList: Img[] = locationState?.data?.tempImgList || [];
-  let contentImgList: Img[] = locationState?.data?.contentImgList || [];
+export default function WritePostPage() {
   const editorRef = useRef<ToastEditor>(null);
   const currentUser = useRecoilValue(currentUserState);
   const resetUser = useResetRecoilState(currentUserState);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as LocationState;
+  let contentImgList: string[] = locationState?.data.contentImgList || []; // 에디터
+  let tempImgList: string[] = locationState?.data.tempImgList || []; // 전부
 
   useEffect(() => {
-    if (currentUser?.accessToken) {
-      getPrevPostDataRequest(
-        currentUser?.accessToken as string,
-        boardId // || editData.boardId
-      )
-        .then((res) => {
-          console.log('getPrevBoardDataRequest res', res);
-          if (res.error) return navigate(-1);
-          if (res.errorCode === 'EXPIRE_ACCESS_TOKEN') {
-            alert(res.message);
-            navigate('/register', {
-              state: { prevPath: location.pathname },
-            });
-            return;
-          }
-          // setEditData(res);
-          contentImgList = res.imgList;
-          tempImgList = res.imgList;
-          editorRef.current?.getInstance().setHTML(res.content);
-        })
-        .catch((err) => {
-          console.log('getPrevBoardDataRequest err', err);
-        });
-    } else {
-      alert('수정 권한이 없습니다');
+    if (!currentUser?.accessToken) {
+      alert('쓰기 권한이 없습니다');
       navigate(-1);
     }
   }, [currentUser]);
 
   const onChange = () => {
     const data = editorRef.current?.getInstance().getHTML();
-    contentImgList = tempImgList.filter(({ imgUrl }) => data?.includes(imgUrl));
+    contentImgList = tempImgList.filter((img) => data?.includes(img));
   };
 
   const onUploadImage = async (blob: Blob, callback: any) => {
@@ -82,9 +52,9 @@ export default function EditPost() {
     formData.append('imgFile', blob);
     uploadImgRequest(formData)
       .then((data) => {
-        // console.log('onUploadImage data', data);
-        contentImgList.push({ imgId: 0, imgUrl: data.imgUrl });
-        tempImgList.push({ imgId: 0, imgUrl: data.imgUrl });
+        console.log('onUploadImage data', data);
+        contentImgList.push(data.imgUrl);
+        tempImgList.push(data.imgUrl);
         callback(data.imgUrl);
       })
       .catch((err) => {
@@ -94,13 +64,16 @@ export default function EditPost() {
 
   const handleCreateBoard = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!currentUser) {
+      return;
+    }
     const formData = new FormData(e.currentTarget);
     // const data = Object.fromEntries(formData);
     const instance = editorRef.current?.getInstance();
+    const category = formData.get('category') as string;
+    const title = formData.get('title') as string;
     const content = instance?.getHTML() as string;
-    const boardCategory = formData.get('boardCategory');
-    const title = formData.get('title');
-    if (!boardCategory) {
+    if (!category) {
       alert('카테고리를 선택해 주세요');
       return;
     }
@@ -112,36 +85,40 @@ export default function EditPost() {
       alert('내용은 4자 이상 입력해 주세요');
       return;
     }
-    const boardImg = tempImgList.filter(({ imgUrl }) => content?.includes(imgUrl));
-    const boardImgUrls = boardImg.map(({ imgUrl }) => imgUrl);
-    const deleteImg = tempImgList.filter(({ imgUrl }) => !boardImgUrls.includes(imgUrl));
+    const imgList = tempImgList.filter((img) => content?.includes(img));
+    const deletedImgList = tempImgList.filter((img) => !imgList.includes(img));
     const data = {
-      boardCategory,
+      category,
       title,
-      boardId,
+      imgList,
       content,
-      boardImg,
-      deleteImg,
+      deletedImgList,
     };
-    updatePostRequest(currentUser?.accessToken as string, data)
+    createPostRequest(currentUser.accessToken, data)
       .then((res) => {
-        console.log('EditPost updateBoardRequest res', res);
-        const errorCode = res.errorCode || '';
-        if (!errorCode) {
-          navigate(`/board/${res.boardId}`);
-        } else {
-          alert(res.message);
-          if (errorCode === 'EXPIRE_ACCESS_TOKEN') {
-            resetUser(); // 토큰 만료
-            navigate('/register', {
-              state: { path: location.pathname, data },
-            });
-          }
-          // else if (errorCode === '') {}
-        }
+        toast.success('게시글 작성 완료 👌');
+        navigate(`/board/${res.boardId}`);
       })
       .catch((err) => {
-        console.log('updateBoardRequest err', err);
+        const [code, message] = err.message.split('-'); // EXPIRE_ACCESS_TOKEN-만료된 토큰입니다. 다시 로그인해주세
+        if (code === 'EXPIRE_ACCESS_TOKEN') {
+          toast(message, {
+            // closeButton: false,
+            onClose: () => {
+              if (window.confirm('로그인하시겠습니까?')) {
+                resetUser(); // 로그아웃
+                // 작성중인게시글데이터보관
+                navigate('/register', {
+                  state: { path: '/board/new', data },
+                });
+              } else {
+                navigate(-1);
+              }
+            },
+          });
+        } else {
+          toast.error(message);
+        }
       });
   };
 
@@ -149,8 +126,8 @@ export default function EditPost() {
     <form onSubmit={handleCreateBoard} className="w-screen max-w-4xl p-4">
       <div className="flex w-full text-start border-b border-gray-300 mb-4">
         <select
-          name="boardCategory"
-          defaultValue={locationState?.data?.boardCategory || ''}
+          name="category"
+          defaultValue={locationState?.data.category || ''}
           className="outline-none p-2"
         >
           <option value="">카테고리 선택</option>
@@ -160,14 +137,14 @@ export default function EditPost() {
           <option value="FREE">자유게시판</option>
         </select>
         <input
-          defaultValue={locationState?.data?.title || ''}
+          defaultValue={locationState?.data.title || ''}
           name="title"
           className="outline-none p-2 flex-grow"
           placeholder="글 제목을 입력해 주세요"
         />
       </div>
       <ToastEditor
-        initialValue={locationState?.data?.content || ''}
+        initialValue={locationState?.data.content || ''}
         ref={editorRef}
         useCommandShortcut={true}
         placeholder="내용을 입력해 주세요!"

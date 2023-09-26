@@ -1,25 +1,22 @@
+import { useRecoilValue } from 'recoil';
+import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { BiCalendar, BiCamera } from 'react-icons/bi';
-import { useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import { createChallengeRequest, imageUploadRequest } from '../modules/challenge/api';
+
+import { createChallengeRequest, imageUploadRequest } from '../../modules/challenge/api';
 import {
   getChallengeDefaultImgUrl,
   tagsData,
   authFrequencyData,
   challengePeroidData,
   categoryData,
-} from '../modules/challenge/data';
-import {
-  AuthFrequency,
-  CahllengeCategory,
-  ChallengePeroid,
-} from '../modules/challenge/type';
-import { getChallengeEndDate, getChallengeStartDate } from '../modules/challenge/utils';
-import { currentUserState } from '../modules/user/atom';
-import { getDay, getToday } from '../utils/date';
+} from '../../modules/challenge/data';
+import { AuthFrequency, CahllengeCategory, ChallengePeroid } from '../../modules/challenge/type';
+import { getChallengeEndDate, getChallengeStartDate } from '../../modules/challenge/utils';
+import { currentUserState } from '../../modules/user/atom';
+import { getDay, getToday } from '../../utils/dateUtils';
 
-export default function CreateChallenge() {
+export default function CreateChallengePage() {
   const navigate = useNavigate();
   const currentUser = useRecoilValue(currentUserState);
   const [inputs, setInputs] = useState({
@@ -233,9 +230,7 @@ export default function CreateChallenge() {
           )}
           <div className="mt-1 flex items-center justify-between">
             {title && title.length < 3 && (
-              <p className="text-xs md:text-sm text-red-600 ml-1">
-                최소 3글자 이상 입력해주세요.
-              </p>
+              <p className="text-xs md:text-sm text-red-600 ml-1">최소 3글자 이상 입력해주세요.</p>
             )}
             <p className="text-xs md:text-sm text-gray-4 grow-1 text-end flex-1 justify-self-end">
               {title.length}/30
@@ -305,14 +300,10 @@ export default function CreateChallenge() {
                   <button
                     type="button"
                     key={i}
-                    onClick={() =>
-                      handleChangeStartDate(`${year}.${month}.${date}.${day}`)
-                    }
+                    onClick={() => handleChangeStartDate(`${year}.${month}.${date}.${day}`)}
                     className={`border border-gray-4 rounded-full px-2 py-1 mt-2 mr-1 text-sm
                     ${
-                      `${year}.${month}.${date}.${day}` === startDate
-                        ? 'bg-black text-white'
-                        : ''
+                      `${year}.${month}.${date}.${day}` === startDate ? 'bg-black text-white' : ''
                     }`}
                   >
                     {`${month + 1}. ${date} (${getToday(day)})`}
@@ -326,11 +317,9 @@ export default function CreateChallenge() {
         {authFrequency && challengePeroid && startDate && (
           <div className="flex items-center bg-gray-2 rounded-md py-3 px-4 font-semibold mt-6">
             <BiCalendar className="mr-2" size={22} />
-            {`${+sYear || +eYear > 2022 ? `${sYear}. ` : ''} ${
-              +sMonth + 1
-            }. ${sDate} (${getToday(+sDay)}) ~ ${+eYear > 2022 ? `${eYear}. ` : ''}${
-              +eMonth + 1
-            }. ${+eDate} (${eToday})`}
+            {`${+sYear || +eYear > 2022 ? `${sYear}. ` : ''} ${+sMonth + 1}. ${sDate} (${getToday(
+              +sDay
+            )}) ~ ${+eYear > 2022 ? `${eYear}. ` : ''}${+eMonth + 1}. ${+eDate} (${eToday})`}
           </div>
         )}
 
@@ -355,9 +344,7 @@ export default function CreateChallenge() {
           />
           <div className="flex items-center justify-between">
             {authMethodContent && authMethodContent.length < 14 && (
-              <p className="text-xs md:text-sm text-red-600 ml-1">
-                최소 14글자 이상 입력해주세요.
-              </p>
+              <p className="text-xs md:text-sm text-red-600 ml-1">최소 14글자 이상 입력해주세요.</p>
             )}
             <p className="text-xs md:text-sm text-gray-4 grow-1 text-end flex-1 justify-self-end">
               {authMethodContent.length}/400
