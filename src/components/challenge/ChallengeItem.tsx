@@ -10,7 +10,7 @@ import {
 import ChallengeDdayCount from './ChallengeDdayCount';
 import { IChallenge, ChallengeTag } from '../../modules/challenge/type';
 
-function test(sdate: string) {
+function calculateDday(sdate: string) {
   const [y, m, d] = sdate.split('T')[0].split('-');
   let today = new Date().getTime();
   let dday = new Date(+y, +m - 1, +d).getTime();
@@ -24,7 +24,7 @@ function ChallengeItem({ challenge }: { challenge: IChallenge }) {
     <Link
       to={`/challenge/${challenge.challengeId}`}
       className={`border rounded-sm p-4 sm:p-3 md:p-2 w-full cursor-pointer ${
-        challenge.challengeStatus !== 'BEFORE' || test(challenge.challengeStartDate) < 0
+        challenge.challengeStatus !== 'BEFORE' || calculateDday(challenge.challengeStartDate) < 0
           ? 'opacity-60'
           : ''
       }`}
@@ -45,7 +45,7 @@ function ChallengeItem({ challenge }: { challenge: IChallenge }) {
           <BsPersonFill size={14} />
           {challenge.currentParticipantsCount}명
         </div>
-        {test(challenge.challengeStartDate) === 1 && (
+        {calculateDday(challenge.challengeStartDate) === 1 && (
           <ChallengeDdayCount challengeStartDate={challenge.challengeStartDate} />
         )}
       </div>
@@ -53,14 +53,9 @@ function ChallengeItem({ challenge }: { challenge: IChallenge }) {
         <div className="flex items-center justify-between">
           <h2 className="font-semibold">{challenge.challengeTitle}</h2>
           <p className="text-sm">
-            {
-              // (test(challenge.challengeStartDate) > 0
-              //   ? `D-${test(challenge.challengeStartDate)}`
-              // : '진행 중') ||
-              (challenge.challengeStatus === 'BEFORE' && '시작 전') ||
-                (challenge.challengeStatus === 'INPROGRESS' && '진행 중') ||
-                (challenge.challengeStatus === 'END' && '종료')
-            }
+            {(challenge.challengeStatus === 'BEFORE' && '시작 전') ||
+              (challenge.challengeStatus === 'INPROGRESS' && '진행 중') ||
+              (challenge.challengeStatus === 'END' && '종료')}
           </p>
         </div>
         <ul className="flex text-sm flex-wrap mt-1">

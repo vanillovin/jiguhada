@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 
-import { Order } from '../../modules/board/type';
+import type { Order } from '../../modules/board/type';
 import { getBoardList } from '../../modules/board/api';
 import { displayedAt, getBoardCatText } from '../../utils/dateUtils';
 

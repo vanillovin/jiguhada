@@ -60,9 +60,9 @@ export interface GetChallengeListParams {
   queryParam: string;
   pageParam: number | string;
   orderParam: string;
-  categoryParam: string;
+  categoryParam: CahllengeCategory;
   searchTypeParam: string;
-  statusParam: string;
+  statusParam: ChallengeStatus;
   tagListParam: ChallengeTag[];
 }
 

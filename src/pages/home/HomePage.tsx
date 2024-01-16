@@ -2,8 +2,11 @@ import { Link } from 'react-router-dom';
 
 import HomeBoardList from '../../components/home/HomeBoardList';
 import ChallengeItem from '../../components/challenge/ChallengeItem';
+import { getChallengeList } from '../../modules/challenge/api';
 
 export default function HomePage() {
+  const challengeList = getChallengeList();
+
   return (
     <main className="w-full max-w-6xl px-5 md:px-10 ">
       <section className="">
@@ -50,8 +53,8 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2">
-            {[].slice(0, 4).map((item, idx) => (
-              <ChallengeItem key={idx} c={item} />
+            {challengeList.slice(0, 4).map((item, idx) => (
+              <ChallengeItem key={idx} challenge={item} />
               // <div key={idx} className="flex flex-col p-2 border border-gray-300 rounded-sm">
               //   <img className="" src={item.challengeImgUrl} />
               //   <p className=''>{item.challengeTitle}</p>
